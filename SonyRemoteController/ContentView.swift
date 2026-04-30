@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    let state: RemotePageState
+    let viewModel: RemotePageViewModel
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        RemotePageView(state: state, viewModel: viewModel)
     }
 }
 
 #Preview {
-    ContentView()
+    let state = RemotePageState()
+    let viewModel = AppEnvironment.makeRemotePageViewModel(state: state)
+    ContentView(state: state, viewModel: viewModel)
 }
