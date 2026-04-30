@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2B0000012FA4000000000001 /* SonyRemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0000102FA4000000000001 /* SonyRemoteCore */; };
+		2B0000022FA4000000000001 /* SonyRemoteNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0000112FA4000000000001 /* SonyRemoteNetworking */; };
+		2B0000032FA4000000000001 /* SonyRemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0000102FA4000000000001 /* SonyRemoteCore */; };
+		2B0000042FA4000000000001 /* SonyRemoteNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0000112FA4000000000001 /* SonyRemoteNetworking */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2B476F942FA331D60003AC16 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B0000012FA4000000000001 /* SonyRemoteCore in Frameworks */,
+				2B0000022FA4000000000001 /* SonyRemoteNetworking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B0000032FA4000000000001 /* SonyRemoteCore in Frameworks */,
+				2B0000042FA4000000000001 /* SonyRemoteNetworking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +123,8 @@
 			);
 			name = SonyRemoteController;
 			packageProductDependencies = (
+				2B0000102FA4000000000001 /* SonyRemoteCore */,
+				2B0000112FA4000000000001 /* SonyRemoteNetworking */,
 			);
 			productName = SonyRemoteController;
 			productReference = 2B476F862FA331D40003AC16 /* SonyRemoteController.app */;
@@ -135,6 +148,8 @@
 			);
 			name = SonyRemoteControllerTests;
 			packageProductDependencies = (
+				2B0000102FA4000000000001 /* SonyRemoteCore */,
+				2B0000112FA4000000000001 /* SonyRemoteNetworking */,
 			);
 			productName = SonyRemoteControllerTests;
 			productReference = 2B476F932FA331D60003AC16 /* SonyRemoteControllerTests.xctest */;
@@ -195,6 +210,9 @@
 			);
 			mainGroup = 2B476F7D2FA331D40003AC16;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2B0000202FA4000000000001 /* XCLocalSwiftPackageReference "Packages/SonyRemoteModules" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2B476F872FA331D40003AC16 /* Products */;
 			projectDirPath = "";
@@ -322,7 +340,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -380,7 +398,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -395,16 +413,22 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LSBVPJ7WRY;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = B5F76NGFF7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSAppTransportSecurity = "{NSAllowsLocalNetworking = YES;}";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SonyRemoteController needs local network access to connect to your BRAVIA TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -412,6 +436,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Cosign iOS with * (HTKGUBUZGL)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -427,16 +453,22 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LSBVPJ7WRY;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = B5F76NGFF7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSAppTransportSecurity = "{NSAllowsLocalNetworking = YES;}";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SonyRemoteController needs local network access to connect to your BRAVIA TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -444,6 +476,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Cosign iOS with * (HTKGUBUZGL)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -462,7 +496,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -484,7 +518,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -578,6 +612,26 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2B0000202FA4000000000001 /* XCLocalSwiftPackageReference "Packages/SonyRemoteModules" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SonyRemoteModules;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2B0000102FA4000000000001 /* SonyRemoteCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B0000202FA4000000000001 /* XCLocalSwiftPackageReference "Packages/SonyRemoteModules" */;
+			productName = SonyRemoteCore;
+		};
+		2B0000112FA4000000000001 /* SonyRemoteNetworking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B0000202FA4000000000001 /* XCLocalSwiftPackageReference "Packages/SonyRemoteModules" */;
+			productName = SonyRemoteNetworking;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2B476F7E2FA331D40003AC16 /* Project object */;
 }

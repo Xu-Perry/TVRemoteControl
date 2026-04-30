@@ -1,0 +1,10 @@
+.DS_Store
+DerivedData/
+
+# Swift Package Manager build output
+.build/
+Packages/*/.build/
+Packages/*/.swiftpm/xcode/xcuserdata/
+
+# Local agent/worktree metadata
+.claude/

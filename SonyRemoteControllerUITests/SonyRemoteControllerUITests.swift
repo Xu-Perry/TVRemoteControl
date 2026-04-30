@@ -24,11 +24,56 @@ final class SonyRemoteControllerUITests: XCTestCase {
 
     @MainActor
     func testExample() throws {
-        // UI tests must launch the application that they test.
         let app = XCUIApplication()
+        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssertTrue(app.buttons["connectBraviaButton"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["tvSettingsButton"].exists)
+    }
+
+    @MainActor
+    func testSettingsFormCanConnectAndSaveWithMocks() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
+        app.launch()
+
+        app.buttons["connectBraviaButton"].tap()
+        XCTAssertTrue(app.textFields["ipAddressField"].waitForExistence(timeout: 3))
+
+        app.textFields["tvNameField"].tap()
+        app.textFields["tvNameField"].typeText("Living Room")
+        app.textFields["ipAddressField"].tap()
+        app.textFields["ipAddressField"].typeText("192.168.1.2")
+        app.secureTextFields["pskField"].tap()
+        app.secureTextFields["pskField"].typeText("1234")
+
+        app.buttons["testConnectionButton"].tap()
+        XCTAssertTrue(app.staticTexts["Connection succeeded."].waitForExistence(timeout: 3))
+        app.buttons["saveDeviceButton"].tap()
+
+        XCTAssertTrue(app.buttons["remoteCommand_Confirm"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["remoteCommand_Confirm"].isEnabled)
+    }
+
+    @MainActor
+    func testMockConnectionFailureShowsLayeredError() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
+        app.launchEnvironment["SONY_REMOTE_MOCK_CONNECTION_FAILURE"] = "1"
+        app.launch()
+
+        app.buttons["connectBraviaButton"].tap()
+        XCTAssertTrue(app.textFields["ipAddressField"].waitForExistence(timeout: 3))
+
+        app.textFields["ipAddressField"].tap()
+        app.textFields["ipAddressField"].typeText("192.168.1.2")
+        app.secureTextFields["pskField"].tap()
+        app.secureTextFields["pskField"].typeText("bad")
+
+        app.buttons["testConnectionButton"].tap()
+
+        XCTAssertTrue(app.staticTexts["Authentication Failed"].waitForExistence(timeout: 3))
     }
 
     @MainActor

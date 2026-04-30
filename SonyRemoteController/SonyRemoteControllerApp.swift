@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct SonyRemoteControllerApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    @State private var state: RemotePageState
+    @State private var viewModel: RemotePageViewModel
+
+    init() {
+        let state = RemotePageState()
+        _state = State(initialValue: state)
+        _viewModel = State(initialValue: AppEnvironment.makeRemotePageViewModel(state: state))
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(state: state, viewModel: viewModel)
         }
     }
 }
