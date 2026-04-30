@@ -161,8 +161,8 @@ private struct RemotePadView: View {
             }
             .frame(width: 68, height: 68)
         }
-        .buttonStyle(RemoteCircleButtonStyle(isEnabled: state.isEnabled && !state.isSendingCommand))
-        .disabled(!state.isEnabled || state.isSendingCommand)
+        .buttonStyle(RemoteCircleButtonStyle(isEnabled: state.isEnabled))
+        .disabled(!state.isEnabled)
         .accessibilityLabel(command.accessibilityLabel)
         .accessibilityIdentifier("remoteCommand_\(command.rawValue)")
     }
@@ -198,10 +198,10 @@ private struct UtilityControlsView: View {
                 .frame(width: 72, height: 56)
         }
         .buttonStyle(RemoteCapsuleButtonStyle(
-            isEnabled: state.isEnabled && !state.isSendingCommand,
+            isEnabled: state.isEnabled,
             tint: command == .power ? .red : .accentColor
         ))
-        .disabled(!state.isEnabled || state.isSendingCommand)
+        .disabled(!state.isEnabled)
         .accessibilityLabel(command.accessibilityLabel)
         .accessibilityIdentifier("remoteCommand_\(command.rawValue)")
     }

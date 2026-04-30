@@ -48,6 +48,15 @@ Send each command once and confirm the TV responds:
 - Mute.
 - Power.
 
+Then repeatedly tap several directional and utility commands for at least 10
+seconds and confirm:
+
+- The whole Remote Page does not flash, redraw, or visually reset.
+- The connection header remains stable and continues to show `Connected`.
+- The remote pad and utility controls do not jump, disappear, or change disabled
+  styling while commands are in flight.
+- Button press feedback remains local to the tapped control.
+
 ## Failure Checks
 
 Run these checks only after the happy path works:
@@ -56,6 +65,8 @@ Run these checks only after the happy path works:
 2. Enter a valid IP with an incorrect PSK and confirm the app shows
    `Authentication Failed`.
 3. Turn off or disconnect the TV and confirm the app shows a reachability error.
+4. If a command failure can be triggered while the app still considers the TV
+   connected, confirm the error banner appears without a full-page visual reset.
 
 ## Security Checks
 

@@ -1,5 +1,7 @@
 .DS_Store
 DerivedData/
+*.swiftpm
+xcuserdata/
 
 # Swift Package Manager build output
 .build/
@@ -8,3 +10,9 @@ Packages/*/.swiftpm/xcode/xcuserdata/
 
 # Local agent/worktree metadata
 .claude/
+
+# Local editor and OS files
+*.tmp
+*.swp
+.vscode/
+.idea/

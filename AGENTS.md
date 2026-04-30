@@ -132,5 +132,6 @@ clear.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+[specs/001-remote-command-actions-cause-visible-full-view-flicker/plan.md](specs/001-remote-command-actions-cause-visible-full-view-flicker/plan.md)
 <!-- SPECKIT END -->
