@@ -7,67 +7,28 @@ based modularization.
 ## Project Direction
 
 - Build the product as a real app first, not as a demo screen collection.
-- Prefer SwiftUI-native flows and state management.
-- Use the Observation framework for UI `State`. Do not introduce
-  Combine-based `ObservableObject` / `@Published` patterns unless a dependency
-  explicitly requires them.
-- Keep networking, device discovery, protocol parsing, and UI presentation in
-  separate layers.
-- Use Swift Package Manager for feature and domain modules once a boundary is
-  stable enough to justify extraction.
+- Use SwiftUI, Observation, MVVM, and Swift Package Manager.
+- Keep constitution rules in [.specify/memory/constitution.md](.specify/memory/constitution.md).
+- Keep implementation details in the docs linked below.
 
 ## Architecture
 
-Detailed architecture rules live in
-[docs/AppArchitecture.md](docs/AppArchitecture.md). Follow that document as the
-source of truth for the SwiftUI + Observation + MVVM pattern in this project.
-UI and interaction rules live in [docs/AppDesign.md](docs/AppDesign.md). Follow
-that document before local visual preference when implementing app screens.
+Use [docs/AppArchitecture.md](docs/AppArchitecture.md) as the implementation
+guide for SwiftUI + Observation + MVVM. It defines the concrete responsibilities
+for `View`, `State`, `ViewModel`, services, repositories, child view models, and
+SPM module extraction.
 
-Use MVVM with these responsibilities:
-
-- `View`: SwiftUI layout, user interactions, navigation presentation, and view
-  composition only.
-- `State`: observable UI state and display data only. It should not contain
-  business logic or side effects.
-- `ViewModel`: user-intent handling, async task orchestration, validation, side
-  effects, and mutation of `State`.
-- `Model` / domain types: Sony device entities, remote commands, connection
-  state, request/response payloads, and pure business rules.
-- `Service` / client types: network transport, SSDP/discovery, device APIs,
-  persistence, and system integrations.
-
-State objects should be annotated with `@Observable` and should usually be
-`@MainActor` when they drive UI state. View models that mutate UI state should
-also be main-actor isolated.
-
-Views should read `State` and call `ViewModel` intent methods. They should not
-mutate shared `State` directly. Page-level view models own child view models and
-coordinate communication between child components.
-
-Prefer dependency injection through initializers. Avoid global mutable singletons
-for services unless they wrap a true process-wide system resource and expose a
-testable protocol.
+Use [docs/AppDesign.md](docs/AppDesign.md) as the source of truth for UI and
+interaction behavior before local visual preference.
 
 ## Suggested Module Boundaries
 
-Start simple in the app target. When code grows, extract SPM packages along
-clear ownership boundaries, for example:
+Start in the app target unless [docs/AppArchitecture.md](docs/AppArchitecture.md)
+identifies a stable package boundary. Existing local packages are under
+`Packages/SonyRemoteModules`.
 
-- `SonyRemoteCore`: domain models, commands, device capabilities, shared errors.
-- `SonyRemoteNetworking`: HTTP/JSON-RPC transport, discovery, request signing or
-  pairing APIs if needed.
-- `SonyRemotePersistence`: saved devices, preferences, credentials or tokens.
-- `SonyRemoteFeatures`: feature-level SwiftUI screens and view models, if the
-  app target becomes too large.
-- `SonyRemoteDesign`: reusable controls, symbols, spacing, colors, and haptics.
-
-Package targets should avoid importing the app target. Lower-level packages
-should not depend on feature UI packages.
-
-Open source SDK candidates and dependency intake rules are tracked in
-[docs/OpenSourceSDKs.md](docs/OpenSourceSDKs.md). Do not add a third-party
-package without updating that document with the decision and rationale.
+Dependency intake is tracked in [docs/OpenSourceSDKs.md](docs/OpenSourceSDKs.md).
+Do not add a third-party package without updating that document.
 
 ## File Organization
 
@@ -86,7 +47,6 @@ Shared infrastructure can live under names like `Networking`, `Discovery`,
 `Persistence`, `DesignSystem`, and `TestingSupport`.
 
 Keep file names aligned with the primary type they contain.
-
 ## SwiftUI Guidelines
 
 - UI implementation should follow [docs/AppDesign.md](docs/AppDesign.md) before
@@ -102,12 +62,9 @@ Keep file names aligned with the primary type they contain.
 
 ## Observation Guidelines
 
-- Prefer `@Observable` classes for mutable UI state.
-- Mark derived values as computed properties when they can be cheaply derived.
-- Use `@ObservationIgnored` for dependencies, cancellables, clocks, loggers, or
-  other implementation details that should not trigger view updates.
-- Keep async state transitions explicit: loading, loaded, empty, failed,
-  disconnected, pairing, connected, and similar states should be representable.
+Follow the Observation examples in [docs/AppArchitecture.md](docs/AppArchitecture.md).
+Use `@Observable` state objects for mutable UI state and keep async state
+transitions explicit.
 
 ## Concurrency
 
@@ -119,8 +76,8 @@ Keep file names aligned with the primary type they contain.
 
 ## Testing
 
-The project currently uses Swift Testing (`import Testing`). Prefer it for new
-unit tests.
+The project uses Swift Testing (`import Testing`) for unit tests. Prefer it for
+new unit coverage.
 Manual real-device verification steps live in
 [docs/ManualSmokeTest.md](docs/ManualSmokeTest.md).
 
@@ -138,14 +95,7 @@ or integration tests.
 
 ## Commands
 
-Use Xcode or `xcodebuild` for verification. A typical command is:
-
-```sh
-xcodebuild test -scheme SonyRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
-```
-
-If the simulator name is unavailable locally, list destinations first and choose
-an installed iOS simulator.
+Read [README.md](README.md) for build and tests.
 
 ## Coding Style
 
@@ -179,3 +129,8 @@ Before changing behavior:
 When adding a new feature, first decide whether it belongs in the app target or
 an SPM package. Default to the app target until a stable reusable boundary is
 clear.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
