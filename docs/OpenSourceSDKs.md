@@ -16,7 +16,7 @@ For the v1 BRAVIA TV MVP, the expected implementation can use:
 - `URLSession` for BRAVIA REST JSON-RPC and IRCC-IP HTTP requests.
 - `Security` framework for Keychain access.
 - `OSLog` for local diagnostics.
-- `Network.framework` later if automatic discovery or UDP behavior is needed.
+- `Network.framework` for automatic BRAVIA discovery and UDP multicast behavior.
 - Swift Testing for unit tests.
 
 Add a third-party package only when the first implementation proves the native
@@ -199,8 +199,8 @@ Why it may help:
 
 Why not add now:
 
-- V1 does not include automatic discovery.
-- Native `Network.framework` should be evaluated first for UDP and TCP needs.
+- Automatic discovery is now in scope, but native `Network.framework` is the
+  selected first implementation path for UDP needs.
 - License metadata should be verified before adoption.
 
 Adoption rule:

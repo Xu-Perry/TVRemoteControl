@@ -7,46 +7,55 @@ struct RemotePageView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    ConnectionHeaderView(
-                        state: state.connection,
-                        status: state.status,
-                        onSettings: viewModel.openSettings
+            Group {
+                if state.isAutoConnectPresented {
+                    AutoConnectView(
+                        state: state.autoConnect,
+                        viewModel: viewModel.autoConnect
                     )
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            ConnectionHeaderView(
+                                state: state.connection,
+                                status: state.status,
+                                onSettings: viewModel.openSettings
+                            )
 
-                    if let error = state.error {
-                        ErrorBannerView(error: error, onOpenSettings: viewModel.openSettings)
-                    }
+                            if let error = state.error {
+                                ErrorBannerView(error: error, onOpenSettings: viewModel.openSettings)
+                            }
 
-                    if !state.canSendCommands {
-                        Button {
-                            viewModel.openSettings()
-                        } label: {
-                            Label("Connect a BRAVIA TV", systemImage: "tv")
-                                .frame(maxWidth: .infinity)
+                            if !state.canSendCommands {
+                                Button {
+                                    viewModel.openSettings()
+                                } label: {
+                                    Label("Connect a BRAVIA TV", systemImage: "tv")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .accessibilityIdentifier("connectBraviaButton")
+                            }
+
+                            RemotePadView(
+                                state: state.remotePad,
+                                viewModel: viewModel.remotePad
+                            )
+
+                            UtilityControlsView(
+                                state: state.remotePad,
+                                viewModel: viewModel.remotePad
+                            )
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                        .accessibilityIdentifier("connectBraviaButton")
+                        .padding()
+                        .frame(maxWidth: 480)
+                        .frame(maxWidth: .infinity)
                     }
-
-                    RemotePadView(
-                        state: state.remotePad,
-                        viewModel: viewModel.remotePad
-                    )
-
-                    UtilityControlsView(
-                        state: state.remotePad,
-                        viewModel: viewModel.remotePad
-                    )
+                    .navigationTitle("Sony Remote")
+                    .navigationBarTitleDisplayMode(.inline)
                 }
-                .padding()
-                .frame(maxWidth: 480)
-                .frame(maxWidth: .infinity)
             }
-            .navigationTitle("Sony Remote")
-            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: Binding(
                 get: { state.isSettingsPresented },
                 set: { if !$0 { viewModel.closeSettings() } }

@@ -7,7 +7,25 @@
 		<key>SonyRemoteController.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>2B476F852FA331D40003AC16</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2B476F922FA331D60003AC16</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2B476F9C2FA331D60003AC16</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
