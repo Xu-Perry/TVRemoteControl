@@ -9,19 +9,41 @@ Use this checklist when validating the MVP against a real BRAVIA TV.
 - TV-side IP Control is enabled.
 - TV-side Pre-Shared Key authentication is enabled.
 - TV-side Remote Device Control is enabled.
-- You know the TV IP address and PSK.
+- For manual fallback, you know the TV IP address and PSK.
 
 ## Install And Launch
 
 1. Build and run `SonyRemoteController` on an iPhone or simulator that can reach
    the same local network.
-2. Confirm the first screen shows `No TV Connected`.
-3. Confirm remote buttons are disabled.
-4. Confirm `Connect a BRAVIA TV` is visible.
+2. Confirm the first screen shows `连接 BRAVIA 电视`.
+3. Confirm `扫描附近设备` and `手动输入 IP` are visible.
+
+## Automatic Discovery
+
+1. Tap `扫描附近设备`.
+2. Confirm the screen shows `正在扫描附近设备`.
+3. Confirm the scan can be cancelled.
+4. Wait for the BRAVIA TV to appear in the discovered device list.
+5. Select the BRAVIA TV.
+6. Confirm the screen shows `正在连接电视`.
+7. Confirm the screen shows the selected BRAVIA TV is ready.
+8. Tap `进入遥控器`.
+9. Confirm the remote header shows the selected BRAVIA TV as connected.
+
+## Discovery Recovery
+
+Run these checks by temporarily breaking one prerequisite, such as using a
+different Wi-Fi network or turning the TV off:
+
+1. Tap `扫描附近设备`.
+2. Confirm the screen shows `未发现设备`.
+3. Confirm `重新扫描`, `手动输入 IP`, and troubleshooting guidance are visible.
+4. Restore the prerequisite and tap `重新扫描`.
+5. Confirm the BRAVIA TV can appear without restarting the app.
 
 ## Configure TV
 
-1. Tap `Connect a BRAVIA TV`.
+1. Tap `手动输入 IP`.
 2. Enter a TV name.
 3. Enter the TV IP address.
 4. Enter the PSK.

@@ -116,6 +116,10 @@ Read [README.md](README.md) for build and tests.
 - Be careful with `xcuserdata`; only keep changes that are intentionally part of
   the project workflow.
 
+## UI Design
+- Use `figma-use` cli check the ui design of view, follow it.
+- All icons can be find in SF symbols.
+
 ## Agent Workflow
 
 Before changing behavior:
@@ -133,5 +137,5 @@ clear.
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/001-remote-command-actions-cause-visible-full-view-flicker/plan.md](specs/001-remote-command-actions-cause-visible-full-view-flicker/plan.md)
+[specs/002-bravia-device-discovery/plan.md](specs/002-bravia-device-discovery/plan.md)
 <!-- SPECKIT END -->

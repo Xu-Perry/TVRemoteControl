@@ -3,21 +3,22 @@
 This document is the UI and interaction source of truth for v1.
 
 The v1 app is a native, simple, one-handed iPhone remote for BRAVIA TV. It
-supports manual IP + PSK setup, a core TV remote layout, a dedicated settings
-page, and layered connection error guidance.
+supports automatic BRAVIA discovery, manual IP + PSK fallback setup, a core TV
+remote layout, a dedicated settings page, and layered connection error guidance.
 
 ## Product Goals
 
 - Make the first usable version feel like a real remote, not a setup demo.
 - Keep the main screen focused on controlling the TV.
-- Let users manually configure a BRAVIA TV with IP address and Pre-Shared Key.
+- Let users automatically discover a BRAVIA TV on the local network.
+- Let users manually configure a BRAVIA TV with IP address and Pre-Shared Key
+  when discovery is unavailable.
 - Save the PSK securely in Keychain.
 - Explain connection failures well enough for users to fix common TV or network
   setup problems.
 
 ## V1 Non-Goals
 
-- Automatic local network discovery.
 - Multiple device switching.
 - Wake-on-LAN.
 - Input source switching.
@@ -40,6 +41,15 @@ page, and layered connection error guidance.
 The app has two v1 screens.
 
 ```text
+Auto Connect Flow
+  First Launch
+  Scanning
+  Devices Found
+  Connecting
+  Connected Ready
+  No Devices
+  Clear Connection Confirmation
+
 Remote Page
   Connection Header
   Error Banner
@@ -55,6 +65,32 @@ Device Settings Page
   Error Guidance
 ```
 
+### Auto Connect Flow
+
+The auto connect flow is the first screen when no usable TV is configured.
+
+It follows the Figma frames:
+
+- `02A Auto Connect - First Launch`
+- `02B Auto Connect - Scanning`
+- `02C Auto Connect - Devices Found`
+- `02D Auto Connect - Connecting`
+- `02E Auto Connect - Connected`
+- `02F Auto Connect - No Devices`
+- `02G Auto Connect - Clear Confirmation`
+
+The flow contains:
+
+- App title `BRAVIA Controller`.
+- First-launch title `连接 BRAVIA 电视`.
+- Primary action `扫描附近设备`.
+- Secondary action `手动输入 IP`.
+- Scanning title `正在扫描附近设备` with cancel action.
+- Device selection title `选择要连接的电视`.
+- Connecting title `正在连接电视`.
+- Connected ready state with `进入遥控器`.
+- No devices state with retry, manual IP entry, and troubleshooting guidance.
+
 ### Remote Page
 
 The remote page is the first screen and the normal daily-use surface.
@@ -68,8 +104,9 @@ It contains:
 - Utility buttons for Home, Back, Power, Volume Up, Volume Down, and Mute.
 - Connect action when no usable device is configured.
 
-The remote page should not include a marketing hero, onboarding copy, network
-scanner, device list, or diagnostic checklist.
+The remote page should not include a marketing hero or diagnostic checklist.
+Network scanning and device lists belong to the auto connect flow before the
+remote page is ready.
 
 ### Device Settings Page
 
