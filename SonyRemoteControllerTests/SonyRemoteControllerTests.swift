@@ -53,16 +53,74 @@ struct SonyRemoteControllerTests {
 
     @Test func commandFailureShowsErrorBannerState() async {
         let harness = Harness(client: MockBRAVIAClient(sendError: .timeout))
-        harness.state.settings.tvName = "Living Room"
-        harness.state.settings.ipAddress = "192.168.1.2"
-        harness.state.settings.psk = "1234"
-        await harness.viewModel.settings.testConnection()
-        harness.viewModel.saveSettings()
+        await harness.connectSavedDevice()
 
         await harness.viewModel.remotePad.send(.home)
 
         #expect(harness.state.error == .timeout)
         #expect(harness.state.remotePad.lastCommand == nil)
+    }
+
+    @Test func successfulCommandSendKeepsRemotePageStable() async {
+        let harness = Harness()
+        await harness.connectSavedDevice()
+        let stableState = RemotePageSnapshot(state: harness.state)
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(harness.client.sentCommands == [.home])
+        #expect(harness.state.remotePad.lastCommand == .home)
+        #expect(!harness.state.remotePad.isSendingCommand)
+        assertRemotePageStable(stableState, state: harness.state)
+    }
+
+    @Test func repeatedSuccessfulCommandSendsKeepRemotePageStable() async {
+        let harness = Harness()
+        await harness.connectSavedDevice()
+        let stableState = RemotePageSnapshot(state: harness.state)
+
+        await harness.viewModel.remotePad.send(.up)
+        await harness.viewModel.remotePad.send(.down)
+
+        #expect(harness.client.sentCommands == [.up, .down])
+        #expect(harness.state.remotePad.lastCommand == .down)
+        #expect(!harness.state.remotePad.isSendingCommand)
+        assertRemotePageStable(stableState, state: harness.state)
+    }
+
+    @Test func failedCommandSendKeepsConnectedRemotePageStable() async {
+        let harness = Harness(client: MockBRAVIAClient(sendError: .timeout))
+        await harness.connectSavedDevice()
+        let stableState = RemotePageSnapshot(state: harness.state)
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(harness.client.sentCommands == [.home])
+        #expect(harness.state.error == .timeout)
+        #expect(!harness.state.remotePad.isSendingCommand)
+        assertRemotePageStable(stableState, state: harness.state)
+    }
+
+    @Test func failedCommandSendDoesNotReplaceLastSuccessfulCommand() async {
+        let harness = Harness(client: MockBRAVIAClient(sendError: .timeout))
+        await harness.connectSavedDevice()
+        harness.state.remotePad.lastCommand = .up
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(harness.state.remotePad.lastCommand == .up)
+        #expect(harness.state.error == .timeout)
+    }
+
+    @Test func disabledRemoteDoesNotDispatchCommand() async {
+        let harness = Harness()
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(harness.client.sentCommands.isEmpty)
+        #expect(harness.state.error == .missingDevice)
+        #expect(!harness.state.remotePad.isEnabled)
+        #expect(!harness.state.remotePad.isSendingCommand)
     }
 
     @Test func localRepositoryRestoresDeviceAndPSKAcrossInstances() throws {
@@ -141,17 +199,57 @@ struct SonyRemoteControllerTests {
 private final class Harness {
     let state: RemotePageState
     let repository: MockDeviceRepository
+    let client: MockBRAVIAClient
     let viewModel: RemotePageViewModel
 
     init(client: MockBRAVIAClient = MockBRAVIAClient()) {
         self.state = RemotePageState()
         self.repository = MockDeviceRepository()
+        self.client = client
         self.viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
             braviaClient: client
         )
     }
+
+    func connectSavedDevice() async {
+        state.settings.tvName = "Living Room"
+        state.settings.ipAddress = "192.168.1.2"
+        state.settings.psk = "1234"
+        await viewModel.settings.testConnection()
+        viewModel.saveSettings()
+    }
+}
+
+@MainActor
+private struct RemotePageSnapshot {
+    let status: ConnectionStatus
+    let title: String
+    let subtitle: String
+    let savedDevice: SonyDevice?
+    let isSettingsPresented: Bool
+    let isRemoteEnabled: Bool
+
+    init(state: RemotePageState) {
+        self.status = state.status
+        self.title = state.connection.title
+        self.subtitle = state.connection.subtitle
+        self.savedDevice = state.savedDevice
+        self.isSettingsPresented = state.isSettingsPresented
+        self.isRemoteEnabled = state.remotePad.isEnabled
+    }
+}
+
+@MainActor
+private func assertRemotePageStable(_ snapshot: RemotePageSnapshot, state: RemotePageState) {
+    // Command progress must not churn broad page state that drives header/layout identity.
+    #expect(state.status == snapshot.status)
+    #expect(state.connection.title == snapshot.title)
+    #expect(state.connection.subtitle == snapshot.subtitle)
+    #expect(state.savedDevice == snapshot.savedDevice)
+    #expect(state.isSettingsPresented == snapshot.isSettingsPresented)
+    #expect(state.remotePad.isEnabled == snapshot.isRemoteEnabled)
 }
 
 private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable {
@@ -201,9 +299,15 @@ private final class MockSecretStore: SecretStore, @unchecked Sendable {
     }
 }
 
-private struct MockBRAVIAClient: BRAVIAControlling {
+private final class MockBRAVIAClient: BRAVIAControlling, @unchecked Sendable {
     var connectionError: RemoteControlError?
     var sendError: RemoteControlError?
+    private(set) var sentCommands: [RemoteCommand] = []
+
+    init(connectionError: RemoteControlError? = nil, sendError: RemoteControlError? = nil) {
+        self.connectionError = connectionError
+        self.sendError = sendError
+    }
 
     func testConnection(device: SonyDevice, psk: String) async throws {
         if let connectionError {
@@ -212,6 +316,7 @@ private struct MockBRAVIAClient: BRAVIAControlling {
     }
 
     func send(command: RemoteCommand, device: SonyDevice, psk: String) async throws {
+        sentCommands.append(command)
         if let sendError {
             throw sendError
         }

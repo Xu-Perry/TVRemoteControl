@@ -18,6 +18,22 @@
       },
       "registered_skills": [],
       "installed_at": "2026-04-30T11:57:11.711395+00:00"
+    },
+    "github-issues": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:f2687ff9ce0f5119c76f40bb52072d221f32c24c1deb59b78aa2f1a2e7849801",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "codex": [
+          "speckit.github-issues.import",
+          "speckit.github-issues.sync",
+          "speckit.github-issues.link"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-04-30T12:47:25.644226+00:00"
     }
   }
 }
