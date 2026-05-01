@@ -15,46 +15,46 @@ public enum RemoteControlError: Error, Equatable, Sendable {
     public var title: String {
         switch self {
         case .invalidIPAddress:
-            "Invalid IP Address"
+            "IP 地址无效"
         case .missingPSK:
-            "Missing Pre-Shared Key"
+            "缺少预共享密钥"
         case .missingDevice:
-            "No TV Configured"
+            "尚未配置电视"
         case .timeout, .unreachable:
-            "TV Not Reachable"
+            "无法连接电视"
         case .unauthorized:
-            "Authentication Failed"
+            "认证失败"
         case .remoteControlUnavailable:
-            "Remote Control Unavailable"
+            "遥控服务不可用"
         case .invalidResponse:
-            "Unexpected TV Response"
+            "电视响应异常"
         case .keychainFailure:
-            "Secure Storage Failed"
+            "安全存储失败"
         case .unknown:
-            "Unexpected Error"
+            "发生未知错误"
         }
     }
 
     public var recoverySuggestion: String {
         switch self {
         case .invalidIPAddress:
-            "Enter a valid IP address."
+            "请输入有效的 IP 地址。"
         case .missingPSK:
-            "Enter the Pre-Shared Key configured on the TV."
+            "请输入电视上配置的预共享密钥。"
         case .missingDevice:
-            "Add a BRAVIA TV before using the remote."
+            "请先添加一台 BRAVIA 电视。"
         case .timeout, .unreachable:
-            "Check that your iPhone and TV are on the same network and that the TV is awake."
+            "确认 iPhone 和电视在同一网络，且电视已开机。"
         case .unauthorized:
-            "Check the Pre-Shared Key configured on the TV."
+            "请检查电视上配置的预共享密钥。"
         case .remoteControlUnavailable:
-            "Enable IP Control and Remote Device Control on the TV."
+            "请在电视设置中开启 IP 控制和远程设备控制。"
         case .invalidResponse:
-            "The TV did not respond as expected. Try again or check the TV settings."
+            "电视返回内容不符合预期，请重试或检查电视设置。"
         case let .keychainFailure(message):
             message
         case let .unknown(message):
-            message.isEmpty ? "Try again or check the TV settings." : message
+            message.isEmpty ? "请重试或检查电视设置。" : message
         }
     }
 }

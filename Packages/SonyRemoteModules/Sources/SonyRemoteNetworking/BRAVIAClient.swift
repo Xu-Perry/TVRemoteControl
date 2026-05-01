@@ -58,7 +58,9 @@ public extension BRAVIAClient {
         request.httpMethod = "POST"
         request.timeoutInterval = 5
         request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-        request.setValue(psk, forHTTPHeaderField: "X-Auth-PSK")
+        if !psk.isEmpty {
+            request.setValue(psk, forHTTPHeaderField: "X-Auth-PSK")
+        }
         request.httpBody = try encoder.encode(body)
         return request
     }
@@ -73,7 +75,9 @@ public extension BRAVIAClient {
         request.timeoutInterval = 5
         request.setValue("text/xml; charset=UTF-8", forHTTPHeaderField: "Content-Type")
         request.setValue("\"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC\"", forHTTPHeaderField: "SOAPACTION")
-        request.setValue(psk, forHTTPHeaderField: "X-Auth-PSK")
+        if !psk.isEmpty {
+            request.setValue(psk, forHTTPHeaderField: "X-Auth-PSK")
+        }
         request.httpBody = Self.irccSOAPBody(code: irccCode).data(using: .utf8)
         return request
     }

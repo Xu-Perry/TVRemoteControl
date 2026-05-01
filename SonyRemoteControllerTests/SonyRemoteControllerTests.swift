@@ -162,7 +162,8 @@ struct SonyRemoteControllerTests {
         _ = RemotePageViewModel(
             state: state,
             repository: repository,
-            braviaClient: MockBRAVIAClient()
+            braviaClient: MockBRAVIAClient(),
+            discoveryService: EmptyDiscoveryService()
         )
 
         #expect(state.savedDevice?.displayName == "Living Room")
@@ -179,7 +180,8 @@ struct SonyRemoteControllerTests {
         let viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
-            braviaClient: MockBRAVIAClient()
+            braviaClient: MockBRAVIAClient(),
+            discoveryService: EmptyDiscoveryService()
         )
 
         #expect(state.savedDevice?.displayName == "Living Room")
@@ -209,7 +211,8 @@ private final class Harness {
         self.viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
-            braviaClient: client
+            braviaClient: client,
+            discoveryService: EmptyDiscoveryService()
         )
     }
 
@@ -269,7 +272,11 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
     }
 
     func saveDevice(name: String, host: String, psk: String) throws -> SonyDevice {
-        let device = SonyDevice(name: name, host: host, pskKey: "key")
+        try saveDevice(name: name, host: host, port: 80, psk: psk)
+    }
+
+    func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice {
+        let device = SonyDevice(name: name, host: host, port: port, pskKey: "key")
         self.device = device
         self.pskByKey[device.pskKey] = psk
         return device
@@ -280,6 +287,13 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
             throw RemoteControlError.missingPSK
         }
         return psk
+    }
+
+    func deleteDevice() throws {
+        if let device {
+            pskByKey.removeValue(forKey: device.pskKey)
+        }
+        device = nil
     }
 }
 
@@ -319,6 +333,15 @@ private final class MockBRAVIAClient: BRAVIAControlling, @unchecked Sendable {
         sentCommands.append(command)
         if let sendError {
             throw sendError
+        }
+    }
+}
+
+private struct EmptyDiscoveryService: BRAVIADiscoveryServicing {
+    func discover(timeout: TimeInterval) -> AsyncThrowingStream<BRAVIADiscoveryEvent, Error> {
+        AsyncThrowingStream { continuation in
+            continuation.yield(.finished([]))
+            continuation.finish()
         }
     }
 }

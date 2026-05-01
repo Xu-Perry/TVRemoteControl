@@ -7,18 +7,22 @@ final class RemotePageViewModel {
     let state: RemotePageState
     let settings: DeviceSettingsViewModel
     let remotePad: RemotePadViewModel
+    let autoConnect: AutoConnectViewModel
 
     private let repository: DeviceRepository
     private let braviaClient: BRAVIAControlling
+    private let discoveryService: BRAVIADiscoveryServicing
 
     init(
         state: RemotePageState,
         repository: DeviceRepository,
-        braviaClient: BRAVIAControlling
+        braviaClient: BRAVIAControlling,
+        discoveryService: BRAVIADiscoveryServicing
     ) {
         self.state = state
         self.repository = repository
         self.braviaClient = braviaClient
+        self.discoveryService = discoveryService
         self.settings = DeviceSettingsViewModel(
             state: state.settings,
             repository: repository,
@@ -29,6 +33,13 @@ final class RemotePageViewModel {
             pageState: state,
             repository: repository,
             braviaClient: braviaClient
+        )
+        self.autoConnect = AutoConnectViewModel(
+            state: state.autoConnect,
+            pageState: state,
+            repository: repository,
+            braviaClient: braviaClient,
+            discoveryService: discoveryService
         )
         loadSavedDevice()
     }
@@ -56,6 +67,7 @@ final class RemotePageViewModel {
             state.savedDevice = device
             updateStatus(.connected)
             state.isSettingsPresented = false
+            state.isAutoConnectPresented = false
         } catch {
             state.settings.error = RemoteControlError.map(error)
         }
@@ -86,19 +98,27 @@ final class RemotePageViewModel {
             guard let device = try repository.loadDevice() else {
                 state.savedDevice = nil
                 updateStatus(.noDevice)
+                state.isAutoConnectPresented = true
+                autoConnect.showFirstLaunch()
                 return
             }
 
             state.savedDevice = device
+            state.autoConnect.rememberedDevice = device
             do {
                 _ = try repository.readPSK(for: device)
                 updateStatus(.connected)
+                state.isAutoConnectPresented = false
             } catch {
                 updateStatus(.failed(RemoteControlError.map(error)))
+                state.isAutoConnectPresented = true
+                autoConnect.restoreRememberedDevice(device)
             }
         } catch {
             state.savedDevice = nil
             updateStatus(.failed(RemoteControlError.map(error)))
+            state.isAutoConnectPresented = true
+            autoConnect.showFirstLaunch()
         }
     }
 

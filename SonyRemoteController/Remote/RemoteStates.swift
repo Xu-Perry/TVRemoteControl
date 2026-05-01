@@ -8,10 +8,12 @@ final class RemotePageState {
     var connection = ConnectionHeaderState()
     var settings = DeviceSettingsState()
     var remotePad = RemotePadState()
+    var autoConnect = AutoConnectState()
     var savedDevice: SonyDevice?
     var status: ConnectionStatus = .noDevice
     var error: RemoteControlError?
     var isSettingsPresented = false
+    var isAutoConnectPresented = true
 
     var canSendCommands: Bool {
         status.allowsRemoteCommands
