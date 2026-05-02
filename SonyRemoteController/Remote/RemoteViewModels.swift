@@ -11,17 +11,20 @@ final class RemotePageViewModel {
 
     private let repository: DeviceRepository
     private let braviaClient: BRAVIAControlling
+    private let pairingClient: BRAVIAPairing
     private let discoveryService: BRAVIADiscoveryServicing
 
     init(
         state: RemotePageState,
         repository: DeviceRepository,
         braviaClient: BRAVIAControlling,
+        pairingClient: BRAVIAPairing,
         discoveryService: BRAVIADiscoveryServicing
     ) {
         self.state = state
         self.repository = repository
         self.braviaClient = braviaClient
+        self.pairingClient = pairingClient
         self.discoveryService = discoveryService
         self.settings = DeviceSettingsViewModel(
             state: state.settings,
@@ -39,6 +42,7 @@ final class RemotePageViewModel {
             pageState: state,
             repository: repository,
             braviaClient: braviaClient,
+            pairingClient: pairingClient,
             discoveryService: discoveryService
         )
         loadSavedDevice()
@@ -81,8 +85,8 @@ final class RemotePageViewModel {
 
         do {
             updateStatus(.connecting)
-            let psk = try repository.readPSK(for: device)
-            try await braviaClient.testConnection(device: device, psk: psk)
+            let credential = try repository.readCredential(for: device)
+            try await braviaClient.testConnection(device: device, credential: credential)
             updateStatus(.connected)
         } catch {
             updateStatus(.failed(RemoteControlError.map(error)))
@@ -106,7 +110,7 @@ final class RemotePageViewModel {
             state.savedDevice = device
             state.autoConnect.rememberedDevice = device
             do {
-                _ = try repository.readPSK(for: device)
+                _ = try repository.readCredential(for: device)
                 updateStatus(.connected)
                 state.isAutoConnectPresented = false
             } catch {
@@ -168,9 +172,10 @@ final class DeviceSettingsViewModel {
             let device = SonyDevice(
                 name: state.tvName,
                 host: host,
-                pskKey: "test"
+                pskKey: "test",
+                connectionMode: .psk
             )
-            try await braviaClient.testConnection(device: device, psk: psk)
+            try await braviaClient.testConnection(device: device, credential: .psk(psk))
             state.lastTestedHost = host
             state.canSave = true
             state.successMessage = "Connection succeeded."
@@ -185,7 +190,7 @@ final class DeviceSettingsViewModel {
         guard state.canSave, state.lastTestedHost == host else {
             throw RemoteControlError.unreachable
         }
-        return try repository.saveDevice(name: state.tvName, host: host, psk: psk)
+        return try repository.saveDevice(name: state.tvName, host: host, port: 80, psk: psk)
     }
 
     private func validatedHost() throws -> String {
@@ -235,8 +240,8 @@ final class RemotePadViewModel {
             state.isSendingCommand = true
             defer { state.isSendingCommand = false }
 
-            let psk = try repository.readPSK(for: device)
-            try await braviaClient.send(command: command, device: device, psk: psk)
+            let credential = try repository.readCredential(for: device)
+            try await braviaClient.send(command: command, device: device, credential: credential)
             state.lastCommand = command
             pageState.error = nil
         } catch {

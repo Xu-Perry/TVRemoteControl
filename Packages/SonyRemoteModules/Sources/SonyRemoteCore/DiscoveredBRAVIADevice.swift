@@ -55,12 +55,13 @@ public struct DiscoveredBRAVIADevice: Codable, Equatable, Identifiable, Sendable
         return trimmedName.isEmpty ? host : trimmedName
     }
 
-    public func sonyDevice(pskKey: String = "") -> SonyDevice {
+    public func sonyDevice(pskKey: String = "", connectionMode: ConnectionMode = .normalPairing) -> SonyDevice {
         SonyDevice(
             name: displayName,
             host: host,
             port: port,
             pskKey: pskKey,
+            connectionMode: connectionMode,
             lastConnectedAt: nil
         )
     }

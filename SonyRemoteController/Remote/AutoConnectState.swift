@@ -22,6 +22,10 @@ final class AutoConnectState {
     var rememberedDevice: SonyDevice?
     var connectionError: RemoteControlError?
     var isManualEntryPresented = false
+    var isPinSheetPresented = false
+    var pairingPIN: String = ""
+    var pairingSession: PairingSession?
+    var isPairingInProgress: Bool = false
 
     var title: String {
         switch screen {

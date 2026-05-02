@@ -40,3 +40,8 @@ Run the local Swift package tests:
 cd Packages/SonyRemoteModules
 env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test
 ```
+
+
+## API
+
+[Bravia Rest API](https://pro-bravia.sony.net/zhs/remote-display-control/rest-api/)

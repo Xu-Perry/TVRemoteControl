@@ -54,6 +54,7 @@ final class AutoConnectHarness {
             state: state,
             repository: repository,
             braviaClient: client,
+            pairingClient: client,
             discoveryService: discoveryService
         )
     }
@@ -61,12 +62,12 @@ final class AutoConnectHarness {
 
 final class AutoConnectMockDeviceRepository: DeviceRepository, @unchecked Sendable {
     private var device: SonyDevice?
-    private var pskByKey: [String: String] = [:]
+    private var secretByKey: [String: String] = [:]
 
     func stubDevice(_ device: SonyDevice, psk: String? = "") {
         self.device = device
         if let psk {
-            pskByKey[device.pskKey] = psk
+            secretByKey[device.pskKey] = psk
         }
     }
 
@@ -79,43 +80,76 @@ final class AutoConnectMockDeviceRepository: DeviceRepository, @unchecked Sendab
     }
 
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice {
-        let device = SonyDevice(name: name, host: host, port: port, pskKey: "auto-key", lastConnectedAt: Date())
+        try saveDevice(name: name, host: host, port: port, credential: .psk(psk), connectionMode: .psk)
+    }
+
+    func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice {
+        let device = SonyDevice(name: name, host: host, port: port, pskKey: "auto-key", connectionMode: connectionMode, lastConnectedAt: Date())
         self.device = device
-        pskByKey[device.pskKey] = psk
+        secretByKey[device.pskKey] = credential.headerValue
         return device
     }
 
-    func readPSK(for device: SonyDevice) throws -> String {
-        guard let psk = pskByKey[device.pskKey] else {
+    func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
+        guard let value = secretByKey[device.pskKey] else {
             throw RemoteControlError.missingPSK
         }
-        return psk
+        switch device.connectionMode {
+        case .psk:
+            return .psk(value)
+        case .normalPairing:
+            return .cookie(value)
+        }
+    }
+
+    func readPSK(for device: SonyDevice) throws -> String {
+        let credential = try readCredential(for: device)
+        guard case .psk(let value) = credential else {
+            throw RemoteControlError.missingPSK
+        }
+        return value
     }
 
     func deleteDevice() throws {
         if let device {
-            pskByKey.removeValue(forKey: device.pskKey)
+            secretByKey.removeValue(forKey: device.pskKey)
         }
         device = nil
     }
 }
 
-final class AutoConnectMockBRAVIAClient: BRAVIAControlling, @unchecked Sendable {
+final class AutoConnectMockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     let connectionError: RemoteControlError?
     private(set) var testedDevices: [SonyDevice] = []
+    var mockRegistrationID = "mock-reg-1234"
+    var mockAuthCookie = "auth=mock-cookie"
 
     init(connectionError: RemoteControlError? = nil) {
         self.connectionError = connectionError
     }
 
-    func testConnection(device: SonyDevice, psk: String) async throws {
+    func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         testedDevices.append(device)
         if let connectionError {
             throw connectionError
         }
     }
 
-    func send(command: RemoteCommand, device: SonyDevice, psk: String) async throws {
+    func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+    }
+
+    func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
+        if let connectionError {
+            throw connectionError
+        }
+        return mockRegistrationID
+    }
+
+    func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String {
+        return mockAuthCookie
+    }
+
+    func cancelPairing(clientID: String) async {
     }
 }
 

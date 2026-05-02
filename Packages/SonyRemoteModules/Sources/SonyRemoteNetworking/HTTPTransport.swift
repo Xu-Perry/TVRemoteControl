@@ -3,10 +3,12 @@ import Foundation
 public struct HTTPResponse: Sendable {
     public let data: Data
     public let statusCode: Int
+    public let headers: [String: String]
 
-    public init(data: Data, statusCode: Int) {
+    public init(data: Data, statusCode: Int, headers: [String: String] = [:]) {
         self.data = data
         self.statusCode = statusCode
+        self.headers = headers
     }
 }
 
@@ -26,6 +28,11 @@ public struct URLSessionHTTPTransport: HTTPTransport {
         guard let httpResponse = response as? HTTPURLResponse else {
             return HTTPResponse(data: data, statusCode: -1)
         }
-        return HTTPResponse(data: data, statusCode: httpResponse.statusCode)
+        let headers = httpResponse.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+            if let key = pair.key as? String, let value = pair.value as? String {
+                result[key.lowercased()] = value
+            }
+        }
+        return HTTPResponse(data: data, statusCode: httpResponse.statusCode, headers: headers)
     }
 }

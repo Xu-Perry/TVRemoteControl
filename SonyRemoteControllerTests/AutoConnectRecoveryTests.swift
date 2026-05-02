@@ -8,14 +8,14 @@ struct AutoConnectRecoveryTests {
         let harness = AutoConnectHarness(discoveryEvents: [.finished([])])
 
         harness.viewModel.autoConnect.startScan()
-        try await Task.sleep(nanoseconds: 50_000_000)
+        try await waitUntil { harness.state.autoConnect.screen == .noDevices }
 
         #expect(harness.state.autoConnect.screen == .noDevices)
         #expect(harness.state.autoConnect.discoveredDevices.isEmpty)
 
         harness.discoveryService.events = [.finished([.livingRoom])]
         harness.viewModel.autoConnect.startScan()
-        try await Task.sleep(nanoseconds: 50_000_000)
+        try await waitUntil { harness.state.autoConnect.screen == .devicesFound }
 
         #expect(harness.state.autoConnect.screen == .devicesFound)
         #expect(harness.state.autoConnect.discoveredDevices.count == 1)

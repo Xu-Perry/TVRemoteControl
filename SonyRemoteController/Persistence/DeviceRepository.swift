@@ -5,6 +5,8 @@ protocol DeviceRepository: Sendable {
     func loadDevice() throws -> SonyDevice?
     func saveDevice(name: String, host: String, psk: String) throws -> SonyDevice
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice
+    func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice
+    func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential
     func readPSK(for device: SonyDevice) throws -> String
     func deleteDevice() throws
 }
@@ -30,18 +32,23 @@ struct LocalDeviceRepository: DeviceRepository {
     }
 
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice {
+        try saveDevice(name: name, host: host, port: port, credential: .psk(psk), connectionMode: .psk)
+    }
+
+    func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice {
         let normalizedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let pskKey = "bravia-psk-\(UUID().uuidString)"
+        let pskKey = secretKey(connectionMode: connectionMode)
         let displayName = normalizedName.isEmpty ? normalizedHost : normalizedName
         let device = SonyDevice(
             name: displayName,
             host: normalizedHost,
             port: port,
             pskKey: pskKey,
+            connectionMode: connectionMode,
             lastConnectedAt: Date()
         )
-        try secretStore.save(psk, for: pskKey)
+        try secretStore.save(credential.headerValue, for: pskKey)
         do {
             try metadataStore.saveDevice(device)
         } catch {
@@ -51,11 +58,24 @@ struct LocalDeviceRepository: DeviceRepository {
         return device
     }
 
-    func readPSK(for device: SonyDevice) throws -> String {
-        guard let psk = try secretStore.read(for: device.pskKey) else {
+    func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
+        guard let value = try secretStore.read(for: device.pskKey), !value.isEmpty else {
             throw RemoteControlError.missingPSK
         }
-        return psk
+        switch device.connectionMode {
+        case .psk:
+            return .psk(value)
+        case .normalPairing:
+            return .cookie(value)
+        }
+    }
+
+    func readPSK(for device: SonyDevice) throws -> String {
+        let credential = try readCredential(for: device)
+        guard case .psk(let value) = credential else {
+            throw RemoteControlError.missingPSK
+        }
+        return value
     }
 
     func deleteDevice() throws {
@@ -64,5 +84,14 @@ struct LocalDeviceRepository: DeviceRepository {
         }
         try metadataStore.deleteDevice()
         try secretStore.delete(for: device.pskKey)
+    }
+
+    private func secretKey(connectionMode: ConnectionMode) -> String {
+        switch connectionMode {
+        case .psk:
+            return "bravia-psk-\(UUID().uuidString)"
+        case .normalPairing:
+            return "bravia-cookie-\(UUID().uuidString)"
+        }
     }
 }

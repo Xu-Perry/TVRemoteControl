@@ -14,6 +14,7 @@ struct AutoConnectPersistenceTests {
             state: state,
             repository: repository,
             braviaClient: AutoConnectMockBRAVIAClient(),
+            pairingClient: AutoConnectMockBRAVIAClient(),
             discoveryService: AutoConnectFakeDiscoveryService(events: [])
         )
 

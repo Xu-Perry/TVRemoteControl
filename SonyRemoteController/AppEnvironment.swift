@@ -8,17 +8,22 @@ enum AppEnvironment {
         let processInfo = ProcessInfo.processInfo
         let repository: DeviceRepository
         let client: BRAVIAControlling
+        let pairingClient: BRAVIAPairing
         let discoveryService: BRAVIADiscoveryServicing
 
         if processInfo.environment["SONY_REMOTE_USE_MOCKS"] == "1" {
-            repository = InMemoryDeviceRepository()
-            client = MockBRAVIAClient(
+            let mockClient = MockBRAVIAClient(
                 shouldFailConnection: processInfo.environment["SONY_REMOTE_MOCK_CONNECTION_FAILURE"] == "1"
             )
+            repository = InMemoryDeviceRepository()
+            client = mockClient
+            pairingClient = mockClient
             discoveryService = MockBRAVIADiscoveryService()
         } else {
+            let realClient = BRAVIAClient()
             repository = LocalDeviceRepository()
-            client = BRAVIAClient()
+            client = realClient
+            pairingClient = realClient
             discoveryService = BRAVIADiscoveryService()
         }
 
@@ -26,6 +31,7 @@ enum AppEnvironment {
             state: state,
             repository: repository,
             braviaClient: client,
+            pairingClient: pairingClient,
             discoveryService: discoveryService
         )
     }
@@ -33,7 +39,7 @@ enum AppEnvironment {
 
 private final class InMemoryDeviceRepository: DeviceRepository, @unchecked Sendable {
     private var device: SonyDevice?
-    private var pskByKey: [String: String] = [:]
+    private var secretByKey: [String: String] = [:]
 
     func loadDevice() throws -> SonyDevice? {
         device
@@ -44,44 +50,82 @@ private final class InMemoryDeviceRepository: DeviceRepository, @unchecked Senda
     }
 
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice {
+        try saveDevice(name: name, host: host, port: port, credential: .psk(psk), connectionMode: .psk)
+    }
+
+    func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice {
         let pskKey = "mock-\(UUID().uuidString)"
         let savedDevice = SonyDevice(
             name: name.isEmpty ? host : name,
             host: host,
             port: port,
             pskKey: pskKey,
+            connectionMode: connectionMode,
             lastConnectedAt: Date()
         )
         device = savedDevice
-        pskByKey[pskKey] = psk
+        secretByKey[pskKey] = credential.headerValue
         return savedDevice
     }
 
-    func readPSK(for device: SonyDevice) throws -> String {
-        guard let psk = pskByKey[device.pskKey] else {
+    func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
+        guard let value = secretByKey[device.pskKey] else {
             throw RemoteControlError.missingPSK
         }
-        return psk
+        switch device.connectionMode {
+        case .psk:
+            return .psk(value)
+        case .normalPairing:
+            return .cookie(value)
+        }
+    }
+
+    func readPSK(for device: SonyDevice) throws -> String {
+        let credential = try readCredential(for: device)
+        guard case .psk(let value) = credential else {
+            throw RemoteControlError.missingPSK
+        }
+        return value
     }
 
     func deleteDevice() throws {
         if let device {
-            pskByKey.removeValue(forKey: device.pskKey)
+            secretByKey.removeValue(forKey: device.pskKey)
         }
         device = nil
     }
 }
 
-private struct MockBRAVIAClient: BRAVIAControlling {
+private struct MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     let shouldFailConnection: Bool
+    var shouldFailPairing: Bool = false
+    var mockRegistrationID: String = "mock-reg-1234"
+    var mockAuthCookie: String = "auth=mock-cookie-value"
 
-    func testConnection(device: SonyDevice, psk: String) async throws {
+    func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         if shouldFailConnection {
             throw RemoteControlError.unauthorized
         }
     }
 
-    func send(command: RemoteCommand, device: SonyDevice, psk: String) async throws {
+    func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+    }
+
+    func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
+        if shouldFailPairing {
+            throw RemoteControlError.pairingFailed
+        }
+        return mockRegistrationID
+    }
+
+    func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String {
+        if pin == "0000" {
+            throw RemoteControlError.pairingPinInvalid
+        }
+        return mockAuthCookie
+    }
+
+    func cancelPairing(clientID: String) async {
     }
 }
 

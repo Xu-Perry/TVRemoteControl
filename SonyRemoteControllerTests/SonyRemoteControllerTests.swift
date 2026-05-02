@@ -163,6 +163,7 @@ struct SonyRemoteControllerTests {
             state: state,
             repository: repository,
             braviaClient: MockBRAVIAClient(),
+            pairingClient: MockBRAVIAClient(),
             discoveryService: EmptyDiscoveryService()
         )
 
@@ -181,6 +182,7 @@ struct SonyRemoteControllerTests {
             state: state,
             repository: repository,
             braviaClient: MockBRAVIAClient(),
+            pairingClient: MockBRAVIAClient(),
             discoveryService: EmptyDiscoveryService()
         )
 
@@ -212,6 +214,7 @@ private final class Harness {
             state: state,
             repository: repository,
             braviaClient: client,
+            pairingClient: client,
             discoveryService: EmptyDiscoveryService()
         )
     }
@@ -246,7 +249,6 @@ private struct RemotePageSnapshot {
 
 @MainActor
 private func assertRemotePageStable(_ snapshot: RemotePageSnapshot, state: RemotePageState) {
-    // Command progress must not churn broad page state that drives header/layout identity.
     #expect(state.status == snapshot.status)
     #expect(state.connection.title == snapshot.title)
     #expect(state.connection.subtitle == snapshot.subtitle)
@@ -257,13 +259,13 @@ private func assertRemotePageStable(_ snapshot: RemotePageSnapshot, state: Remot
 
 private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable {
     private var device: SonyDevice?
-    private var pskByKey: [String: String] = [:]
+    private var secretByKey: [String: String] = [:]
 
     func stubDevice(psk: String?) {
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
         self.device = device
         if let psk {
-            self.pskByKey[device.pskKey] = psk
+            self.secretByKey[device.pskKey] = psk
         }
     }
 
@@ -276,22 +278,39 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
     }
 
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice {
-        let device = SonyDevice(name: name, host: host, port: port, pskKey: "key")
+        try saveDevice(name: name, host: host, port: port, credential: .psk(psk), connectionMode: .psk)
+    }
+
+    func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice {
+        let device = SonyDevice(name: name, host: host, port: port, pskKey: "key", connectionMode: connectionMode)
         self.device = device
-        self.pskByKey[device.pskKey] = psk
+        secretByKey[device.pskKey] = credential.headerValue
         return device
     }
 
-    func readPSK(for device: SonyDevice) throws -> String {
-        guard let psk = pskByKey[device.pskKey] else {
+    func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
+        guard let value = secretByKey[device.pskKey] else {
             throw RemoteControlError.missingPSK
         }
-        return psk
+        switch device.connectionMode {
+        case .psk:
+            return .psk(value)
+        case .normalPairing:
+            return .cookie(value)
+        }
+    }
+
+    func readPSK(for device: SonyDevice) throws -> String {
+        let credential = try readCredential(for: device)
+        guard case .psk(let value) = credential else {
+            throw RemoteControlError.missingPSK
+        }
+        return value
     }
 
     func deleteDevice() throws {
         if let device {
-            pskByKey.removeValue(forKey: device.pskKey)
+            secretByKey.removeValue(forKey: device.pskKey)
         }
         device = nil
     }
@@ -313,7 +332,7 @@ private final class MockSecretStore: SecretStore, @unchecked Sendable {
     }
 }
 
-private final class MockBRAVIAClient: BRAVIAControlling, @unchecked Sendable {
+private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     var connectionError: RemoteControlError?
     var sendError: RemoteControlError?
     private(set) var sentCommands: [RemoteCommand] = []
@@ -323,17 +342,28 @@ private final class MockBRAVIAClient: BRAVIAControlling, @unchecked Sendable {
         self.sendError = sendError
     }
 
-    func testConnection(device: SonyDevice, psk: String) async throws {
+    func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         if let connectionError {
             throw connectionError
         }
     }
 
-    func send(command: RemoteCommand, device: SonyDevice, psk: String) async throws {
+    func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         sentCommands.append(command)
         if let sendError {
             throw sendError
         }
+    }
+
+    func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
+        return "mock-reg"
+    }
+
+    func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String {
+        return "auth=mock-cookie"
+    }
+
+    func cancelPairing(clientID: String) async {
     }
 }
 

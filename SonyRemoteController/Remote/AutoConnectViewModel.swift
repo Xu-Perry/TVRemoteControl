@@ -9,6 +9,7 @@ final class AutoConnectViewModel {
     private let pageState: RemotePageState
     private let repository: DeviceRepository
     private let braviaClient: BRAVIAControlling
+    private let pairingClient: BRAVIAPairing
     private let discoveryService: BRAVIADiscoveryServicing
     private var scanTask: Task<Void, Never>?
     private var connectionTask: Task<Void, Never>?
@@ -18,12 +19,14 @@ final class AutoConnectViewModel {
         pageState: RemotePageState,
         repository: DeviceRepository,
         braviaClient: BRAVIAControlling,
+        pairingClient: BRAVIAPairing,
         discoveryService: BRAVIADiscoveryServicing
     ) {
         self.state = state
         self.pageState = pageState
         self.repository = repository
         self.braviaClient = braviaClient
+        self.pairingClient = pairingClient
         self.discoveryService = discoveryService
     }
 
@@ -36,6 +39,9 @@ final class AutoConnectViewModel {
         state.selectedDevice = nil
         state.connectionError = nil
         state.isManualEntryPresented = false
+        state.isPinSheetPresented = false
+        state.pairingPIN = ""
+        state.isPairingInProgress = false
     }
 
     func restoreRememberedDevice(_ device: SonyDevice?) {
@@ -122,17 +128,64 @@ final class AutoConnectViewModel {
         state.selectedDevice = device
         state.screen = .connecting
         state.connectionError = nil
+        state.pairingPIN = ""
+        state.pairingSession = PairingSession(deviceName: device.displayName)
 
         connectionTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let transientDevice = device.sonyDevice()
-                try await braviaClient.testConnection(device: transientDevice, psk: "")
+                guard var session = state.pairingSession else { return }
+
+                let registrationID = try await pairingClient.initiatePairing(device: transientDevice, clientID: session.clientID)
+                try Task.checkCancellation()
+
+                session.registrationID = registrationID
+                state.pairingSession = session
+                state.isPinSheetPresented = true
+            } catch is CancellationError {
+                if !state.isPinSheetPresented {
+                    state.screen = .devicesFound
+                }
+            } catch {
+                state.connectionError = RemoteControlError.map(error)
+                state.screen = .devicesFound
+            }
+        }
+    }
+
+    func submitPIN() {
+        guard state.isPinSheetPresented,
+              let device = state.selectedDevice,
+              let session = state.pairingSession,
+              let registrationID = session.registrationID,
+              !state.pairingPIN.isEmpty else { return }
+
+        state.connectionError = nil
+        state.isPairingInProgress = true
+
+        connectionTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let transientDevice = device.sonyDevice()
+                let authCookie = try await pairingClient.confirmPairingPIN(
+                    device: transientDevice,
+                    registrationID: registrationID,
+                    pin: state.pairingPIN,
+                    clientID: session.clientID
+                )
+                try Task.checkCancellation()
+
+                let credential = BRAVIAAuthCredential.cookie(authCookie)
+                try await braviaClient.testConnection(device: transientDevice, credential: credential)
+                try Task.checkCancellation()
+
                 let savedDevice = try repository.saveDevice(
                     name: device.displayName,
                     host: device.host,
                     port: device.port,
-                    psk: ""
+                    credential: credential,
+                    connectionMode: .normalPairing
                 )
                 state.rememberedDevice = savedDevice
                 pageState.savedDevice = savedDevice
@@ -141,19 +194,46 @@ final class AutoConnectViewModel {
                 pageState.connection.subtitle = ConnectionStatus.connected.displayText
                 pageState.remotePad.isEnabled = true
                 pageState.error = nil
+                state.isPinSheetPresented = false
+                state.isPairingInProgress = false
                 state.screen = .connectedReady
             } catch is CancellationError {
-                state.screen = .devicesFound
+                if !state.isPinSheetPresented {
+                    state.screen = .devicesFound
+                }
+                state.isPairingInProgress = false
             } catch {
                 state.connectionError = RemoteControlError.map(error)
-                state.screen = .devicesFound
+                state.isPairingInProgress = false
             }
         }
     }
 
-    func cancelConnection() {
+    func dismissPinSheet() {
+        if let clientID = state.pairingSession?.clientID {
+            Task { [pairingClient] in
+                await pairingClient.cancelPairing(clientID: clientID)
+            }
+        }
         connectionTask?.cancel()
         connectionTask = nil
+        state.isPinSheetPresented = false
+        state.isPairingInProgress = false
+        state.pairingPIN = ""
+        state.screen = state.discoveredDevices.isEmpty ? .firstLaunch : .devicesFound
+    }
+
+    func cancelConnection() {
+        if let clientID = state.pairingSession?.clientID {
+            Task { [pairingClient] in
+                await pairingClient.cancelPairing(clientID: clientID)
+            }
+        }
+        connectionTask?.cancel()
+        connectionTask = nil
+        state.isPinSheetPresented = false
+        state.isPairingInProgress = false
+        state.pairingPIN = ""
         state.screen = state.discoveredDevices.isEmpty ? .firstLaunch : .devicesFound
     }
 

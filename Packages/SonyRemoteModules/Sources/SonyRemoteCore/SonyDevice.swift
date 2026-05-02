@@ -1,11 +1,17 @@
 import Foundation
 
+public enum ConnectionMode: String, Codable, Equatable, Sendable {
+    case psk
+    case normalPairing
+}
+
 public struct SonyDevice: Codable, Equatable, Identifiable, Sendable {
     public let id: UUID
     public var name: String
     public var host: String
     public var port: Int
     public var pskKey: String
+    public var connectionMode: ConnectionMode
     public var lastConnectedAt: Date?
 
     public init(
@@ -14,6 +20,7 @@ public struct SonyDevice: Codable, Equatable, Identifiable, Sendable {
         host: String,
         port: Int = 80,
         pskKey: String,
+        connectionMode: ConnectionMode = .psk,
         lastConnectedAt: Date? = nil
     ) {
         self.id = id
@@ -21,6 +28,7 @@ public struct SonyDevice: Codable, Equatable, Identifiable, Sendable {
         self.host = host
         self.port = port
         self.pskKey = pskKey
+        self.connectionMode = connectionMode
         self.lastConnectedAt = lastConnectedAt
     }
 

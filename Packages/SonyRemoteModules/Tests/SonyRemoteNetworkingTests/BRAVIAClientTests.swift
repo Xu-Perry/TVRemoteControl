@@ -11,7 +11,7 @@ struct BRAVIAClientTests {
         let request = try client.makeJSONRPCRequest(
             device: device,
             service: "system",
-            psk: "1234",
+            credential: .psk("1234"),
             body: TestBody(method: "getPowerStatus")
         )
 
@@ -27,7 +27,7 @@ struct BRAVIAClientTests {
         let client = BRAVIAClient(transport: MockTransport())
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
 
-        let request = try client.makeIRCCRequest(device: device, psk: "1234", irccCode: RemoteCommand.confirm.irccCode)
+        let request = try client.makeIRCCRequest(device: device, credential: .psk("1234"), irccCode: RemoteCommand.confirm.irccCode)
 
         #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/ircc")
         #expect(request.httpMethod == "POST")
@@ -41,8 +41,93 @@ struct BRAVIAClientTests {
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
 
         await #expect(throws: RemoteControlError.unauthorized) {
-            try await client.send(command: .home, device: device, psk: "bad")
+            try await client.send(command: .home, device: device, credential: .psk("bad"))
         }
+    }
+
+    @Test func buildsJSONRPCRequestWithCookieCredential() throws {
+        let client = BRAVIAClient(transport: MockTransport())
+        let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+
+        let request = try client.makeJSONRPCRequest(
+            device: device,
+            service: "system",
+            credential: .cookie("auth=sample-cookie"),
+            body: TestBody(method: "getPowerStatus")
+        )
+
+        #expect(request.value(forHTTPHeaderField: "Cookie") == "auth=sample-cookie")
+        #expect(request.value(forHTTPHeaderField: "X-Auth-PSK") == nil)
+    }
+
+    @Test func pairingRequestHasCorrectJSONRPCStructure() throws {
+        let client = BRAVIAClient(transport: MockTransport())
+        let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+
+        let request = try client.makeJSONRPCRequest(
+            device: device,
+            service: "accessControl",
+            credential: .psk(""),
+            body: TestBody(method: "actRegister")
+        )
+
+        #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/accessControl")
+        #expect(request.httpMethod == "POST")
+        let body = try #require(request.httpBody.flatMap { String(data: $0, encoding: .utf8) })
+        #expect(body.contains("actRegister"))
+    }
+
+    @Test func extractAuthCookieFromSetCookieHeader() async throws {
+        let authCookie = "auth=abc123; Path=/; HttpOnly"
+        let transport = MockTransport(response: HTTPResponse(
+            data: Data("{\"result\":[{\"key\":\"val\"}],\"id\":1}".utf8),
+            statusCode: 200,
+            headers: ["set-cookie": authCookie]
+        ))
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "TV", host: "192.168.1.2", pskKey: "key")
+
+        let cookie = try await client.confirmPairingPIN(
+            device: device,
+            registrationID: "reg-1",
+            pin: "1234",
+            clientID: "test:uuid"
+        )
+
+        #expect(cookie == "auth=abc123")
+        let request = try #require(transport.requests.first)
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Basic OjEyMzQ=")
+    }
+
+    @Test func initiatePairingAcceptsSuccessfulResponseWithoutRegistrationID() async throws {
+        let transport = MockTransport(response: HTTPResponse(
+            data: Data("{\"result\":[{}],\"id\":1}".utf8),
+            statusCode: 200
+        ))
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "TV", host: "192.168.1.2", pskKey: "key")
+
+        let registrationID = try await client.initiatePairing(device: device, clientID: "test:uuid")
+
+        #expect(registrationID == "test:uuid")
+    }
+
+    @Test func initiatePairingTreatsBasicChallengeAsPendingPINEntry() async throws {
+        let transport = MockTransport(response: HTTPResponse(
+            data: Data("{\"error\":[401,\"Unauthorized\"],\"id\":1}".utf8),
+            statusCode: 401,
+            headers: ["www-authenticate": "Basic realm=\"Private Page\""]
+        ))
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "TV", host: "192.168.1.2", pskKey: "key")
+
+        let registrationID = try await client.initiatePairing(device: device, clientID: "test:uuid")
+
+        #expect(registrationID == "test:uuid")
+        let request = try #require(transport.requests.first)
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Basic OjAwMDA=")
+        let body = try #require(request.httpBody.flatMap { String(data: $0, encoding: .utf8) })
+        #expect(body.contains("\"level\":\"private\""))
     }
 }
 
@@ -50,14 +135,16 @@ private struct TestBody: Encodable {
     let method: String
 }
 
-private struct MockTransport: HTTPTransport {
+private final class MockTransport: HTTPTransport, @unchecked Sendable {
     let response: HTTPResponse
+    private(set) var requests: [URLRequest] = []
 
     init(response: HTTPResponse = HTTPResponse(data: Data(), statusCode: 200)) {
         self.response = response
     }
 
     func data(for request: URLRequest) async throws -> HTTPResponse {
-        response
+        requests.append(request)
+        return response
     }
 }

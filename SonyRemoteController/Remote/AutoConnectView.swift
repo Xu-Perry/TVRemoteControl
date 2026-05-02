@@ -46,6 +46,10 @@ struct AutoConnectView: View {
             case .noDevices:
                 noDevicesContent
             }
+
+            if state.isPinSheetPresented {
+                pinSheetOverlay
+            }
         }
         .clipped()
     }
@@ -183,6 +187,123 @@ struct AutoConnectView: View {
 
             primaryButton("进入遥控器", systemImage: nil, action: viewModel.enterRemote)
                 .position(x: 215, y: 839)
+        }
+    }
+
+    private var pinSheetOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {}
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                VStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(AutoConnectDesign.secondaryText.opacity(0.4))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 12)
+                        .padding(.bottom, 20)
+
+                    Text("输入配对码")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(AutoConnectDesign.text)
+                        .padding(.bottom, 8)
+
+                    Text("请输入电视屏幕上显示的 4 位数字")
+                        .font(.system(size: 14))
+                        .foregroundStyle(AutoConnectDesign.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 24)
+
+                    if state.isPairingInProgress {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                            .padding(.bottom, 8)
+                        Text("正在验证配对码...")
+                            .font(.system(size: 14))
+                            .foregroundStyle(AutoConnectDesign.secondaryText)
+                            .padding(.bottom, 24)
+                    } else {
+                        pinInputField
+                            .padding(.bottom, 24)
+                    }
+
+                    if let error = state.connectionError {
+                        Text(error.recoverySuggestion)
+                            .font(.system(size: 13))
+                            .foregroundStyle(AutoConnectDesign.dangerRed)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                            .padding(.bottom, 16)
+                    }
+
+                    if !state.isPairingInProgress {
+                        Button {
+                            viewModel.submitPIN()
+                        } label: {
+                            Text("确认配对")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                        .background(AutoConnectDesign.primaryBlue, in: RoundedRectangle(cornerRadius: 14))
+                        .disabled(state.pairingPIN.isEmpty)
+                        .opacity(state.pairingPIN.isEmpty ? 0.5 : 1)
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, 12)
+                    }
+
+                    Button {
+                        viewModel.dismissPinSheet()
+                    } label: {
+                        Text("取消")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AutoConnectDesign.primaryBlue)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                    }
+                    .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(AutoConnectDesign.border, lineWidth: 1)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 40)
+                }
+                .background(
+                    AutoConnectDesign.surface
+                        .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
+                        .ignoresSafeArea(edges: .bottom)
+                )
+            }
+        }
+        .frame(width: AutoConnectDesign.canvasWidth, height: AutoConnectDesign.canvasHeight)
+    }
+
+    private var pinInputField: some View {
+        TextField("0000", text: Binding(
+            get: { state.pairingPIN },
+            set: { newValue in
+                let filtered = newValue.filter { $0.isNumber }
+                if filtered.count <= 4 {
+                    state.pairingPIN = filtered
+                }
+            }
+        ))
+        .font(.system(size: 40, weight: .bold, design: .monospaced))
+        .foregroundStyle(AutoConnectDesign.text)
+        .multilineTextAlignment(.center)
+        .keyboardType(.numberPad)
+        .frame(width: 200, height: 56)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 14))
+        .overlay {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(AutoConnectDesign.border, lineWidth: 1)
         }
     }
 
@@ -563,6 +684,20 @@ private enum AutoConnectDesign {
     static let secondaryText = Color(red: 0.420, green: 0.447, blue: 0.502)
     static let emptyCircle = Color(red: 0.933, green: 0.949, blue: 0.969)
     static let scanCircle = Color(red: 0.918, green: 0.953, blue: 1)
+}
+
+private struct RoundedCorner: Shape {
+    let radius: CGFloat
+    let corners: UIRectCorner
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
 }
 
 private struct DiagonalBand: View {

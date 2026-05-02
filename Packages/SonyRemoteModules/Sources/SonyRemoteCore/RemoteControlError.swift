@@ -10,6 +10,11 @@ public enum RemoteControlError: Error, Equatable, Sendable {
     case remoteControlUnavailable
     case invalidResponse
     case keychainFailure(String)
+    case pairingFailed
+    case pairingPinInvalid
+    case pairingTimedOut
+    case pairingCancelled
+    case pairingNotSupported
     case unknown(String)
 
     public var title: String {
@@ -30,6 +35,16 @@ public enum RemoteControlError: Error, Equatable, Sendable {
             "电视响应异常"
         case .keychainFailure:
             "安全存储失败"
+        case .pairingFailed:
+            "配对失败"
+        case .pairingPinInvalid:
+            "PIN 码无效"
+        case .pairingTimedOut:
+            "配对超时"
+        case .pairingCancelled:
+            "配对已取消"
+        case .pairingNotSupported:
+            "该电视不支持注册配对"
         case .unknown:
             "发生未知错误"
         }
@@ -53,6 +68,16 @@ public enum RemoteControlError: Error, Equatable, Sendable {
             "电视返回内容不符合预期，请重试或检查电视设置。"
         case let .keychainFailure(message):
             message
+        case .pairingFailed:
+            "电视拒绝了配对请求，请重试或使用预共享密钥手动连接。"
+        case .pairingPinInvalid:
+            "PIN 码错误，请检查电视屏幕上显示的数字后重新输入。"
+        case .pairingTimedOut:
+            "配对超时，请重新发起配对并在电视显示 PIN 码后及时输入。"
+        case .pairingCancelled:
+            "已取消配对。"
+        case .pairingNotSupported:
+            "该电视不支持注册配对模式，请使用预共享密钥手动连接。"
         case let .unknown(message):
             message.isEmpty ? "请重试或检查电视设置。" : message
         }
