@@ -420,6 +420,8 @@
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bravia Controller";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSAppTransportSecurity = "{NSAllowsLocalNetworking = YES;}";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Bravia Controller needs local network access to discover and connect to your BRAVIA TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -432,7 +434,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.braviacontroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -458,6 +460,8 @@
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bravia Controller";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSAppTransportSecurity = "{NSAllowsLocalNetworking = YES;}";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Bravia Controller needs local network access to discover and connect to your BRAVIA TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -470,7 +474,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.braviacontroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

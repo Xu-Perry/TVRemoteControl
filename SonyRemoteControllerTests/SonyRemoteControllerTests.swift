@@ -154,7 +154,7 @@ struct SonyRemoteControllerTests {
         #expect(!rawMetadataText.contains("1234"))
     }
 
-    @Test func restoresPersistedDeviceIntoUsableRemoteState() {
+    @Test func restoresPersistedDeviceIntoUsableRemoteState() async throws {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
         repository.stubDevice(psk: "1234")
@@ -162,15 +162,47 @@ struct SonyRemoteControllerTests {
         _ = RemotePageViewModel(
             state: state,
             repository: repository,
-            braviaClient: MockBRAVIAClient(),
+            braviaClient: MockBRAVIAClient(connectionDelayNanoseconds: 50_000_000),
             pairingClient: MockBRAVIAClient(),
             discoveryService: EmptyDiscoveryService()
         )
+
+        #expect(state.status == .connecting)
+        #expect(!state.remotePad.isEnabled)
+        try await waitUntil { state.status == .connected }
 
         #expect(state.savedDevice?.displayName == "Living Room")
         #expect(state.status == .connected)
         #expect(state.remotePad.isEnabled)
         #expect(state.connection.title == "Living Room")
+    }
+
+    @Test func restoredPersistedDeviceRequiresReachabilityBeforeEnablingRemote() async throws {
+        let state = RemotePageState()
+        let repository = MockDeviceRepository()
+        repository.stubDevice(psk: "1234")
+
+        _ = RemotePageViewModel(
+            state: state,
+            repository: repository,
+            braviaClient: MockBRAVIAClient(connectionError: .unreachable, connectionDelayNanoseconds: 50_000_000),
+            pairingClient: MockBRAVIAClient(),
+            discoveryService: EmptyDiscoveryService()
+        )
+
+        #expect(state.savedDevice?.displayName == "Living Room")
+        #expect(state.status == .connecting)
+        #expect(!state.remotePad.isEnabled)
+        #expect(!state.isAutoConnectPresented)
+
+        try await waitUntil { state.status == .failed(.unreachable) }
+
+        #expect(state.savedDevice?.displayName == "Living Room")
+        #expect(state.status == .failed(.unreachable))
+        #expect(!state.remotePad.isEnabled)
+        #expect(!state.isAutoConnectPresented)
+        #expect(state.connection.title == "Living Room")
+        #expect(state.connection.subtitle == ConnectionStatus.failed(.unreachable).displayText)
     }
 
     @Test func missingPersistedPSKRetainsDeviceAndShowsRecoveryError() {
@@ -335,14 +367,23 @@ private final class MockSecretStore: SecretStore, @unchecked Sendable {
 private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     var connectionError: RemoteControlError?
     var sendError: RemoteControlError?
+    var connectionDelayNanoseconds: UInt64
     private(set) var sentCommands: [RemoteCommand] = []
 
-    init(connectionError: RemoteControlError? = nil, sendError: RemoteControlError? = nil) {
+    init(
+        connectionError: RemoteControlError? = nil,
+        sendError: RemoteControlError? = nil,
+        connectionDelayNanoseconds: UInt64 = 0
+    ) {
         self.connectionError = connectionError
         self.sendError = sendError
+        self.connectionDelayNanoseconds = connectionDelayNanoseconds
     }
 
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        if connectionDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: connectionDelayNanoseconds)
+        }
         if let connectionError {
             throw connectionError
         }

@@ -90,6 +90,21 @@ public extension RemoteControlError {
             return remoteError
         }
 
+        if let discoveryError = error as? DiscoveryError {
+            switch discoveryError {
+            case .cancelled:
+                return .unknown("已取消发现设备。")
+            case .networkUnavailable:
+                return .unreachable
+            case .noDevices:
+                return .missingDevice
+            case .malformedDeviceDescription:
+                return .invalidResponse
+            case let .unknown(message):
+                return .unknown(message)
+            }
+        }
+
         let nsError = error as NSError
         if nsError.domain == NSURLErrorDomain {
             switch nsError.code {
