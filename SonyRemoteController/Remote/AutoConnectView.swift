@@ -7,7 +7,7 @@ struct AutoConnectView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let scale = min(proxy.size.width / AutoConnectDesign.canvasWidth, proxy.size.height / AutoConnectDesign.canvasHeight)
+            let scale = proxy.size.width / AutoConnectDesign.canvasWidth
 
             ZStack {
                 AutoConnectDesign.background
@@ -15,68 +15,55 @@ struct AutoConnectView: View {
 
                 designCanvas
                     .frame(width: AutoConnectDesign.canvasWidth, height: AutoConnectDesign.canvasHeight)
-                    .scaleEffect(scale)
-                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .scaleEffect(scale, anchor: .top)
+                    .offset(y: -20)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
             }
         }
-        .ignoresSafeArea()
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationTitle("BRAVIA Controller")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if state.screen != .firstLaunch {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: closeOrCancel) {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("取消")
+                }
+            }
+        }
     }
 
     private var designCanvas: some View {
         ZStack(alignment: .topLeading) {
             AutoConnectDesign.background
 
-            header
-
-            switch state.screen {
-            case .firstLaunch:
-                firstLaunchContent
-            case .scanning:
-                scanningContent
-            case .devicesFound:
-                devicesFoundContent
-            case .connecting:
-                connectingContent
-            case .connectedReady:
-                connectedContent
-            case .clearConfirmation:
-                connectedContent
-                clearConnectionDialog
-            case .noDevices:
-                noDevicesContent
+            Group {
+                switch state.screen {
+                case .firstLaunch:
+                    firstLaunchContent
+                case .scanning:
+                    scanningContent
+                case .devicesFound:
+                    devicesFoundContent
+                case .connecting:
+                    connectingContent
+                case .connectedReady:
+                    connectedContent
+                case .clearConfirmation:
+                    connectedContent
+                    clearConnectionDialog
+                case .noDevices:
+                    noDevicesContent
+                }
             }
+            .offset(y: -88)
 
             if state.isPinSheetPresented {
                 pinSheetOverlay
             }
         }
         .clipped()
-    }
-
-    private var header: some View {
-        ZStack(alignment: .topLeading) {
-            if state.screen != .firstLaunch {
-                Button(action: closeOrCancel) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 21, weight: .semibold))
-                        .foregroundStyle(AutoConnectDesign.secondaryText)
-                        .frame(width: 28, height: 28)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("取消")
-                .frame(width: 44, height: 44)
-                .position(x: 38, y: 80)
-            }
-
-            Text("BRAVIA Controller")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(AutoConnectDesign.text)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-                .frame(width: 274, height: 34)
-                .position(x: 215, y: 93)
-        }
     }
 
     private var firstLaunchContent: some View {

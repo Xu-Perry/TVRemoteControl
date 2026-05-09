@@ -137,5 +137,5 @@ clear.
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/002-bravia-device-discovery/plan.md](specs/002-bravia-device-discovery/plan.md)
+[specs/003-restore-app-pages/plan.md](specs/003-restore-app-pages/plan.md)
 <!-- SPECKIT END -->

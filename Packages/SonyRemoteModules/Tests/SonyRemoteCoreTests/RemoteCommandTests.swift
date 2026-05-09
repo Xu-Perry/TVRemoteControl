@@ -8,6 +8,12 @@ struct RemoteCommandTests {
         #expect(RemoteCommand.confirm.irccCode == "AAAAAQAAAAEAAABlAw==")
         #expect(RemoteCommand.volumeUp.irccCode == "AAAAAQAAAAEAAAASAw==")
         #expect(RemoteCommand.mute.irccCode == "AAAAAQAAAAEAAAAUAw==")
+        #expect(RemoteCommand.channelUp.irccCode == "AAAAAQAAAAEAAAAQAw==")
+        #expect(RemoteCommand.channelDown.irccCode == "AAAAAQAAAAEAAAARAw==")
+        #expect(RemoteCommand.hdmi1.irccCode == "AAAAAgAAABoAAABaAw==")
+        #expect(RemoteCommand.num0.irccCode == "AAAAAQAAAAEAAAAJAw==")
+        #expect(RemoteCommand.num9.irccCode == "AAAAAQAAAAEAAAAIAw==")
+        #expect(RemoteCommand.options.irccCode == "AAAAAgAAAJcAAAA2Aw==")
     }
 
     @Test func validatesIPv4Address() {

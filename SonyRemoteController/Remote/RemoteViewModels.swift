@@ -65,6 +65,86 @@ final class RemotePageViewModel {
         refreshFromRepository()
     }
 
+    func openInputSourceSheet() {
+        guard !state.isAutoConnectPresented else { return }
+        state.presentedRemoteSurface = .inputSourceSheet
+    }
+
+    func openKeyboardInput() {
+        guard !state.isAutoConnectPresented else { return }
+        state.keyboardDraft.errorMessage = nil
+        state.presentedRemoteSurface = .keyboardInput
+    }
+
+    func openMoreKeysSheet() {
+        guard !state.isAutoConnectPresented else { return }
+        state.presentedRemoteSurface = .moreKeysSheet
+    }
+
+    func dismissRemoteSurface() {
+        state.presentedRemoteSurface = nil
+    }
+
+    func selectInputSource(_ option: InputSourceOption) async {
+        guard let index = state.inputSources.firstIndex(where: { $0.id == option.id }) else {
+            return
+        }
+
+        for sourceIndex in state.inputSources.indices {
+            state.inputSources[sourceIndex].isSelected = sourceIndex == index
+        }
+
+        guard let command = option.command else {
+            state.error = .remoteControlUnavailable
+            return
+        }
+
+        await remotePad.send(command)
+    }
+
+    func clearKeyboardDraft() {
+        state.keyboardDraft.text = ""
+        state.keyboardDraft.errorMessage = nil
+    }
+
+    func deleteLastKeyboardCharacter() {
+        guard !state.keyboardDraft.text.isEmpty else { return }
+        state.keyboardDraft.text.removeLast()
+        state.keyboardDraft.errorMessage = nil
+    }
+
+    func sendKeyboardDraft() {
+        guard state.canSendCommands else {
+            state.keyboardDraft.errorMessage = RemoteControlError.missingDevice.recoverySuggestion
+            return
+        }
+        state.keyboardDraft.errorMessage = "暂不支持发送文字到电视。"
+    }
+
+    func sendMoreKeyAction(_ action: MoreKeyAction) async {
+        guard let command = action.command else {
+            state.error = .remoteControlUnavailable
+            return
+        }
+        await remotePad.send(command)
+    }
+
+    func setHapticFeedbackEnabled(_ isEnabled: Bool) {
+        state.remotePreferences.isHapticFeedbackEnabled = isEnabled
+    }
+
+    func setContinuousSendEnabled(_ isEnabled: Bool) {
+        state.remotePreferences.isContinuousSendEnabled = isEnabled
+    }
+
+    func setKeepScreenAwakeEnabled(_ isEnabled: Bool) {
+        state.remotePreferences.isKeepScreenAwakeEnabled = isEnabled
+    }
+
+    func handleAboutRowTap(_ row: SettingsAboutRow) {
+        state.isSettingsPresented = true
+    }
+
     func saveSettings() {
         do {
             let device = try settings.save()
@@ -103,6 +183,7 @@ final class RemotePageViewModel {
                 state.savedDevice = nil
                 updateStatus(.noDevice)
                 state.isAutoConnectPresented = true
+                state.presentedRemoteSurface = nil
                 autoConnect.showFirstLaunch()
                 return
             }
@@ -110,9 +191,12 @@ final class RemotePageViewModel {
             state.savedDevice = device
             state.autoConnect.rememberedDevice = device
             do {
-                _ = try repository.readCredential(for: device)
-                updateStatus(.connected)
+                let credential = try repository.readCredential(for: device)
+                updateStatus(.connecting)
                 state.isAutoConnectPresented = false
+                Task {
+                    await verifyRestoredDevice(device, credential: credential)
+                }
             } catch {
                 updateStatus(.failed(RemoteControlError.map(error)))
                 state.isAutoConnectPresented = true
@@ -123,6 +207,18 @@ final class RemotePageViewModel {
             updateStatus(.failed(RemoteControlError.map(error)))
             state.isAutoConnectPresented = true
             autoConnect.showFirstLaunch()
+        }
+    }
+
+    private func verifyRestoredDevice(_ device: SonyDevice, credential: BRAVIAAuthCredential) async {
+        do {
+            try await braviaClient.testConnection(device: device, credential: credential)
+            guard state.savedDevice == device else { return }
+            updateStatus(.connected)
+        } catch {
+            guard state.savedDevice == device else { return }
+            updateStatus(.failed(RemoteControlError.map(error)))
+            state.presentedRemoteSurface = nil
         }
     }
 
@@ -139,6 +235,12 @@ final class RemotePageViewModel {
         state.connection.title = title
         state.connection.subtitle = status.displayText
     }
+}
+
+enum SettingsAboutRow: String, CaseIterable, Sendable {
+    case help = "帮助与反馈"
+    case privacy = "隐私政策"
+    case about = "关于应用"
 }
 
 @MainActor
