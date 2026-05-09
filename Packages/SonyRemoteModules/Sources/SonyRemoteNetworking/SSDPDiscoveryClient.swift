@@ -130,12 +130,17 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         timeout: TimeInterval,
         continuation: AsyncThrowingStream<SSDPDiscoveryResponse, Error>.Continuation
     ) throws {
+        #if targetEnvironment(simulator)
+        try runSocketSearch(timeout: timeout, continuation: continuation)
+        return
+        #else
         if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
             try runNetworkFrameworkSearch(timeout: timeout, continuation: continuation)
             return
         }
 
         try runSocketSearch(timeout: timeout, continuation: continuation)
+        #endif
     }
 
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
@@ -312,6 +317,12 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
             "urn:schemas-upnp-org:device:MediaRenderer:1",
             "ssdp:all"
         ]
+
+        #if targetEnvironment(simulator)
+        Self.debugLog("Running in simulator; sending SSDP search with default multicast route")
+        try sendSearchRequests(socketFD: socketFD, destination: destination, searchTargets: searchTargets, interfaceName: "simulator-default")
+        return
+        #endif
 
         let allInterfaces = Self.multicastInterfaces()
         Self.debugLog("Multicast IPv4 interfaces count=\(allInterfaces.count) [\(allInterfaces.map { "\($0.name)#\($0.index)=\($0.addressDescription)" }.joined(separator: ", "))]")
