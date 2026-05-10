@@ -4,6 +4,7 @@ import SonyRemoteCore
 struct AutoConnectView: View {
     let state: AutoConnectState
     let viewModel: AutoConnectViewModel
+    @State private var keyboardOverlap: CGFloat = 0
 
     var body: some View {
         GeometryReader { proxy in
@@ -13,7 +14,7 @@ struct AutoConnectView: View {
                 AutoConnectDesign.background
                     .ignoresSafeArea()
 
-                designCanvas
+                designCanvas(scale: scale)
                     .frame(width: AutoConnectDesign.canvasWidth, height: AutoConnectDesign.canvasHeight)
                     .scaleEffect(scale, anchor: .top)
                     .offset(y: -20)
@@ -32,9 +33,22 @@ struct AutoConnectView: View {
                 }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
+            updateKeyboardOverlap(from: notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            withAnimation(.easeOut(duration: 0.25)) {
+                keyboardOverlap = 0
+            }
+        }
+        .onChange(of: state.isPinSheetPresented) { _, isPresented in
+            if !isPresented {
+                keyboardOverlap = 0
+            }
+        }
     }
 
-    private var designCanvas: some View {
+    private func designCanvas(scale: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
             AutoConnectDesign.background
 
@@ -60,7 +74,7 @@ struct AutoConnectView: View {
             .offset(y: -88)
 
             if state.isPinSheetPresented {
-                pinSheetOverlay
+                pinSheetOverlay(keyboardOffset: KeyboardAvoidance.canvasOffset(for: keyboardOverlap, scale: scale))
             }
         }
         .clipped()
@@ -177,7 +191,7 @@ struct AutoConnectView: View {
         }
     }
 
-    private var pinSheetOverlay: some View {
+    private func pinSheetOverlay(keyboardOffset: CGFloat) -> some View {
         ZStack {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
@@ -265,6 +279,7 @@ struct AutoConnectView: View {
                         .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
                         .ignoresSafeArea(edges: .bottom)
                 )
+                .offset(y: -keyboardOffset)
             }
         }
         .frame(width: AutoConnectDesign.canvasWidth, height: AutoConnectDesign.canvasHeight)
@@ -654,6 +669,17 @@ struct AutoConnectView: View {
             viewModel.showFirstLaunch()
         case .firstLaunch:
             break
+        }
+    }
+
+    private func updateKeyboardOverlap(from notification: Notification) {
+        guard state.isPinSheetPresented else {
+            return
+        }
+
+        let overlap = KeyboardAvoidance.visibleKeyboardOverlap(from: notification)
+        withAnimation(KeyboardAvoidance.animation(from: notification)) {
+            keyboardOverlap = overlap
         }
     }
 }

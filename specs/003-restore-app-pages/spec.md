@@ -35,7 +35,7 @@ As a user controlling a TV, I want access to input source, keyboard input, and m
 
 1. **Given** the main remote page is visible, **When** the user opens input source, **Then** a bottom sheet lists `电视直播`, `HDMI 1`, `HDMI 2`, `HDMI 3`, and `USB`, with one current source visibly selected.
 2. **Given** the main remote page is visible, **When** the user opens keyboard input, **Then** a full-screen keyboard input page appears with target device context, text entry, character count, send, clear, and delete actions.
-3. **Given** the main remote page is visible, **When** the user opens more keys, **Then** a bottom sheet provides numeric keys, menu, back, info, options, and play/pause controls.
+3. **Given** the main remote page is visible, **When** the user opens more keys, **Then** a bottom sheet provides numeric keys, menu, back, info, and options controls.
 4. **Given** a secondary remote page is open, **When** the user dismisses it, **Then** the user returns to the main remote page without losing the connected device context.
 
 ---
@@ -75,7 +75,7 @@ As a user, I want the settings page to match the latest design and clearly separ
 - **FR-006**: Users MUST be able to open a keyboard input page from the main remote page.
 - **FR-007**: The keyboard input page MUST show the target TV context, text entry area, character count, send-to-TV action, clear action, and delete action.
 - **FR-008**: Users MUST be able to open the more keys sheet from the main remote page.
-- **FR-009**: The more keys sheet MUST include numeric keys, menu, back, info, options, and play/pause controls.
+- **FR-009**: The more keys sheet MUST include numeric keys, menu, back, info, and options controls.
 - **FR-010**: Users MUST be able to open settings from the main remote page and return to the main remote page.
 - **FR-011**: The settings page MUST show the connected device card and three sections named `设备`, `遥控器`, and `关于`.
 - **FR-012**: The `设备` section MUST include `设备管理`, `自动连接`, and `忘记此设备`.

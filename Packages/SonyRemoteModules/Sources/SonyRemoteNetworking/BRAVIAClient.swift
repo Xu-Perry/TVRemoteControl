@@ -4,6 +4,7 @@ import SonyRemoteCore
 public protocol BRAVIAControlling: Sendable {
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
     func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
 }
 
 public protocol BRAVIAPairing: Sendable {
@@ -46,6 +47,20 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         let request = try makeIRCCRequest(device: device, credential: credential, irccCode: command.irccCode)
         let response = try await transport.data(for: request)
         try validate(response)
+    }
+
+    public func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        let request = try makeTextFormRequest(device: device, credential: credential, text: text)
+        let response = try await transport.data(for: request)
+        try validate(response)
+
+        let rpcResponse = try decoder.decode(JSONRPCResponse<[EmptyRPCResult]>.self, from: response.data)
+        if rpcResponse.error != nil {
+            throw mapRPCError(rpcResponse.error)
+        }
+        guard rpcResponse.result != nil else {
+            throw RemoteControlError.invalidResponse
+        }
     }
 
     // MARK: - BRAVIAPairing
@@ -155,6 +170,15 @@ public extension BRAVIAClient {
         }
         request.httpBody = Self.irccSOAPBody(code: irccCode).data(using: .utf8)
         return request
+    }
+
+    func makeTextFormRequest(device: SonyDevice, credential: BRAVIAAuthCredential, text: String) throws -> URLRequest {
+        try makeJSONRPCRequest(
+            device: device,
+            service: "appControl",
+            credential: credential,
+            body: JSONRPCRequest(method: "setTextForm", params: [text], id: 601)
+        )
     }
 }
 
@@ -289,6 +313,7 @@ private struct PairingInitResult: Decodable {
 }
 
 private struct BRAVIAPairingResultEntry: Decodable {}
+private struct EmptyRPCResult: Decodable {}
 
 
 private func makePairingRequest(device: SonyDevice, body: Data) throws -> URLRequest {

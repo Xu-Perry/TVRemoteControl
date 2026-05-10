@@ -60,6 +60,13 @@ final class RemotePageViewModel {
         state.isSettingsPresented = true
     }
 
+    func openDeviceManagement() {
+        state.isSettingsPresented = false
+        state.presentedRemoteSurface = nil
+        autoConnect.restoreRememberedDevice(state.savedDevice)
+        state.isAutoConnectPresented = true
+    }
+
     func closeSettings() {
         state.isSettingsPresented = false
         refreshFromRepository()
@@ -73,6 +80,7 @@ final class RemotePageViewModel {
     func openKeyboardInput() {
         guard !state.isAutoConnectPresented else { return }
         state.keyboardDraft.errorMessage = nil
+        state.keyboardDraft.status = state.keyboardDraft.trimmedText.isEmpty ? .empty : .editing
         state.presentedRemoteSurface = .keyboardInput
     }
 
@@ -105,20 +113,48 @@ final class RemotePageViewModel {
     func clearKeyboardDraft() {
         state.keyboardDraft.text = ""
         state.keyboardDraft.errorMessage = nil
+        state.keyboardDraft.status = .empty
     }
 
     func deleteLastKeyboardCharacter() {
         guard !state.keyboardDraft.text.isEmpty else { return }
         state.keyboardDraft.text.removeLast()
         state.keyboardDraft.errorMessage = nil
+        state.keyboardDraft.status = state.keyboardDraft.trimmedText.isEmpty ? .empty : .editing
     }
 
-    func sendKeyboardDraft() {
-        guard state.canSendCommands else {
+    func updateKeyboardDraftText(_ text: String) {
+        let limitedText = String(text.prefix(state.keyboardDraft.maxLength))
+        state.keyboardDraft.text = limitedText
+        state.keyboardDraft.errorMessage = nil
+        state.keyboardDraft.status = state.keyboardDraft.trimmedText.isEmpty ? .empty : .editing
+    }
+
+    func sendKeyboardDraft() async {
+        let text = state.keyboardDraft.trimmedText
+        guard !text.isEmpty else {
+            state.keyboardDraft.status = .empty
+            state.keyboardDraft.errorMessage = "请输入要发送到电视的文字。"
+            return
+        }
+
+        guard state.canSendCommands, let device = state.savedDevice else {
+            state.keyboardDraft.status = .failed
             state.keyboardDraft.errorMessage = RemoteControlError.missingDevice.recoverySuggestion
             return
         }
-        state.keyboardDraft.errorMessage = "暂不支持发送文字到电视。"
+
+        do {
+            state.keyboardDraft.status = .sending
+            state.keyboardDraft.errorMessage = nil
+            let credential = try repository.readCredential(for: device)
+            try await braviaClient.sendText(text, device: device, credential: credential)
+            state.keyboardDraft.status = .sent
+            state.keyboardDraft.errorMessage = nil
+        } catch {
+            state.keyboardDraft.status = .failed
+            state.keyboardDraft.errorMessage = RemoteControlError.map(error).recoverySuggestion
+        }
     }
 
     func sendMoreKeyAction(_ action: MoreKeyAction) async {

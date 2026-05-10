@@ -80,12 +80,43 @@ struct InputSourceOption: Identifiable, Equatable, Sendable {
 struct KeyboardDraft: Equatable, Sendable {
     var text = ""
     var maxLength = 500
-    var isSending = false
+    var status: KeyboardDraftStatus = .empty
     var errorMessage: String?
 
     var characterCountText: String {
         "\(text.count)/\(maxLength)"
     }
+
+    var trimmedText: String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var canSend: Bool {
+        !trimmedText.isEmpty && status != .sending
+    }
+
+    var statusText: String {
+        switch status {
+        case .empty:
+            "未输入"
+        case .editing:
+            "输入中"
+        case .sending:
+            "发送中..."
+        case .sent:
+            "已发送到电视"
+        case .failed:
+            "发送失败"
+        }
+    }
+}
+
+enum KeyboardDraftStatus: Equatable, Sendable {
+    case empty
+    case editing
+    case sending
+    case sent
+    case failed
 }
 
 struct MoreKeyAction: Identifiable, Equatable, Sendable {
@@ -115,8 +146,7 @@ struct MoreKeyAction: Identifiable, Equatable, Sendable {
             MoreKeyAction(id: "menu", title: "菜单", symbolName: "list.bullet", command: .syncMenu),
             MoreKeyAction(id: "back", title: "返回", symbolName: "arrow.uturn.backward", command: .back),
             MoreKeyAction(id: "info", title: "信息", symbolName: "info", command: .display),
-            MoreKeyAction(id: "options", title: "选项", symbolName: "ellipsis", command: .options),
-            MoreKeyAction(id: "playpause", title: "播放/暂停", symbolName: "playpause", command: nil)
+            MoreKeyAction(id: "options", title: "选项", symbolName: "ellipsis", command: .options)
         ]
     }
 }

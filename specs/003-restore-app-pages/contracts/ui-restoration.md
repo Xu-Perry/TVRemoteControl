@@ -78,7 +78,6 @@ This contract defines externally visible app behavior for the Figma page restora
 **Required content**:
 - Numeric keys 1 through 9 and 0.
 - `菜单`, `返回`, `信息`, `选项`.
-- `播放/暂停`.
 - Close or swipe-dismiss affordance.
 
 **Behavior**:

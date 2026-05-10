@@ -36,6 +36,35 @@ struct BRAVIAClientTests {
         #expect(body.contains(RemoteCommand.confirm.irccCode))
     }
 
+    @Test func buildsTextFormRequest() throws {
+        let client = BRAVIAClient(transport: MockTransport())
+        let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+
+        let request = try client.makeTextFormRequest(device: device, credential: .psk("1234"), text: "hello world")
+
+        #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/appControl")
+        #expect(request.httpMethod == "POST")
+        #expect(request.value(forHTTPHeaderField: "X-Auth-PSK") == "1234")
+        #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json; charset=UTF-8")
+        let body = try #require(request.httpBody.flatMap { String(data: $0, encoding: .utf8) })
+        #expect(body.contains("\"method\":\"setTextForm\""))
+        #expect(body.contains("\"params\":[\"hello world\"]"))
+    }
+
+    @Test func sendTextUsesAppControlTextFormAPI() async throws {
+        let transport = MockTransport(response: HTTPResponse(
+            data: Data("{\"result\":[],\"id\":601}".utf8),
+            statusCode: 200
+        ))
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+
+        try await client.sendText("hello world", device: device, credential: .psk("1234"))
+
+        let request = try #require(transport.requests.first)
+        #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/appControl")
+    }
+
     @Test func mapsUnauthorizedStatus() async {
         let client = BRAVIAClient(transport: MockTransport(response: HTTPResponse(data: Data(), statusCode: 401)))
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")

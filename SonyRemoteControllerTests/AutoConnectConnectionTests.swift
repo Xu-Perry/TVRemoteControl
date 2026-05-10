@@ -31,9 +31,6 @@ struct AutoConnectConnectionTests {
         #expect(harness.state.savedDevice?.displayName == "BRAVIA XR-65A80L")
         #expect(harness.state.status == .connected)
         #expect(harness.state.remotePad.isEnabled)
-
-        harness.viewModel.autoConnect.enterRemote()
-
         #expect(!harness.state.isAutoConnectPresented)
     }
 

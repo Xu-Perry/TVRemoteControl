@@ -197,6 +197,7 @@ final class AutoConnectViewModel {
                 state.isPinSheetPresented = false
                 state.isPairingInProgress = false
                 state.screen = .connectedReady
+                pageState.isAutoConnectPresented = false
             } catch is CancellationError {
                 if !state.isPinSheetPresented {
                     state.screen = .devicesFound

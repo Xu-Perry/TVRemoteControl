@@ -3,12 +3,21 @@ import SonyRemoteNetworking
 
 final class RestorationMockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     private(set) var sentCommands: [RemoteCommand] = []
+    private(set) var sentTexts: [String] = []
+    var sendTextError: RemoteControlError?
 
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
     }
 
     func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         sentCommands.append(command)
+    }
+
+    func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        sentTexts.append(text)
+        if let sendTextError {
+            throw sendTextError
+        }
     }
 
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {

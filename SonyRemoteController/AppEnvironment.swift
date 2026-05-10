@@ -111,6 +111,9 @@ private struct MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
     }
 
+    func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+    }
+
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
         if shouldFailPairing {
             throw RemoteControlError.pairingFailed

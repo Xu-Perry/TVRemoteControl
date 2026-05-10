@@ -94,7 +94,7 @@ struct RemotePageView: View {
                 title: state.savedDevice?.displayName ?? state.connection.title,
                 status: state.status.isConnected ? "已连接" : state.status.displayText,
                 isConnected: state.status.isConnected,
-                onTap: viewModel.openSettings
+                onTap: viewModel.openDeviceManagement
             )
             .position(x: 215, y: 102)
 
@@ -142,18 +142,6 @@ struct RemotePageView: View {
                 ActionCard(title: "更多按键", systemImage: "ellipsis", action: viewModel.openMoreKeysSheet)
             }
             .position(x: 215, y: 685)
-
-            Text("滑动以浏览更多按键")
-                .font(.system(size: 13))
-                .foregroundStyle(RemoteDesign.secondaryText)
-                .frame(width: 170, height: 22)
-                .position(x: 215, y: 767)
-
-            HStack(spacing: 19) {
-                Circle().fill(RemoteDesign.primaryBlue).frame(width: 8, height: 8)
-                Circle().fill(Color(red: 0.85, green: 0.87, blue: 0.91)).frame(width: 8, height: 8)
-            }
-            .position(x: 215, y: 795)
 
             if let error = state.error {
                 ErrorBannerView(error: error, onOpenSettings: viewModel.openSettings)
@@ -472,17 +460,12 @@ private struct InputSourceSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Capsule()
-                .fill(RemoteDesign.secondaryText.opacity(0.35))
-                .frame(width: 60, height: 4)
-                .padding(.top, 12)
-                .padding(.bottom, 14)
-
             Text("输入源")
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(RemoteDesign.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
+                .padding(.top, 34)
                 .padding(.bottom, 10)
 
             ForEach(state.inputSources) { option in
@@ -527,6 +510,7 @@ private struct KeyboardInputView: View {
     @Bindable var state: RemotePageState
     let viewModel: RemotePageViewModel
     let onDismiss: () -> Void
+    @FocusState private var isTextFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -549,18 +533,32 @@ private struct KeyboardInputView: View {
                 .position(x: 215, y: 88)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("输入文字到电视")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(RemoteDesign.secondaryText)
-                    TextEditor(text: $state.keyboardDraft.text)
-                        .font(.system(size: 24, weight: .medium))
-                        .scrollContentBackground(.hidden)
-                        .frame(height: 110)
-                        .onChange(of: state.keyboardDraft.text) { _, newValue in
-                            if newValue.count > state.keyboardDraft.maxLength {
-                                state.keyboardDraft.text = String(newValue.prefix(state.keyboardDraft.maxLength))
-                            }
+                    HStack {
+                        Text("输入文字到电视")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(RemoteDesign.secondaryText)
+                        Spacer()
+                        Text(state.keyboardDraft.statusText)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(keyboardStatusColor)
+                    }
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: keyboardTextBinding)
+                            .font(.system(size: 22, weight: .medium))
+                            .scrollContentBackground(.hidden)
+                            .focused($isTextFocused)
+                            .disabled(state.keyboardDraft.status == .sending)
+                            .frame(height: 110)
+
+                        if state.keyboardDraft.text.isEmpty {
+                            Text("请输入文字")
+                                .font(.system(size: 22, weight: .medium))
+                                .foregroundStyle(RemoteDesign.secondaryText.opacity(0.55))
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
                         }
+                    }
                     Text(state.keyboardDraft.characterCountText)
                         .font(.system(size: 14))
                         .foregroundStyle(RemoteDesign.secondaryText)
@@ -573,9 +571,24 @@ private struct KeyboardInputView: View {
                 .position(x: 215, y: 234)
 
                 HStack(spacing: 15) {
-                    KeyboardActionButton(title: "发送到电视", systemImage: "paperplane", action: viewModel.sendKeyboardDraft)
-                    KeyboardActionButton(title: "清空", systemImage: "xmark.circle", action: viewModel.clearKeyboardDraft)
-                    KeyboardActionButton(title: "删除", systemImage: "delete.left", action: viewModel.deleteLastKeyboardCharacter)
+                    KeyboardActionButton(
+                        title: state.keyboardDraft.status == .sending ? "发送中" : "发送到电视",
+                        systemImage: "paperplane",
+                        isEnabled: state.keyboardDraft.canSend,
+                        action: { Task { await viewModel.sendKeyboardDraft() } }
+                    )
+                    KeyboardActionButton(
+                        title: "清空",
+                        systemImage: "xmark.circle",
+                        isEnabled: !state.keyboardDraft.text.isEmpty && state.keyboardDraft.status != .sending,
+                        action: viewModel.clearKeyboardDraft
+                    )
+                    KeyboardActionButton(
+                        title: "删除",
+                        systemImage: "delete.left",
+                        isEnabled: !state.keyboardDraft.text.isEmpty && state.keyboardDraft.status != .sending,
+                        action: viewModel.deleteLastKeyboardCharacter
+                    )
                 }
                 .position(x: 215, y: 376)
 
@@ -586,12 +599,12 @@ private struct KeyboardInputView: View {
                         .frame(width: 360)
                         .position(x: 215, y: 432)
                 }
-
-                KeyboardMock()
-                    .position(x: 215, y: 645)
             }
             .navigationTitle("键盘输入")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                isTextFocused = true
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: onDismiss) {
@@ -605,11 +618,32 @@ private struct KeyboardInputView: View {
             }
         }
     }
+
+    private var keyboardTextBinding: Binding<String> {
+        Binding(
+            get: { state.keyboardDraft.text },
+            set: { viewModel.updateKeyboardDraftText($0) }
+        )
+    }
+
+    private var keyboardStatusColor: Color {
+        switch state.keyboardDraft.status {
+        case .empty:
+            RemoteDesign.secondaryText
+        case .editing, .sending:
+            RemoteDesign.primaryBlue
+        case .sent:
+            RemoteDesign.connectedGreen
+        case .failed:
+            RemoteDesign.danger
+        }
+    }
 }
 
 private struct KeyboardActionButton: View {
     let title: String
     let systemImage: String
+    var isEnabled = true
     let action: () -> Void
 
     var body: some View {
@@ -622,59 +656,14 @@ private struct KeyboardActionButton: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .foregroundStyle(RemoteDesign.primaryBlue)
+            .foregroundStyle(isEnabled ? RemoteDesign.primaryBlue : RemoteDesign.secondaryText.opacity(0.6))
             .frame(width: 120, height: 56)
             .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 16))
             .overlay { RoundedRectangle(cornerRadius: 16).stroke(RemoteDesign.border, lineWidth: 1) }
+            .opacity(isEnabled ? 1 : 0.58)
         }
         .buttonStyle(.plain)
-    }
-}
-
-private struct KeyboardMock: View {
-    private let rows: [[String]] = [
-        "QWERTYUIOP".map { String($0) },
-        "ASDFGHJKL".map { String($0) },
-        ["⇧"] + "ZXCVBNM".map { String($0) } + ["⌫"],
-        ["123", "space", "return"]
-    ]
-
-    var body: some View {
-        VStack(spacing: 10) {
-            Text("“SONY”        SONY'S        SONYING")
-                .font(.system(size: 14))
-                .foregroundStyle(RemoteDesign.text)
-                .frame(width: 390, height: 36)
-
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                HStack(spacing: 6) {
-                    ForEach(row, id: \.self) { key in
-                        Text(key)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(RemoteDesign.text)
-                            .frame(width: keyWidth(key), height: 46)
-                            .background(Color.white.opacity(0.92), in: RoundedRectangle(cornerRadius: 6))
-                    }
-                }
-            }
-        }
-        .frame(width: 430, height: 398)
-        .background(Color(red: 0.82, green: 0.84, blue: 0.88))
-    }
-
-    private func keyWidth(_ key: String) -> CGFloat {
-        switch key {
-        case "123":
-            92
-        case "space":
-            210
-        case "return":
-            88
-        case "⇧", "⌫":
-            50
-        default:
-            36
-        }
+        .disabled(!isEnabled)
     }
 }
 
@@ -685,11 +674,10 @@ private struct MoreKeysSheet: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            HStack {
+            ZStack {
                 Text("更多按键")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(RemoteDesign.text)
-                Spacer()
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
                         .font(.system(size: 20, weight: .semibold))
@@ -697,28 +685,29 @@ private struct MoreKeysSheet: View {
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 12)
+            .padding(.top, 34)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(54), spacing: 16), count: 3), spacing: 10) {
-                ForEach(state.moreKeyActions.prefix(12)) { action in
-                    moreKeyButton(action)
-                        .frame(width: 54, height: 42)
+            HStack(alignment: .top, spacing: 32) {
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(54), spacing: 10), count: 3), spacing: 12) {
+                    ForEach(state.moreKeyActions.prefix(12)) { action in
+                        moreKeyButton(action)
+                            .frame(width: 54, height: 42)
+                    }
                 }
-            }
+                .frame(width: 182)
 
-            HStack(spacing: 16) {
-                ForEach(state.moreKeyActions.dropFirst(12).prefix(4)) { action in
-                    moreKeyButton(action)
-                        .frame(width: 74, height: 58)
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(74), spacing: 22), count: 2), spacing: 18) {
+                    ForEach(state.moreKeyActions.dropFirst(12)) { action in
+                        moreKeyButton(action)
+                            .frame(width: 74, height: 58)
+                    }
                 }
+                .frame(width: 170)
             }
-
-            if let playPause = state.moreKeyActions.first(where: { $0.id == "playpause" }) {
-                moreKeyButton(playPause)
-                    .frame(width: 170, height: 46)
-            }
+            .padding(.horizontal, 24)
 
             Spacer(minLength: 0)
         }

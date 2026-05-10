@@ -396,6 +396,12 @@ private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @uncheck
         }
     }
 
+    func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        if let sendError {
+            throw sendError
+        }
+    }
+
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
         return "mock-reg"
     }

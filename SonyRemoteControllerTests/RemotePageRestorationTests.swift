@@ -16,7 +16,11 @@ struct RemotePageRestorationTests {
         #expect(harness.state.presentedRemoteSurface == nil)
         #expect(harness.state.remotePad.isEnabled)
         #expect(harness.state.inputSources.map(\.title) == ["电视直播", "HDMI 1", "HDMI 2", "HDMI 3", "USB"])
-        #expect(harness.state.moreKeyActions.contains { $0.title == "播放/暂停" && !$0.isSupported })
+        #expect(harness.state.moreKeyActions.map(\.title) == [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "",
+            "菜单", "返回", "信息", "选项"
+        ])
+        #expect(!harness.state.moreKeyActions.contains { $0.title == "播放/暂停" })
     }
 
     @Test func commandSendKeepsRemotePagePresentationStable() async {
@@ -66,9 +70,10 @@ struct RemotePageRestorationTests {
     @Test func keyboardDraftClearDeleteAndCountUseConnectedTarget() async {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
-        harness.state.keyboardDraft.text = "SONY"
+        harness.viewModel.updateKeyboardDraftText("SONY")
 
         #expect(harness.state.keyboardDraft.characterCountText == "4/500")
+        #expect(harness.state.keyboardDraft.status == .editing)
 
         harness.viewModel.deleteLastKeyboardCharacter()
         #expect(harness.state.keyboardDraft.text == "SON")
@@ -76,18 +81,70 @@ struct RemotePageRestorationTests {
 
         harness.viewModel.clearKeyboardDraft()
         #expect(harness.state.keyboardDraft.text.isEmpty)
+        #expect(harness.state.keyboardDraft.status == .empty)
         #expect(harness.state.savedDevice?.displayName == "Living Room")
     }
 
-    @Test func unsupportedMoreKeyDoesNotDispatchCommand() async throws {
+    @Test func emptyKeyboardDraftDoesNotSendText() async {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
-        let playPause = try #require(harness.state.moreKeyActions.first { $0.id == "playpause" })
 
-        await harness.viewModel.sendMoreKeyAction(playPause)
+        await harness.viewModel.sendKeyboardDraft()
 
-        #expect(harness.client.sentCommands.isEmpty)
-        #expect(harness.state.error == .remoteControlUnavailable)
+        #expect(harness.client.sentTexts.isEmpty)
+        #expect(harness.state.keyboardDraft.status == .empty)
+        #expect(harness.state.keyboardDraft.errorMessage == "请输入要发送到电视的文字。")
+    }
+
+    @Test func keyboardDraftSendsTrimmedTextToConnectedTV() async {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        harness.viewModel.updateKeyboardDraftText("  Sony TV  ")
+
+        await harness.viewModel.sendKeyboardDraft()
+
+        #expect(harness.client.sentTexts == ["Sony TV"])
+        #expect(harness.state.keyboardDraft.status == .sent)
+        #expect(harness.state.keyboardDraft.errorMessage == nil)
+    }
+
+    @Test func keyboardDraftFailureKeepsTextAndShowsFailedState() async {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        harness.client.sendTextError = .remoteControlUnavailable
+        harness.viewModel.updateKeyboardDraftText("Sony")
+
+        await harness.viewModel.sendKeyboardDraft()
+
+        #expect(harness.client.sentTexts == ["Sony"])
+        #expect(harness.state.keyboardDraft.text == "Sony")
+        #expect(harness.state.keyboardDraft.status == .failed)
+        #expect(harness.state.keyboardDraft.errorMessage == RemoteControlError.remoteControlUnavailable.recoverySuggestion)
+    }
+
+    @Test func supportedMoreKeyDispatchesCommand() async throws {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        let menu = try #require(harness.state.moreKeyActions.first { $0.id == "menu" })
+
+        await harness.viewModel.sendMoreKeyAction(menu)
+
+        #expect(harness.client.sentCommands == [.syncMenu])
+        #expect(harness.state.error == nil)
+    }
+
+    @Test func deviceSummaryOpensDeviceManagementInsteadOfSettings() async throws {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        let savedDevice = try #require(harness.state.savedDevice)
+
+        harness.viewModel.openDeviceManagement()
+
+        #expect(!harness.state.isSettingsPresented)
+        #expect(harness.state.isAutoConnectPresented)
+        #expect(harness.state.autoConnect.screen == .connectedReady)
+        #expect(harness.state.autoConnect.rememberedDevice == savedDevice)
+        #expect(harness.state.autoConnect.selectedDevice?.displayName == savedDevice.displayName)
     }
 
     @Test func settingsOpenAndClosePreserveConnectedDevice() async throws {

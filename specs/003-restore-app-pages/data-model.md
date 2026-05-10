@@ -97,7 +97,7 @@ Represents a key in the more keys sheet.
 
 **Validation rules**:
 - Numeric keys 0 through 9 must be present.
-- `菜单`, `返回`, `信息`, `选项`, and `播放/暂停` must be present.
+- `菜单`, `返回`, `信息`, and `选项` must be present.
 - Unsupported commands must either be mapped before implementation or rendered disabled with explicit follow-up scope.
 
 ## RemotePreferences

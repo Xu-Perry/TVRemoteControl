@@ -86,7 +86,7 @@
 - [x] T026 [US2] Implement keyboard input target context, text entry, character count, send, clear, and delete controls in `SonyRemoteController/Remote/RemotePageView.swift`
 - [x] T027 [US2] Add keyboard draft clear, delete, and send intent methods in `SonyRemoteController/Remote/RemoteViewModels.swift`
 - [x] T028 [US2] Implement the more keys bottom sheet presentation and dismissal binding in `SonyRemoteController/Remote/RemotePageView.swift`
-- [x] T029 [US2] Implement numeric keys, menu, back, info, options, and play/pause rendering with explicit disabled state for unsupported commands in `SonyRemoteController/Remote/RemotePageView.swift`
+- [x] T029 [US2] Implement numeric keys, menu, back, info, and options rendering in `SonyRemoteController/Remote/RemotePageView.swift`
 
 **Checkpoint**: User Stories 1 and 2 are functional and independently testable.
 
