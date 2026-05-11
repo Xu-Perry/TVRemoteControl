@@ -22,11 +22,11 @@ Expected file: `BRAVIA Controller UI Kit`. Required frames include `01 Main Remo
 ## Implementation Checklist
 
 1. Keep work in `SonyRemoteController/Remote/` unless shared command mappings require package changes.
-2. Extend `RemotePageState` with explicit presentation state for input source, keyboard input, and more keys.
-3. Extend view models with intent methods for opening and dismissing each secondary surface.
+2. Extend `RemotePageState` with explicit presentation state for input source and more keys, plus keyboard input activation state.
+3. Extend view models with intent methods for opening and dismissing each secondary surface and keyboard input.
 4. Restore `RemotePageView` to match `01 Main Remote`.
 5. Add bottom sheet presentation for `03 Input Source Sheet`.
-6. Add full-screen keyboard input presentation for `04 Keyboard Input`.
+6. Add a keyboard input bar above the system keyboard for `04 Keyboard Input` without navigating away from main remote.
 7. Add bottom sheet presentation for `05 More Keys Sheet`.
 8. Restore `DeviceSettingsView` to match `06 Settings`.
 9. Keep `帮助与反馈`, `隐私政策`, and `关于应用` visible but non-navigating.
@@ -53,7 +53,7 @@ env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test
 Recommended test cases:
 - Connected state opens the restored main remote instead of setup.
 - `输入源`, `键盘输入`, `更多按键`, and settings are reachable from main remote in one action.
-- Dismissing each secondary surface preserves connected device state.
+- Dismissing each secondary surface or keyboard input bar preserves connected device state.
 - Keyboard clear and delete mutate `KeyboardDraft` correctly.
 - About rows remain visible and do not change navigation state.
 - Preference toggles mutate state through the view model.
@@ -72,7 +72,7 @@ Check:
 - No bottom tab bar appears.
 - Settings stays in the top-right entry point from main remote.
 - Input source and more keys use bottom sheet presentation.
-- Keyboard input uses full-screen presentation.
+- Keyboard input keeps the main remote page visible and uses an input bar above the system keyboard.
 - The settings `关于` rows do not navigate.
 - Text does not overlap at compact iPhone widths.
 

@@ -49,6 +49,7 @@ final class RemotePageViewModel {
     }
 
     func openSettings() {
+        state.isKeyboardInputActive = false
         if let device = state.savedDevice {
             state.settings.tvName = device.name
             state.settings.ipAddress = device.host
@@ -63,6 +64,7 @@ final class RemotePageViewModel {
     func openDeviceManagement() {
         state.isSettingsPresented = false
         state.presentedRemoteSurface = nil
+        state.isKeyboardInputActive = false
         autoConnect.restoreRememberedDevice(state.savedDevice)
         state.isAutoConnectPresented = true
     }
@@ -74,6 +76,7 @@ final class RemotePageViewModel {
 
     func openInputSourceSheet() {
         guard !state.isAutoConnectPresented else { return }
+        state.isKeyboardInputActive = false
         state.presentedRemoteSurface = .inputSourceSheet
     }
 
@@ -81,16 +84,23 @@ final class RemotePageViewModel {
         guard !state.isAutoConnectPresented else { return }
         state.keyboardDraft.errorMessage = nil
         state.keyboardDraft.status = state.keyboardDraft.trimmedText.isEmpty ? .empty : .editing
-        state.presentedRemoteSurface = .keyboardInput
+        state.presentedRemoteSurface = nil
+        state.isKeyboardInputActive = true
     }
 
     func openMoreKeysSheet() {
         guard !state.isAutoConnectPresented else { return }
+        state.isKeyboardInputActive = false
         state.presentedRemoteSurface = .moreKeysSheet
     }
 
     func dismissRemoteSurface() {
         state.presentedRemoteSurface = nil
+        state.isKeyboardInputActive = false
+    }
+
+    func closeKeyboardInput() {
+        state.isKeyboardInputActive = false
     }
 
     func selectInputSource(_ option: InputSourceOption) async {
@@ -220,6 +230,7 @@ final class RemotePageViewModel {
                 updateStatus(.noDevice)
                 state.isAutoConnectPresented = true
                 state.presentedRemoteSurface = nil
+                state.isKeyboardInputActive = false
                 autoConnect.showFirstLaunch()
                 return
             }
@@ -255,6 +266,7 @@ final class RemotePageViewModel {
             guard state.savedDevice == device else { return }
             updateStatus(.failed(RemoteControlError.map(error)))
             state.presentedRemoteSurface = nil
+            state.isKeyboardInputActive = false
         }
     }
 

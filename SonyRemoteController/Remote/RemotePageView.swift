@@ -65,12 +65,21 @@ struct RemotePageView: View {
                 .presentationDetents([.height(372)])
                 .presentationDragIndicator(.visible)
             }
-            .fullScreenCover(isPresented: keyboardBinding) {
-                KeyboardInputView(
-                    state: state,
-                    viewModel: viewModel,
-                    onDismiss: viewModel.dismissRemoteSurface
+            .sheet(isPresented: keyboardInputBinding) {
+                KeyboardInputSheet(
+                    deviceName: state.savedDevice?.displayName ?? "BRAVIA",
+                    text: keyboardDraftTextBinding,
+                    statusText: state.keyboardDraft.statusText,
+                    status: state.keyboardDraft.status,
+                    characterCountText: state.keyboardDraft.characterCountText,
+                    errorMessage: state.keyboardDraft.errorMessage,
+                    onSend: {
+                        Task { await viewModel.sendKeyboardDraft() }
+                    },
+                    onDismiss: viewModel.closeKeyboardInput
                 )
+                .presentationDetents([.height(120)])
+                .presentationDragIndicator(.visible)
             }
         }
         .navigationTitle("BRAVIA Controller")
@@ -84,6 +93,13 @@ struct RemotePageView: View {
                 .accessibilityIdentifier("tvSettingsButton")
             }
         }
+    }
+
+    private var keyboardDraftTextBinding: Binding<String> {
+        Binding(
+            get: { state.keyboardDraft.text },
+            set: { viewModel.updateKeyboardDraftText($0) }
+        )
     }
 
     private var mainCanvas: some View {
@@ -159,17 +175,17 @@ struct RemotePageView: View {
         )
     }
 
-    private var keyboardBinding: Binding<Bool> {
-        Binding(
-            get: { state.presentedRemoteSurface == .keyboardInput },
-            set: { if !$0 { viewModel.dismissRemoteSurface() } }
-        )
-    }
-
     private var moreKeysBinding: Binding<Bool> {
         Binding(
             get: { state.presentedRemoteSurface == .moreKeysSheet },
             set: { if !$0 { viewModel.dismissRemoteSurface() } }
+        )
+    }
+
+    private var keyboardInputBinding: Binding<Bool> {
+        Binding(
+            get: { state.isKeyboardInputActive },
+            set: { if !$0 { viewModel.closeKeyboardInput() } }
         )
     }
 }
@@ -506,128 +522,84 @@ private struct InputSourceSheet: View {
     }
 }
 
-private struct KeyboardInputView: View {
-    @Bindable var state: RemotePageState
-    let viewModel: RemotePageViewModel
+private struct KeyboardInputSheet: View {
+    let deviceName: String
+    @Binding var text: String
+    let statusText: String
+    let status: KeyboardDraftStatus
+    let characterCountText: String
+    let errorMessage: String?
+    let onSend: () -> Void
     let onDismiss: () -> Void
     @FocusState private var isTextFocused: Bool
 
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .topLeading) {
-                RemoteDesign.background.ignoresSafeArea()
-
-                HStack(spacing: 14) {
-                    TVThumbnail(width: 72, height: 42)
-                    Text("● 正在输入到 \(state.savedDevice?.displayName ?? "BRAVIA")")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(RemoteDesign.connectedGreen)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Spacer()
-                }
-                .padding(.horizontal, 18)
-                .frame(width: 390, height: 72)
-                .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 18))
-                .overlay { RoundedRectangle(cornerRadius: 18).stroke(RemoteDesign.border, lineWidth: 1) }
-                .position(x: 215, y: 88)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("输入文字到电视")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(RemoteDesign.secondaryText)
-                        Spacer()
-                        Text(state.keyboardDraft.statusText)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(keyboardStatusColor)
-                    }
-                    ZStack(alignment: .topLeading) {
-                        TextEditor(text: keyboardTextBinding)
-                            .font(.system(size: 22, weight: .medium))
-                            .scrollContentBackground(.hidden)
-                            .focused($isTextFocused)
-                            .disabled(state.keyboardDraft.status == .sending)
-                            .frame(height: 110)
-
-                        if state.keyboardDraft.text.isEmpty {
-                            Text("请输入文字")
-                                .font(.system(size: 22, weight: .medium))
-                                .foregroundStyle(RemoteDesign.secondaryText.opacity(0.55))
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                                .allowsHitTesting(false)
-                        }
-                    }
-                    Text(state.keyboardDraft.characterCountText)
-                        .font(.system(size: 14))
-                        .foregroundStyle(RemoteDesign.secondaryText)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .padding(18)
-                .frame(width: 390, height: 206)
-                .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 18))
-                .overlay { RoundedRectangle(cornerRadius: 18).stroke(RemoteDesign.border, lineWidth: 1) }
-                .position(x: 215, y: 234)
-
-                HStack(spacing: 15) {
-                    KeyboardActionButton(
-                        title: state.keyboardDraft.status == .sending ? "发送中" : "发送到电视",
-                        systemImage: "paperplane",
-                        isEnabled: state.keyboardDraft.canSend,
-                        action: { Task { await viewModel.sendKeyboardDraft() } }
-                    )
-                    KeyboardActionButton(
-                        title: "清空",
-                        systemImage: "xmark.circle",
-                        isEnabled: !state.keyboardDraft.text.isEmpty && state.keyboardDraft.status != .sending,
-                        action: viewModel.clearKeyboardDraft
-                    )
-                    KeyboardActionButton(
-                        title: "删除",
-                        systemImage: "delete.left",
-                        isEnabled: !state.keyboardDraft.text.isEmpty && state.keyboardDraft.status != .sending,
-                        action: viewModel.deleteLastKeyboardCharacter
-                    )
-                }
-                .position(x: 215, y: 376)
-
-                if let errorMessage = state.keyboardDraft.errorMessage {
-                    Text(errorMessage)
-                        .font(.system(size: 13))
-                        .foregroundStyle(RemoteDesign.danger)
-                        .frame(width: 360)
-                        .position(x: 215, y: 432)
-                }
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "keyboard")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(RemoteDesign.primaryBlue)
+                Text("输入到 \(deviceName)")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(RemoteDesign.secondaryText)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                Text(footerText)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(footerColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
-            .navigationTitle("键盘输入")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                isTextFocused = true
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onDismiss) {
-                        Image(systemName: "chevron.left")
-                    }
-                    .accessibilityLabel("返回")
+
+            TextField("请输入文字", text: $text, axis: .vertical)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(RemoteDesign.text)
+                .lineLimit(1...3)
+                .focused($isTextFocused)
+                .submitLabel(.send)
+                .onSubmit(onSend)
+                .textFieldStyle(.plain)
+                .textInputAutocapitalization(.sentences)
+                .autocorrectionDisabled(false)
+                .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+                .accessibilityIdentifier("keyboardInputField")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RemoteDesign.background)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(RemoteDesign.border)
+                .frame(height: 1)
+        }
+        .onAppear {
+            isTextFocused = true
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(action: onDismiss) {
+                    Image(systemName: "keyboard.chevron.compact.down")
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("完成", action: onDismiss)
-                }
+                .foregroundStyle(RemoteDesign.secondaryText)
+                .accessibilityLabel("收起键盘输入")
             }
         }
     }
 
-    private var keyboardTextBinding: Binding<String> {
-        Binding(
-            get: { state.keyboardDraft.text },
-            set: { viewModel.updateKeyboardDraftText($0) }
-        )
+    private var footerText: String {
+        if let errorMessage {
+            errorMessage
+        } else if status == .empty {
+            characterCountText
+        } else {
+            "\(statusText) · \(characterCountText)"
+        }
     }
 
-    private var keyboardStatusColor: Color {
-        switch state.keyboardDraft.status {
+    private var footerColor: Color {
+        switch status {
         case .empty:
             RemoteDesign.secondaryText
         case .editing, .sending:
@@ -637,33 +609,6 @@ private struct KeyboardInputView: View {
         case .failed:
             RemoteDesign.danger
         }
-    }
-}
-
-private struct KeyboardActionButton: View {
-    let title: String
-    let systemImage: String
-    var isEnabled = true
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 22, weight: .semibold))
-                Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            .foregroundStyle(isEnabled ? RemoteDesign.primaryBlue : RemoteDesign.secondaryText.opacity(0.6))
-            .frame(width: 120, height: 56)
-            .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 16))
-            .overlay { RoundedRectangle(cornerRadius: 16).stroke(RemoteDesign.border, lineWidth: 1) }
-            .opacity(isEnabled ? 1 : 0.58)
-        }
-        .buttonStyle(.plain)
-        .disabled(!isEnabled)
     }
 }
 

@@ -23,20 +23,20 @@ As a user with a connected BRAVIA TV, I want the main remote page to match the l
 
 ---
 
-### User Story 2 - Access secondary remote pages from the main page (Priority: P2)
+### User Story 2 - Access secondary remote controls from the main page (Priority: P2)
 
-As a user controlling a TV, I want access to input source, keyboard input, and more keys pages shown in the design so that common remote tasks are available without crowding the main page.
+As a user controlling a TV, I want access to input source, keyboard input, and more keys controls shown in the design so that common remote tasks are available without crowding the main page.
 
 **Why this priority**: These pages expand the remote from basic controls into a practical controller while keeping the main page focused.
 
-**Independent Test**: Can be tested by launching each secondary page from the main page and verifying each page against the corresponding Figma frames `03 Input Source Sheet`, `04 Keyboard Input`, and `05 More Keys Sheet`.
+**Independent Test**: Can be tested by launching each secondary control from the main page and verifying each presentation against the corresponding Figma frames `03 Input Source Sheet`, `04 Keyboard Input`, and `05 More Keys Sheet`.
 
 **Acceptance Scenarios**:
 
 1. **Given** the main remote page is visible, **When** the user opens input source, **Then** a bottom sheet lists `电视直播`, `HDMI 1`, `HDMI 2`, `HDMI 3`, and `USB`, with one current source visibly selected.
-2. **Given** the main remote page is visible, **When** the user opens keyboard input, **Then** a full-screen keyboard input page appears with target device context, text entry, character count, send, clear, and delete actions.
+2. **Given** the main remote page is visible, **When** the user opens keyboard input, **Then** the main page remains visible, the system keyboard is focused, and a keyboard input bar appears above it with target device context, text entry, character count, send, clear, and delete actions.
 3. **Given** the main remote page is visible, **When** the user opens more keys, **Then** a bottom sheet provides numeric keys, menu, back, info, and options controls.
-4. **Given** a secondary remote page is open, **When** the user dismisses it, **Then** the user returns to the main remote page without losing the connected device context.
+4. **Given** a secondary remote surface or keyboard input bar is open, **When** the user dismisses it, **Then** the user remains on the main remote page without losing the connected device context.
 
 ---
 
@@ -72,8 +72,8 @@ As a user, I want the settings page to match the latest design and clearly separ
 - **FR-003**: The main remote page MUST keep settings accessible from the top-right area and MUST NOT introduce a bottom tab bar for this restoration.
 - **FR-004**: Users MUST be able to open the input source sheet from the main remote page.
 - **FR-005**: The input source sheet MUST present `电视直播`, `HDMI 1`, `HDMI 2`, `HDMI 3`, and `USB`, and MUST visibly indicate the selected input when one is known.
-- **FR-006**: Users MUST be able to open a keyboard input page from the main remote page.
-- **FR-007**: The keyboard input page MUST show the target TV context, text entry area, character count, send-to-TV action, clear action, and delete action.
+- **FR-006**: Users MUST be able to open keyboard input from the main remote page without navigating away from the main page.
+- **FR-007**: The keyboard input bar MUST show the target TV context, text entry area, character count, send-to-TV action, clear action, and delete action above the system keyboard.
 - **FR-008**: Users MUST be able to open the more keys sheet from the main remote page.
 - **FR-009**: The more keys sheet MUST include numeric keys, menu, back, info, and options controls.
 - **FR-010**: Users MUST be able to open settings from the main remote page and return to the main remote page.
@@ -100,7 +100,7 @@ As a user, I want the settings page to match the latest design and clearly separ
 
 - **SC-001**: 100% of latest Figma app frames for main remote, input source, keyboard input, more keys, and settings have a corresponding reachable app page or presentation state.
 - **SC-002**: A connected user can reach input source, keyboard input, more keys, and settings from the main remote page in one tap each.
-- **SC-003**: Users can return from each secondary page to the main remote page without losing the connected device context in 100% of tested connected-state runs.
+- **SC-003**: Users can dismiss each secondary surface or keyboard input bar without losing the connected device context in 100% of tested connected-state runs.
 - **SC-004**: The settings page shows all nine designed settings rows across `设备`, `遥控器`, and `关于`.
 - **SC-005**: Tapping any `关于` row results in no empty page, broken page, or unsupported navigation in 100% of tested runs.
 - **SC-006**: Primary labels and controls remain readable and non-overlapping on the supported iPhone portrait sizes used for validation.

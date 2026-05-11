@@ -16,9 +16,9 @@
 - Extract a `RemoteUI` package immediately: rejected because the feature is still tightly coupled to app navigation and Figma-backed product flow.
 - Put all behavior inside views: rejected by the constitution and `docs/AppArchitecture.md`; state mutation and side effects belong in view models.
 
-## Decision: Model secondary pages as explicit remote page presentation state
+## Decision: Model secondary controls as explicit remote page presentation state
 
-**Rationale**: Input source and more keys are bottom sheets, keyboard input is a full-screen page, and settings remains a page navigation flow. Explicit presentation state gives tests a stable contract and prevents view-only boolean drift.
+**Rationale**: Input source and more keys are bottom sheets, keyboard input is an input bar above the system keyboard on the main remote page, and settings remains a page navigation flow. Explicit presentation state gives tests a stable contract and prevents view-only boolean drift.
 
 **Alternatives considered**:
 - Use unrelated local view `@State` for each presentation: rejected because secondary-page transitions are user-visible product behavior and need test coverage.

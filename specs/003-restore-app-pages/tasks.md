@@ -30,7 +30,7 @@
 **Critical**: No user story implementation should begin until this phase is complete.
 
 - [x] T004 [P] Add `RemoteSurface`, `InputSourceOption`, `KeyboardDraft`, `MoreKeyAction`, and `RemotePreferences` state types in `SonyRemoteController/Remote/RemoteStates.swift`
-- [x] T005 Add `presentedRemoteSurface`, `inputSources`, `keyboardDraft`, and `remotePreferences` fields to `RemotePageState` in `SonyRemoteController/Remote/RemoteStates.swift`
+- [x] T005 Add `presentedRemoteSurface`, `isKeyboardInputActive`, `inputSources`, `keyboardDraft`, and `remotePreferences` fields to `RemotePageState` in `SonyRemoteController/Remote/RemoteStates.swift`
 - [x] T006 Add open/dismiss intent methods for input source, keyboard input, more keys, and settings surfaces in `SonyRemoteController/Remote/RemoteViewModels.swift`
 - [x] T007 Add default input source and more-key model factories in `SonyRemoteController/Remote/RemoteViewModels.swift`
 - [x] T008 [P] Add package tests for any newly supported BRAVIA remote commands in `Packages/SonyRemoteModules/Tests/SonyRemoteCoreTests/RemoteCommandTests.swift`
@@ -66,11 +66,11 @@
 
 ---
 
-## Phase 4: User Story 2 - Access secondary remote pages from the main page (Priority: P2)
+## Phase 4: User Story 2 - Access secondary remote controls from the main page (Priority: P2)
 
 **Goal**: Users can open and use input source, keyboard input, and more keys surfaces from the main remote page.
 
-**Independent Test**: Launch each secondary page from the main page and compare against Figma frames `03 Input Source Sheet`, `04 Keyboard Input`, and `05 More Keys Sheet`.
+**Independent Test**: Launch each secondary control from the main page and compare against Figma frames `03 Input Source Sheet`, `04 Keyboard Input`, and `05 More Keys Sheet`.
 
 ### Tests for User Story 2
 
@@ -82,7 +82,7 @@
 
 - [x] T023 [US2] Implement the input source bottom sheet presentation and dismissal binding in `SonyRemoteController/Remote/RemotePageView.swift`
 - [x] T024 [US2] Implement input source rows for `电视直播`, `HDMI 1`, `HDMI 2`, `HDMI 3`, and `USB` with selected-state rendering in `SonyRemoteController/Remote/RemotePageView.swift`
-- [x] T025 [US2] Implement the keyboard input full-screen presentation and return path in `SonyRemoteController/Remote/RemotePageView.swift`
+- [x] T025 [US2] Implement the keyboard input bar above the system keyboard without page navigation in `SonyRemoteController/Remote/RemotePageView.swift`
 - [x] T026 [US2] Implement keyboard input target context, text entry, character count, send, clear, and delete controls in `SonyRemoteController/Remote/RemotePageView.swift`
 - [x] T027 [US2] Add keyboard draft clear, delete, and send intent methods in `SonyRemoteController/Remote/RemoteViewModels.swift`
 - [x] T028 [US2] Implement the more keys bottom sheet presentation and dismissal binding in `SonyRemoteController/Remote/RemotePageView.swift`

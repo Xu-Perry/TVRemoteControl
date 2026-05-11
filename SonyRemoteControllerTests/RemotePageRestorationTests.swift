@@ -14,6 +14,7 @@ struct RemotePageRestorationTests {
         #expect(harness.state.status == .connected)
         #expect(!harness.state.isAutoConnectPresented)
         #expect(harness.state.presentedRemoteSurface == nil)
+        #expect(!harness.state.isKeyboardInputActive)
         #expect(harness.state.remotePad.isEnabled)
         #expect(harness.state.inputSources.map(\.title) == ["电视直播", "HDMI 1", "HDMI 2", "HDMI 3", "USB"])
         #expect(harness.state.moreKeyActions.map(\.title) == [
@@ -40,6 +41,7 @@ struct RemotePageRestorationTests {
         #expect(harness.state.status == .noDevice)
         #expect(harness.state.isAutoConnectPresented)
         #expect(harness.state.presentedRemoteSurface == nil)
+        #expect(!harness.state.isKeyboardInputActive)
         #expect(!harness.state.remotePad.isEnabled)
     }
 
@@ -54,9 +56,11 @@ struct RemotePageRestorationTests {
         #expect(harness.state.presentedRemoteSurface == nil)
 
         harness.viewModel.openKeyboardInput()
-        #expect(harness.state.presentedRemoteSurface == .keyboardInput)
-        harness.viewModel.dismissRemoteSurface()
         #expect(harness.state.presentedRemoteSurface == nil)
+        #expect(harness.state.isKeyboardInputActive)
+        harness.viewModel.closeKeyboardInput()
+        #expect(harness.state.presentedRemoteSurface == nil)
+        #expect(!harness.state.isKeyboardInputActive)
 
         harness.viewModel.openMoreKeysSheet()
         #expect(harness.state.presentedRemoteSurface == .moreKeysSheet)
@@ -65,6 +69,18 @@ struct RemotePageRestorationTests {
 
         #expect(harness.state.savedDevice == savedDevice)
         #expect(harness.state.status == .connected)
+    }
+
+    @Test func keyboardInputActivationKeepsMainRemotePresentationStable() async {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        let snapshot = RestorationPageSnapshot(state: harness.state)
+
+        harness.viewModel.openKeyboardInput()
+
+        #expect(harness.state.isKeyboardInputActive)
+        #expect(harness.state.presentedRemoteSurface == nil)
+        snapshot.assertStillMatches(harness.state)
     }
 
     @Test func keyboardDraftClearDeleteAndCountUseConnectedTarget() async {
@@ -83,6 +99,19 @@ struct RemotePageRestorationTests {
         #expect(harness.state.keyboardDraft.text.isEmpty)
         #expect(harness.state.keyboardDraft.status == .empty)
         #expect(harness.state.savedDevice?.displayName == "Living Room")
+    }
+
+    @Test func closingKeyboardInputPreservesDraftText() async {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        harness.viewModel.openKeyboardInput()
+        harness.viewModel.updateKeyboardDraftText("SONY")
+
+        harness.viewModel.closeKeyboardInput()
+
+        #expect(!harness.state.isKeyboardInputActive)
+        #expect(harness.state.keyboardDraft.text == "SONY")
+        #expect(harness.state.keyboardDraft.status == .editing)
     }
 
     @Test func emptyKeyboardDraftDoesNotSendText() async {
@@ -184,6 +213,7 @@ struct RemotePageRestorationTests {
             harness.viewModel.handleAboutRowTap(row)
             #expect(harness.state.isSettingsPresented)
             #expect(harness.state.presentedRemoteSurface == nil)
+            #expect(!harness.state.isKeyboardInputActive)
         }
 
         snapshot.assertStillMatches(harness.state)

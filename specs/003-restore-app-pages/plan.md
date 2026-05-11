@@ -5,7 +5,7 @@
 
 ## Summary
 
-Restore the daily-use remote experience from the latest Figma file `BRAVIA Controller UI Kit`: main remote, input source bottom sheet, keyboard input full-screen page, more keys bottom sheet, and settings page. Keep the work in the app target because it is product-flow UI and page state, reuse existing BRAVIA command and persistence services, and add focused Swift Testing coverage around navigation state, inactive about rows, settings preferences, keyboard draft behavior, and command dispatch boundaries.
+Restore the daily-use remote experience from the latest Figma file `BRAVIA Controller UI Kit`: main remote, input source bottom sheet, keyboard input bar above the system keyboard, more keys bottom sheet, and settings page. Keep the work in the app target because it is product-flow UI and page state, reuse existing BRAVIA command and persistence services, and add focused Swift Testing coverage around presentation state, inactive about rows, settings preferences, keyboard draft behavior, and command dispatch boundaries.
 
 ## Technical Context
 
@@ -15,7 +15,7 @@ Restore the daily-use remote experience from the latest Figma file `BRAVIA Contr
 **Testing**: Swift Testing via `import Testing`; app tests under `SonyRemoteControllerTests`; package tests under `Packages/SonyRemoteModules/Tests` only if shared command mappings change  
 **Target Platform**: iOS 18+ portrait iPhone app  
 **Project Type**: Native iOS mobile app  
-**Performance Goals**: Main and secondary remote pages respond to taps immediately; sheet or full-screen presentations appear without visible layout jump; command progress must not repaint unrelated page regions  
+**Performance Goals**: Main remote controls respond to taps immediately; sheets and the keyboard input bar appear without visible layout jump; command progress must not repaint unrelated page regions
 **Constraints**: UI must follow the latest Figma frames and design tokens; no bottom tab bar; no new package extraction unless stable reusable domain logic appears; tests must not require a real BRAVIA TV or local network  
 **Scale/Scope**: Five Figma-backed app states for this feature: main remote, input source sheet, keyboard input, more keys sheet, and settings; existing auto-connect flow remains the no-device entry path
 
@@ -66,7 +66,7 @@ Packages/SonyRemoteModules/
 └── Tests/SonyRemoteCoreTests/RemoteCommandTests.swift
 ```
 
-**Structure Decision**: Keep this feature in the app target. The work is primarily page composition, presentation state, settings rows, keyboard draft state, and Figma-aligned visual structure. Existing package code already owns reusable BRAVIA commands and networking; only touch `Packages/SonyRemoteModules` if a missing command mapping is required by the restored pages.
+**Structure Decision**: Keep this feature in the app target. The work is primarily page composition, presentation state, settings rows, keyboard input activation and draft state, and Figma-aligned visual structure. Existing package code already owns reusable BRAVIA commands and networking; only touch `Packages/SonyRemoteModules` if a missing command mapping is required by the restored pages.
 
 ## Phase 0: Research
 
@@ -78,7 +78,7 @@ See [data-model.md](data-model.md), [contracts/ui-restoration.md](contracts/ui-r
 
 ## Post-Design Constitution Check
 
-- Architecture Boundary: PASS. The data model keeps page state explicit and keeps secondary page presentation, keyboard draft, source selection, settings preferences, and about-row behavior out of view bodies. The contract requires page view model ownership for cross-page transitions.
+- Architecture Boundary: PASS. The data model keeps page state explicit and keeps secondary sheet presentation, keyboard input activation and draft, source selection, settings preferences, and about-row behavior out of view bodies. The contract requires page view model ownership for cross-surface transitions.
 - Test-Driven Change: PASS. The quickstart defines app-level automated tests for state transitions and no-op about rows, plus screenshot/manual checks for Figma parity. No real TV is required for the planned automated coverage.
 
 ## Complexity Tracking

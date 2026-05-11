@@ -49,25 +49,25 @@ This contract defines externally visible app behavior for the Figma page restora
 - Dismissing the sheet returns to main remote with device context unchanged.
 - Source send failure leaves the sheet available and surfaces clear feedback.
 
-## Keyboard Input Page
+## Keyboard Input Bar
 
 **Trigger**: Tap `键盘输入` from main remote.
 
-**Presentation**: Full-screen page.
+**Presentation**: Input bar above the iOS system keyboard while the main remote page remains visible.
 
 **Required content**:
-- Title `键盘输入`.
-- Completion or back action.
 - Target TV context with connected device name.
 - Text input area.
 - Character count.
 - `发送到电视`, `清空`, and `删除` actions.
+- Dismiss affordance for hiding keyboard input.
 
 **Behavior**:
+- Opening keyboard input must not push, cover, or otherwise navigate away from the main remote page.
 - Clear empties the draft.
 - Delete removes the final character when available.
 - Send attempts to send text to the connected TV only when the command path is available.
-- Returning to main remote preserves connected device context.
+- Dismissing keyboard input preserves the draft and connected device context.
 
 ## More Keys Sheet
 

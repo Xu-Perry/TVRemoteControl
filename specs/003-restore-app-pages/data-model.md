@@ -14,30 +14,38 @@ Represents the whole connected remote experience.
 - `error`: latest remote-page error.
 - `isSettingsPresented`: whether settings is open.
 - `isAutoConnectPresented`: whether setup/discovery is open.
-- `presentedRemoteSurface`: current secondary surface for input source, keyboard input, or more keys.
+- `presentedRemoteSurface`: current secondary sheet surface for input source or more keys.
+- `isKeyboardInputActive`: whether the main page keyboard input bar is active and should focus text entry.
 - `inputSources`: available input source options.
 - `keyboardDraft`: current keyboard input state.
 - `remotePreferences`: local remote preference state.
 
 **Validation rules**:
-- `presentedRemoteSurface` must be empty when the auto-connect flow owns the screen.
+- `presentedRemoteSurface` must be empty and `isKeyboardInputActive` must be false when the auto-connect flow owns the screen.
 - Secondary surfaces must preserve `savedDevice` and `status` when dismissed.
-- Command-capable surfaces must respect `status.allowsRemoteCommands`.
+- Command-capable surfaces and keyboard send actions must respect `status.allowsRemoteCommands`.
 
 ## RemoteSurface
 
-Represents the secondary UI currently presented from the main remote page.
+Represents the secondary sheet UI currently presented from the main remote page.
 
 **Values**:
 - `inputSourceSheet`: bottom sheet for input source choices.
-- `keyboardInput`: full-screen keyboard input page.
 - `moreKeysSheet`: bottom sheet for numeric and advanced keys.
 
 **State transitions**:
 - Main remote -> input source sheet by tapping `输入源`.
-- Main remote -> keyboard input by tapping `键盘输入`.
 - Main remote -> more keys sheet by tapping `更多按键`.
-- Any secondary surface -> main remote by dismissing or completing the surface.
+- Any secondary sheet -> main remote by dismissing or completing the sheet.
+
+## KeyboardInputActivation
+
+Represents the inline keyboard input mode on the main remote page.
+
+**State transitions**:
+- Main remote -> keyboard input bar by tapping `键盘输入`.
+- Keyboard input bar -> main remote by dismissing the keyboard/input bar.
+- Activating keyboard input must not change `presentedRemoteSurface`, settings navigation, saved device, or connection status.
 
 ## ConnectedDeviceSummary
 

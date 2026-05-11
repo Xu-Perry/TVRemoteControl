@@ -10,6 +10,7 @@ final class RemotePageState {
     var remotePad = RemotePadState()
     var autoConnect = AutoConnectState()
     var presentedRemoteSurface: RemoteSurface?
+    var isKeyboardInputActive = false
     var inputSources = InputSourceOption.defaultOptions()
     var keyboardDraft = KeyboardDraft()
     var moreKeyActions = MoreKeyAction.defaultActions()
@@ -55,7 +56,6 @@ final class RemotePadState {
 
 enum RemoteSurface: Equatable, Sendable {
     case inputSourceSheet
-    case keyboardInput
     case moreKeysSheet
 }
 
