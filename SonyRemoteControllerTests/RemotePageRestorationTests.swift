@@ -218,6 +218,7 @@ struct RemotePageRestorationTests {
 
         snapshot.assertStillMatches(harness.state)
     }
+
 }
 
 @MainActor

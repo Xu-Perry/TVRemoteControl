@@ -8,6 +8,7 @@ struct DeviceSettingsView: View {
     let settingsViewModel: DeviceSettingsViewModel
     let onClose: () -> Void
     let onSave: () -> Void
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         GeometryReader { proxy in
@@ -32,24 +33,19 @@ struct DeviceSettingsView: View {
         ZStack(alignment: .topLeading) {
             RemoteDesign.background
 
-            DeviceSummaryCard(
-                title: pageState.savedDevice?.displayName ?? pageState.connection.title,
-                status: pageState.status.isConnected ? "已连接" : pageState.status.displayText,
-                isConnected: pageState.status.isConnected,
-                onTap: {}
-            )
-            .scaleEffect(0.975)
-            .position(x: 215, y: 96)
-
-            sectionTitle("设备", y: 172)
-            settingsGroup(y: 273) {
-                SettingsNavigationRow(title: "设备管理", systemImage: "tv", value: nil, tint: RemoteDesign.primaryBlue, action: {})
-                SettingsNavigationRow(title: "自动连接", systemImage: "link", value: "已开启", tint: RemoteDesign.primaryBlue, action: {})
-                SettingsNavigationRow(title: "忘记此设备", systemImage: "trash", value: nil, tint: RemoteDesign.danger, action: {})
+            sectionTitle("设备", y: 82)
+            settingsGroup(rowCount: 1, y: 131) {
+                SettingsNavigationRow(
+                    title: "设备管理",
+                    systemImage: "tv",
+                    value: nil,
+                    tint: RemoteDesign.primaryBlue,
+                    action: pageViewModel.openDeviceManagement
+                )
             }
 
-            sectionTitle("遥控器", y: 390)
-            settingsGroup(y: 491) {
+            sectionTitle("遥控器", y: 210)
+            settingsGroup(rowCount: 3, y: 311) {
                 SettingsToggleRow(
                     title: "按键震动反馈",
                     systemImage: "iphone.radiowaves.left.and.right",
@@ -70,13 +66,13 @@ struct DeviceSettingsView: View {
                 )
             }
 
-            sectionTitle("关于", y: 608)
-            settingsGroup(y: 709) {
+            sectionTitle("关于", y: 428)
+            settingsGroup(rowCount: 3, y: 529) {
                 SettingsNavigationRow(title: "帮助与反馈", systemImage: "questionmark.circle", value: nil, tint: RemoteDesign.primaryBlue) {
                     pageViewModel.handleAboutRowTap(.help)
                 }
                 SettingsNavigationRow(title: "隐私政策", systemImage: "hand.raised", value: nil, tint: RemoteDesign.primaryBlue) {
-                    pageViewModel.handleAboutRowTap(.privacy)
+                    openURL(SettingsLinks.privacyPolicyURL)
                 }
                 SettingsNavigationRow(title: "关于应用", systemImage: "info.circle", value: nil, tint: RemoteDesign.primaryBlue) {
                     pageViewModel.handleAboutRowTap(.about)
@@ -94,9 +90,9 @@ struct DeviceSettingsView: View {
             .position(x: 74, y: y)
     }
 
-    private func settingsGroup<Content: View>(y: CGFloat, @ViewBuilder content: () -> Content) -> some View {
+    private func settingsGroup<Content: View>(rowCount: Int, y: CGFloat, @ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 0, content: content)
-            .frame(width: 390, height: 158)
+            .frame(width: 390, height: CGFloat(rowCount * 52 + 2))
             .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 20))
             .overlay {
                 RoundedRectangle(cornerRadius: 20)
@@ -111,6 +107,10 @@ private enum SettingsDesign {
     static let canvasHeight: CGFloat = 932
 }
 
+private enum SettingsLinks {
+    static let privacyPolicyURL = URL(string: "https://xu-perry.github.io/SonyController/privacy.html")!
+}
+
 private struct SettingsNavigationRow: View {
     let title: String
     let systemImage: String
@@ -120,33 +120,44 @@ private struct SettingsNavigationRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 18) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 21, weight: .medium))
-                    .foregroundStyle(tint)
-                    .frame(width: 26, height: 26)
-
-                Text(title)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(RemoteDesign.text)
-
-                Spacer()
-
-                if let value {
-                    Text(value)
-                        .font(.system(size: 14))
-                        .foregroundStyle(RemoteDesign.secondaryText)
-                }
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(RemoteDesign.secondaryText)
-            }
-            .padding(.horizontal, 26)
-            .frame(height: 52)
-            .contentShape(Rectangle())
+            SettingsRowContent(title: title, systemImage: systemImage, value: value, tint: tint)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct SettingsRowContent: View {
+    let title: String
+    let systemImage: String
+    let value: String?
+    let tint: Color
+
+    var body: some View {
+        HStack(spacing: 18) {
+            Image(systemName: systemImage)
+                .font(.system(size: 21, weight: .medium))
+                .foregroundStyle(tint)
+                .frame(width: 26, height: 26)
+
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(RemoteDesign.text)
+
+            Spacer()
+
+            if let value {
+                Text(value)
+                    .font(.system(size: 14))
+                    .foregroundStyle(RemoteDesign.secondaryText)
+            }
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(RemoteDesign.secondaryText)
+        }
+        .padding(.horizontal, 26)
+        .frame(height: 52)
+        .contentShape(Rectangle())
     }
 }
 
