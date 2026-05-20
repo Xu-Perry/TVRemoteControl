@@ -16,7 +16,7 @@ struct LocalDeviceRepository: DeviceRepository {
     private let secretStore: SecretStore
 
     init(
-        metadataStore: DeviceMetadataStore = UserDefaultsDeviceMetadataStore(),
+        metadataStore: DeviceMetadataStore = KeychainDeviceMetadataStore(),
         secretStore: SecretStore = KeychainSecretStore()
     ) {
         self.metadataStore = metadataStore

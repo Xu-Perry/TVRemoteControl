@@ -11,7 +11,10 @@ struct RemotePageView: View {
                 if state.isAutoConnectPresented {
                     AutoConnectView(
                         state: state.autoConnect,
-                        viewModel: viewModel.autoConnect
+                        viewModel: viewModel.autoConnect,
+                        manualEntryState: state.settings,
+                        manualEntryViewModel: viewModel.settings,
+                        onManualEntrySave: viewModel.saveSettings
                     )
                 } else {
                     mainRemote

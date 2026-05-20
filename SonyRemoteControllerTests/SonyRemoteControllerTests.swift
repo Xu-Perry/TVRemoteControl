@@ -124,12 +124,9 @@ struct SonyRemoteControllerTests {
     }
 
     @Test func localRepositoryRestoresDeviceAndPSKAcrossInstances() throws {
-        let suiteName = "SonyRemoteControllerTests.\(UUID().uuidString)"
-        let userDefaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { userDefaults.removePersistentDomain(forName: suiteName) }
-
+        let metadataSecretStore = MockSecretStore()
         let secretStore = MockSecretStore()
-        let metadataStore = UserDefaultsDeviceMetadataStore(userDefaults: userDefaults, key: "savedDevice")
+        let metadataStore = KeychainDeviceMetadataStore(secretStore: metadataSecretStore, legacyStore: nil)
         let repository = LocalDeviceRepository(metadataStore: metadataStore, secretStore: secretStore)
 
         let savedDevice = try repository.saveDevice(
@@ -139,11 +136,12 @@ struct SonyRemoteControllerTests {
         )
 
         let restoredRepository = LocalDeviceRepository(
-            metadataStore: UserDefaultsDeviceMetadataStore(userDefaults: userDefaults, key: "savedDevice"),
+            metadataStore: KeychainDeviceMetadataStore(secretStore: metadataSecretStore, legacyStore: nil),
             secretStore: secretStore
         )
         let restoredDevice = try #require(try restoredRepository.loadDevice())
-        let rawMetadata = try #require(userDefaults.data(forKey: "savedDevice"))
+        let encodedMetadata = try #require(try metadataSecretStore.read(for: "saved.bravia.device"))
+        let rawMetadata = try #require(Data(base64Encoded: encodedMetadata))
         let rawMetadataText = String(decoding: rawMetadata, as: UTF8.self)
 
         #expect(restoredDevice == savedDevice)
@@ -152,6 +150,46 @@ struct SonyRemoteControllerTests {
         #expect(try restoredRepository.readPSK(for: restoredDevice) == "1234")
         #expect(rawMetadataText.contains(restoredDevice.pskKey))
         #expect(!rawMetadataText.contains("1234"))
+    }
+
+    @Test func keychainMetadataStoreMigratesLegacyUserDefaultsDevice() throws {
+        let suiteName = "SonyRemoteControllerTests.\(UUID().uuidString)"
+        let userDefaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { userDefaults.removePersistentDomain(forName: suiteName) }
+
+        let legacyStore = UserDefaultsDeviceMetadataStore(userDefaults: userDefaults, key: "savedDevice")
+        let metadataSecretStore = MockSecretStore()
+        let savedDevice = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+        try legacyStore.saveDevice(savedDevice)
+
+        let metadataStore = KeychainDeviceMetadataStore(
+            secretStore: metadataSecretStore,
+            key: "saved.bravia.device",
+            legacyStore: legacyStore
+        )
+
+        let restoredDevice = try #require(try metadataStore.loadDevice())
+
+        #expect(restoredDevice == savedDevice)
+        #expect(try metadataSecretStore.read(for: "saved.bravia.device") != nil)
+        #expect(userDefaults.data(forKey: "savedDevice") == nil)
+    }
+
+    @Test func saveManualEntryClosesManualRouteAndConnectsRemote() async {
+        let harness = Harness()
+        harness.viewModel.autoConnect.openManualEntry()
+        harness.state.settings.tvName = "Bedroom TV"
+        harness.state.settings.ipAddress = "192.168.1.3"
+        harness.state.settings.psk = "1234"
+
+        await harness.viewModel.settings.testConnection()
+        harness.viewModel.saveSettings()
+
+        #expect(!harness.state.autoConnect.isManualEntryPresented)
+        #expect(!harness.state.isSettingsPresented)
+        #expect(!harness.state.isAutoConnectPresented)
+        #expect(harness.state.status == .connected)
+        #expect(harness.state.savedDevice?.displayName == "Bedroom TV")
     }
 
     @Test func restoresPersistedDeviceIntoUsableRemoteState() async throws {

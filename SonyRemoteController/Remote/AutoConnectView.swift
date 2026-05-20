@@ -4,6 +4,9 @@ import SonyRemoteCore
 struct AutoConnectView: View {
     let state: AutoConnectState
     let viewModel: AutoConnectViewModel
+    let manualEntryState: DeviceSettingsState
+    let manualEntryViewModel: DeviceSettingsViewModel
+    let onManualEntrySave: () -> Void
     var presentationMode: AutoConnectPresentationMode = .primaryFlow
     var onDone: (() -> Void)?
     @State private var keyboardOverlap: CGFloat = 0
@@ -48,6 +51,24 @@ struct AutoConnectView: View {
                 keyboardOverlap = 0
             }
         }
+        .navigationDestination(isPresented: manualEntryBinding) {
+            ManualIPEntryView(
+                state: manualEntryState,
+                viewModel: manualEntryViewModel,
+                onSave: onManualEntrySave
+            )
+        }
+    }
+
+    private var manualEntryBinding: Binding<Bool> {
+        Binding(
+            get: { state.isManualEntryPresented },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.closeManualEntry()
+                }
+            }
+        )
     }
 
     private func designCanvas(scale: CGFloat) -> some View {
@@ -727,6 +748,239 @@ enum AutoConnectPresentationMode {
     }
 }
 
+private struct ManualIPEntryView: View {
+    @Bindable var state: DeviceSettingsState
+    let viewModel: DeviceSettingsViewModel
+    let onSave: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                InfoHeader(
+                    systemImage: "network",
+                    title: "手动输入 IP",
+                    subtitle: "自动发现失败时，可输入电视 IP 地址和预共享密钥继续连接。"
+                )
+
+                VStack(spacing: 0) {
+                    textFieldRow(
+                        title: "电视名称",
+                        placeholder: "客厅电视",
+                        text: $state.tvName,
+                        keyboardType: .default,
+                        submitLabel: .next
+                    )
+                    Divider().padding(.leading, 18)
+                    textFieldRow(
+                        title: "IP 地址",
+                        placeholder: "192.168.1.2",
+                        text: $state.ipAddress,
+                        keyboardType: .numbersAndPunctuation,
+                        submitLabel: .next
+                    )
+                    Divider().padding(.leading, 18)
+                    secureFieldRow(
+                        title: "预共享密钥",
+                        placeholder: "电视 IP Control 中配置的 PSK",
+                        text: $state.psk
+                    )
+                }
+                .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(AutoConnectDesign.border, lineWidth: 1)
+                }
+
+                if let error = state.error {
+                    MessageRow(text: error.recoverySuggestion, color: AutoConnectDesign.dangerRed)
+                } else if let message = state.successMessage {
+                    MessageRow(text: message, color: AutoConnectDesign.connectedGreen)
+                }
+
+                VStack(spacing: 12) {
+                    Button {
+                        Task { await viewModel.testConnection() }
+                    } label: {
+                        if state.isTestingConnection {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Label("测试连接", systemImage: "antenna.radiowaves.left.and.right")
+                        }
+                    }
+                    .buttonStyle(PrimaryManualButtonStyle())
+                    .disabled(state.isTestingConnection)
+
+                    Button(action: onSave) {
+                        Text("保存并连接")
+                    }
+                    .buttonStyle(SecondaryManualButtonStyle(isEnabled: state.canSave && !state.isTestingConnection))
+                    .disabled(!state.canSave || state.isTestingConnection)
+                }
+
+                ManualInfoSection(title: "连接前确认", items: [
+                    "电视和 iPhone 已连接到同一个网络。",
+                    "电视已开启 IP Control，并允许移动设备控制。",
+                    "预共享密钥需要与电视设置中的 PSK 保持一致。"
+                ])
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 24)
+            .padding(.bottom, 40)
+        }
+        .background(AutoConnectDesign.background.ignoresSafeArea())
+        .navigationTitle("手动输入 IP")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func textFieldRow(
+        title: String,
+        placeholder: String,
+        text: Binding<String>,
+        keyboardType: UIKeyboardType,
+        submitLabel: SubmitLabel
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(AutoConnectDesign.secondaryText)
+            TextField(placeholder, text: text)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(AutoConnectDesign.text)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .keyboardType(keyboardType)
+                .submitLabel(submitLabel)
+        }
+        .frame(height: 72)
+        .padding(.horizontal, 18)
+    }
+
+    private func secureFieldRow(title: String, placeholder: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(AutoConnectDesign.secondaryText)
+            SecureField(placeholder, text: text)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(AutoConnectDesign.text)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.done)
+        }
+        .frame(height: 72)
+        .padding(.horizontal, 18)
+    }
+}
+
+private struct InfoHeader: View {
+    let systemImage: String
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.system(size: 32, weight: .semibold))
+                .foregroundStyle(AutoConnectDesign.primaryBlue)
+                .frame(width: 56, height: 56)
+                .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(AutoConnectDesign.border, lineWidth: 1)
+                }
+
+            Text(title)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(AutoConnectDesign.text)
+
+            Text(subtitle)
+                .font(.system(size: 15))
+                .foregroundStyle(AutoConnectDesign.secondaryText)
+                .lineSpacing(3)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct MessageRow: View {
+    let text: String
+    let color: Color
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .background(color.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+    }
+}
+
+private struct ManualInfoSection: View {
+    let title: String
+    let items: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(AutoConnectDesign.text)
+
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(items, id: \.self) { item in
+                    HStack(alignment: .top, spacing: 10) {
+                        Circle()
+                            .fill(AutoConnectDesign.primaryBlue)
+                            .frame(width: 6, height: 6)
+                            .padding(.top, 7)
+                        Text(item)
+                            .font(.system(size: 15))
+                            .foregroundStyle(AutoConnectDesign.secondaryText)
+                            .lineSpacing(3)
+                    }
+                }
+            }
+            .padding(16)
+            .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(AutoConnectDesign.border, lineWidth: 1)
+            }
+        }
+    }
+}
+
+private struct PrimaryManualButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(AutoConnectDesign.primaryBlue, in: RoundedRectangle(cornerRadius: 14))
+            .opacity(configuration.isPressed ? 0.82 : 1)
+    }
+}
+
+private struct SecondaryManualButtonStyle: ButtonStyle {
+    let isEnabled: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(isEnabled ? AutoConnectDesign.primaryBlue : AutoConnectDesign.secondaryText)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(AutoConnectDesign.border, lineWidth: 1)
+            }
+            .opacity(configuration.isPressed && isEnabled ? 0.82 : 1)
+    }
+}
+
 private enum AutoConnectDesign {
     static let canvasWidth: CGFloat = 430
     static let canvasHeight: CGFloat = 932
@@ -773,5 +1027,11 @@ private struct DiagonalBand: View {
 #Preview {
     let pageState = RemotePageState()
     let viewModel = AppEnvironment.makeRemotePageViewModel(state: pageState)
-    AutoConnectView(state: pageState.autoConnect, viewModel: viewModel.autoConnect)
+    AutoConnectView(
+        state: pageState.autoConnect,
+        viewModel: viewModel.autoConnect,
+        manualEntryState: pageState.settings,
+        manualEntryViewModel: viewModel.settings,
+        onManualEntrySave: viewModel.saveSettings
+    )
 }

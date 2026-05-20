@@ -243,8 +243,21 @@ final class AutoConnectViewModel {
     }
 
     func openManualEntry() {
+        pageState.presentedRemoteSurface = nil
+        pageState.isKeyboardInputActive = false
+        pageState.settings.tvName = state.selectedDevice?.displayName ?? state.rememberedDevice?.displayName ?? ""
+        pageState.settings.ipAddress = state.selectedDevice?.host ?? state.rememberedDevice?.host ?? ""
+        pageState.settings.psk = ""
+        pageState.settings.isTestingConnection = false
+        pageState.settings.canSave = false
+        pageState.settings.lastTestedHost = nil
+        pageState.settings.error = nil
+        pageState.settings.successMessage = nil
         state.isManualEntryPresented = true
-        pageState.isSettingsPresented = true
+    }
+
+    func closeManualEntry() {
+        state.isManualEntryPresented = false
     }
 
     func showClearConfirmation() {

@@ -93,6 +93,9 @@ struct DeviceSettingsView: View {
             AutoConnectView(
                 state: pageState.autoConnect,
                 viewModel: pageViewModel.autoConnect,
+                manualEntryState: settingsState,
+                manualEntryViewModel: settingsViewModel,
+                onManualEntrySave: pageViewModel.saveSettings,
                 presentationMode: .settingsDetail,
                 onDone: pageViewModel.closeSettingsRoute
             )

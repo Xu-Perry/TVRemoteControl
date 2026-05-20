@@ -202,6 +202,8 @@ final class RemotePageViewModel {
             let device = try settings.save()
             state.savedDevice = device
             updateStatus(.connected)
+            state.autoConnect.isManualEntryPresented = false
+            state.settings.presentedRoute = nil
             state.isSettingsPresented = false
             state.isAutoConnectPresented = false
         } catch {

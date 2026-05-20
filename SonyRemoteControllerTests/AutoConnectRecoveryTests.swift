@@ -21,12 +21,23 @@ struct AutoConnectRecoveryTests {
         #expect(harness.state.autoConnect.discoveredDevices.count == 1)
     }
 
-    @Test func manualEntryPresentsSettings() {
+    @Test func manualEntryPushesManualIPPageWithoutOpeningSettings() {
         let harness = AutoConnectHarness()
 
         harness.viewModel.autoConnect.openManualEntry()
 
-        #expect(harness.state.isSettingsPresented)
         #expect(harness.state.autoConnect.isManualEntryPresented)
+        #expect(!harness.state.isSettingsPresented)
+        #expect(harness.state.settings.ipAddress.isEmpty)
+        #expect(harness.state.settings.psk.isEmpty)
+    }
+
+    @Test func manualEntryCanBeDismissedFromNavigationBinding() {
+        let harness = AutoConnectHarness()
+
+        harness.viewModel.autoConnect.openManualEntry()
+        harness.viewModel.autoConnect.closeManualEntry()
+
+        #expect(!harness.state.autoConnect.isManualEntryPresented)
     }
 }
