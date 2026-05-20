@@ -19,7 +19,8 @@ final class RemotePageViewModel {
         repository: DeviceRepository,
         braviaClient: BRAVIAControlling,
         pairingClient: BRAVIAPairing,
-        discoveryService: BRAVIADiscoveryServicing
+        discoveryService: BRAVIADiscoveryServicing,
+        haptics: RemoteHapticsProviding? = nil
     ) {
         self.state = state
         self.repository = repository
@@ -35,7 +36,8 @@ final class RemotePageViewModel {
             state: state.remotePad,
             pageState: state,
             repository: repository,
-            braviaClient: braviaClient
+            braviaClient: braviaClient,
+            haptics: haptics
         )
         self.autoConnect = AutoConnectViewModel(
             state: state.autoConnect,
@@ -69,8 +71,24 @@ final class RemotePageViewModel {
         state.isAutoConnectPresented = true
     }
 
+    func openSettingsDeviceManagement() {
+        state.presentedRemoteSurface = nil
+        state.isKeyboardInputActive = false
+        autoConnect.restoreRememberedDevice(state.savedDevice)
+        state.settings.presentedRoute = .deviceManagement
+    }
+
+    func openSettingsRoute(_ route: SettingsRoute) {
+        state.settings.presentedRoute = route
+    }
+
+    func closeSettingsRoute() {
+        state.settings.presentedRoute = nil
+    }
+
     func closeSettings() {
         state.isSettingsPresented = false
+        state.settings.presentedRoute = nil
         refreshFromRepository()
     }
 
@@ -179,18 +197,6 @@ final class RemotePageViewModel {
         state.remotePreferences.isHapticFeedbackEnabled = isEnabled
     }
 
-    func setContinuousSendEnabled(_ isEnabled: Bool) {
-        state.remotePreferences.isContinuousSendEnabled = isEnabled
-    }
-
-    func setKeepScreenAwakeEnabled(_ isEnabled: Bool) {
-        state.remotePreferences.isKeepScreenAwakeEnabled = isEnabled
-    }
-
-    func handleAboutRowTap(_ row: SettingsAboutRow) {
-        state.isSettingsPresented = true
-    }
-
     func saveSettings() {
         do {
             let device = try settings.save()
@@ -285,12 +291,6 @@ final class RemotePageViewModel {
     }
 }
 
-enum SettingsAboutRow: String, CaseIterable, Sendable {
-    case help = "帮助与反馈"
-    case privacy = "隐私政策"
-    case about = "关于应用"
-}
-
 @MainActor
 final class DeviceSettingsViewModel {
     let state: DeviceSettingsState
@@ -367,23 +367,30 @@ final class RemotePadViewModel {
     private let pageState: RemotePageState
     private let repository: DeviceRepository
     private let braviaClient: BRAVIAControlling
+    private let haptics: RemoteHapticsProviding
 
     init(
         state: RemotePadState,
         pageState: RemotePageState,
         repository: DeviceRepository,
-        braviaClient: BRAVIAControlling
+        braviaClient: BRAVIAControlling,
+        haptics: RemoteHapticsProviding? = nil
     ) {
         self.state = state
         self.pageState = pageState
         self.repository = repository
         self.braviaClient = braviaClient
+        self.haptics = haptics ?? NoOpRemoteHaptics()
     }
 
     func send(_ command: RemoteCommand) async {
         guard pageState.canSendCommands, let device = pageState.savedDevice else {
             pageState.error = .missingDevice
             return
+        }
+
+        if pageState.remotePreferences.isHapticFeedbackEnabled {
+            haptics.impact()
         }
 
         do {

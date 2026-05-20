@@ -4,6 +4,8 @@ import SonyRemoteCore
 struct AutoConnectView: View {
     let state: AutoConnectState
     let viewModel: AutoConnectViewModel
+    var presentationMode: AutoConnectPresentationMode = .primaryFlow
+    var onDone: (() -> Void)?
     @State private var keyboardOverlap: CGFloat = 0
 
     var body: some View {
@@ -21,10 +23,10 @@ struct AutoConnectView: View {
                     .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
             }
         }
-        .navigationTitle("BRAVIA Controller")
+        .navigationTitle(presentationMode.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if state.screen != .firstLaunch {
+            if presentationMode.showsCloseButton && state.screen != .firstLaunch {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: closeOrCancel) {
                         Image(systemName: "xmark")
@@ -186,7 +188,7 @@ struct AutoConnectView: View {
             )
             .position(x: 215, y: 767)
 
-            primaryButton("进入遥控器", systemImage: nil, action: viewModel.enterRemote)
+            primaryButton(connectedPrimaryActionTitle, systemImage: nil, action: connectedPrimaryAction)
                 .position(x: 215, y: 839)
         }
     }
@@ -672,6 +674,24 @@ struct AutoConnectView: View {
         }
     }
 
+    private var connectedPrimaryActionTitle: String {
+        switch presentationMode {
+        case .primaryFlow:
+            "进入遥控器"
+        case .settingsDetail:
+            "完成"
+        }
+    }
+
+    private func connectedPrimaryAction() {
+        switch presentationMode {
+        case .primaryFlow:
+            viewModel.enterRemote()
+        case .settingsDetail:
+            onDone?()
+        }
+    }
+
     private func updateKeyboardOverlap(from notification: Notification) {
         guard state.isPinSheetPresented else {
             return
@@ -680,6 +700,29 @@ struct AutoConnectView: View {
         let overlap = KeyboardAvoidance.visibleKeyboardOverlap(from: notification)
         withAnimation(KeyboardAvoidance.animation(from: notification)) {
             keyboardOverlap = overlap
+        }
+    }
+}
+
+enum AutoConnectPresentationMode {
+    case primaryFlow
+    case settingsDetail
+
+    var navigationTitle: String {
+        switch self {
+        case .primaryFlow:
+            "BRAVIA Controller"
+        case .settingsDetail:
+            "设备管理"
+        }
+    }
+
+    var showsCloseButton: Bool {
+        switch self {
+        case .primaryFlow:
+            true
+        case .settingsDetail:
+            false
         }
     }
 }

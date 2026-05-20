@@ -144,7 +144,7 @@ struct RemotePageView: View {
                     command: .power,
                     state: state.remotePad,
                     viewModel: viewModel.remotePad,
-                    tint: RemoteDesign.primaryBlue
+                    tint: RemoteDesign.danger
                 )
                 RoundLabeledCommand(title: "主界面", systemImage: "house", command: .home, state: state.remotePad, viewModel: viewModel.remotePad)
                 RoundLabeledCommand(title: "返回", systemImage: "arrow.uturn.backward", command: .back, state: state.remotePad, viewModel: viewModel.remotePad)
@@ -328,13 +328,13 @@ private struct DirectionPad: View {
                 .frame(width: 212, height: 212)
 
             commandButton(.up, systemImage: "chevron.up")
-                .position(x: 106, y: 42)
+                .position(x: 106, y: 34)
             commandButton(.left, systemImage: "chevron.left")
                 .position(x: 34, y: 106)
             commandButton(.right, systemImage: "chevron.right")
                 .position(x: 178, y: 106)
             commandButton(.down, systemImage: "chevron.down")
-                .position(x: 106, y: 174)
+                .position(x: 106, y: 178)
 
             Button {
                 Task { await viewModel.send(.confirm) }

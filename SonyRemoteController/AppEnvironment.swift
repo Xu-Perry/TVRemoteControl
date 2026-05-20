@@ -32,7 +32,8 @@ enum AppEnvironment {
             repository: repository,
             braviaClient: client,
             pairingClient: pairingClient,
-            discoveryService: discoveryService
+            discoveryService: discoveryService,
+            haptics: UIKitRemoteHaptics()
         )
     }
 }

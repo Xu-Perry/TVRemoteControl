@@ -9,7 +9,10 @@ final class RestorationHarness {
     let client: RestorationMockBRAVIAClient
     let viewModel: RemotePageViewModel
 
-    init(client: RestorationMockBRAVIAClient = RestorationMockBRAVIAClient()) {
+    init(
+        client: RestorationMockBRAVIAClient = RestorationMockBRAVIAClient(),
+        haptics: RemoteHapticsProviding? = nil
+    ) {
         state = RemotePageState()
         repository = RestorationMockDeviceRepository()
         self.client = client
@@ -18,7 +21,8 @@ final class RestorationHarness {
             repository: repository,
             braviaClient: client,
             pairingClient: client,
-            discoveryService: RestorationEmptyDiscoveryService()
+            discoveryService: RestorationEmptyDiscoveryService(),
+            haptics: haptics
         )
     }
 

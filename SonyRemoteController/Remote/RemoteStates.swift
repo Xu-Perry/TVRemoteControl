@@ -44,6 +44,15 @@ final class DeviceSettingsState {
     var lastTestedHost: String?
     var error: RemoteControlError?
     var successMessage: String?
+    var presentedRoute: SettingsRoute?
+}
+
+enum SettingsRoute: Hashable, Identifiable, Sendable {
+    case deviceManagement
+    case help
+    case about
+
+    var id: Self { self }
 }
 
 @Observable
@@ -153,6 +162,4 @@ struct MoreKeyAction: Identifiable, Equatable, Sendable {
 
 struct RemotePreferences: Equatable, Sendable {
     var isHapticFeedbackEnabled = true
-    var isContinuousSendEnabled = true
-    var isKeepScreenAwakeEnabled = true
 }

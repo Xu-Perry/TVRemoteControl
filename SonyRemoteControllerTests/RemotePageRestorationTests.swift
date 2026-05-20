@@ -191,34 +191,96 @@ struct RemotePageRestorationTests {
         #expect(harness.state.status == .connected)
     }
 
-    @Test func remotePreferenceTogglesMutateThroughPageViewModel() {
+    @Test func hapticFeedbackToggleMutatesThroughPageViewModel() {
         let harness = RestorationHarness()
 
         harness.viewModel.setHapticFeedbackEnabled(false)
-        harness.viewModel.setContinuousSendEnabled(false)
-        harness.viewModel.setKeepScreenAwakeEnabled(false)
 
         #expect(!harness.state.remotePreferences.isHapticFeedbackEnabled)
-        #expect(!harness.state.remotePreferences.isContinuousSendEnabled)
-        #expect(!harness.state.remotePreferences.isKeepScreenAwakeEnabled)
     }
 
-    @Test func aboutRowsRemainVisibleButDoNotNavigate() async {
+    @Test func settingsDeviceManagementUsesNestedRouteWithoutReplacingMainFlow() async throws {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        let savedDevice = try #require(harness.state.savedDevice)
+        harness.viewModel.openSettings()
+
+        harness.viewModel.openSettingsDeviceManagement()
+
+        #expect(harness.state.isSettingsPresented)
+        #expect(!harness.state.isAutoConnectPresented)
+        #expect(harness.state.settings.presentedRoute == .deviceManagement)
+        #expect(harness.state.autoConnect.screen == .connectedReady)
+        #expect(harness.state.autoConnect.rememberedDevice == savedDevice)
+        #expect(harness.state.autoConnect.selectedDevice?.displayName == savedDevice.displayName)
+    }
+
+    @Test func settingsAboutRoutesKeepRemotePresentationStable() async {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
         harness.viewModel.openSettings()
         let snapshot = RestorationPageSnapshot(state: harness.state)
 
-        for row in SettingsAboutRow.allCases {
-            harness.viewModel.handleAboutRowTap(row)
-            #expect(harness.state.isSettingsPresented)
-            #expect(harness.state.presentedRemoteSurface == nil)
-            #expect(!harness.state.isKeyboardInputActive)
-        }
+        harness.viewModel.openSettingsRoute(.help)
+        #expect(harness.state.settings.presentedRoute == .help)
+        snapshot.assertStillMatches(harness.state)
 
+        harness.viewModel.openSettingsRoute(.about)
+        #expect(harness.state.settings.presentedRoute == .about)
+        snapshot.assertStillMatches(harness.state)
+
+        harness.viewModel.closeSettingsRoute()
+        #expect(harness.state.settings.presentedRoute == nil)
         snapshot.assertStillMatches(harness.state)
     }
 
+    @Test func remoteCommandTriggersHapticsWhenEnabled() async {
+        let haptics = SpyRemoteHaptics()
+        let harness = RestorationHarness(haptics: haptics)
+        await harness.connectSavedDevice()
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(haptics.impactCount == 1)
+        #expect(harness.client.sentCommands == [.home])
+    }
+
+    @Test func remoteCommandSkipsHapticsWhenDisabledOrUnavailable() async {
+        let haptics = SpyRemoteHaptics()
+        let harness = RestorationHarness(haptics: haptics)
+
+        await harness.viewModel.remotePad.send(.home)
+        #expect(haptics.impactCount == 0)
+
+        await harness.connectSavedDevice()
+        harness.viewModel.setHapticFeedbackEnabled(false)
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(haptics.impactCount == 0)
+        #expect(harness.client.sentCommands == [.home])
+    }
+
+    @Test func failedRemoteCommandStillTriggersPressHaptic() async {
+        let haptics = SpyRemoteHaptics()
+        let client = RestorationMockBRAVIAClient()
+        client.sendError = .timeout
+        let harness = RestorationHarness(client: client, haptics: haptics)
+        await harness.connectSavedDevice()
+
+        await harness.viewModel.remotePad.send(.home)
+
+        #expect(haptics.impactCount == 1)
+        #expect(harness.state.error == .timeout)
+    }
+}
+
+@MainActor
+private final class SpyRemoteHaptics: RemoteHapticsProviding {
+    private(set) var impactCount = 0
+
+    func impact() {
+        impactCount += 1
+    }
 }
 
 @MainActor
