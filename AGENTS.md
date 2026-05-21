@@ -96,6 +96,7 @@ or integration tests.
 ## Commands
 
 Read [README.md](README.md) for build and tests.
+Local Xcode build output is written under `Build/`.
 
 ## Coding Style
 
