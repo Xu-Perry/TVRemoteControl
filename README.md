@@ -2,6 +2,9 @@
 
 SonyRemoteController is an iOS 18 SwiftUI app for controlling Sony BRAVIA TVs on the local network.
 
+License: PolyForm Noncommercial License 1.0.0. Noncommercial use is permitted;
+commercial use is not licensed by this repository.
+
 ## Build
 
 Build the app for the iOS Simulator:
