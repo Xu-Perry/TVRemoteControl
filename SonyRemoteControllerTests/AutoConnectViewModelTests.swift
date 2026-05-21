@@ -91,6 +91,18 @@ final class AutoConnectMockDeviceRepository: DeviceRepository, @unchecked Sendab
         return device
     }
 
+    func updateDeviceName(_ name: String, for device: SonyDevice) throws -> SonyDevice {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedName.isEmpty else {
+            return device
+        }
+
+        var updatedDevice = device
+        updatedDevice.name = normalizedName
+        self.device = updatedDevice
+        return updatedDevice
+    }
+
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
         guard let value = secretByKey[device.pskKey] else {
             throw RemoteControlError.missingPSK

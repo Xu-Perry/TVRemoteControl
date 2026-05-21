@@ -1,3 +1,4 @@
+import Foundation
 import SonyRemoteCore
 import SonyRemoteNetworking
 @testable import SonyRemoteController
@@ -29,6 +30,18 @@ final class RestorationMockDeviceRepository: DeviceRepository, @unchecked Sendab
         self.device = device
         secretByKey[device.pskKey] = credential.headerValue
         return device
+    }
+
+    func updateDeviceName(_ name: String, for device: SonyDevice) throws -> SonyDevice {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedName.isEmpty else {
+            return device
+        }
+
+        var updatedDevice = device
+        updatedDevice.name = normalizedName
+        self.device = updatedDevice
+        return updatedDevice
     }
 
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {

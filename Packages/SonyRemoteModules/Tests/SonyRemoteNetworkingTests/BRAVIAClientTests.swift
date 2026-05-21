@@ -65,6 +65,40 @@ struct BRAVIAClientTests {
         #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/appControl")
     }
 
+    @Test func fetchDeviceNameIgnoresGenericBRAVIAName() async throws {
+        let transport = MockTransport(responses: [
+            HTTPResponse(data: Data(), statusCode: 404),
+            HTTPResponse(data: Data(), statusCode: 404),
+            HTTPResponse(data: Data(), statusCode: 404),
+            HTTPResponse(data: Data("{\"result\":[{\"name\":\"BRAVIA\"}],\"id\":33}".utf8), statusCode: 200)
+        ])
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "192.168.1.2", host: "192.168.1.2", pskKey: "key")
+
+        let name = try await client.fetchDeviceName(device: device, credential: .psk("1234"))
+
+        #expect(name == nil)
+    }
+
+    @Test func fetchDeviceNameUsesDeviceDescriptionFriendlyName() async throws {
+        let transport = MockTransport(responses: [
+            HTTPResponse(data: Data("""
+            <root>
+                <device>
+                    <friendlyName>Living Room TV</friendlyName>
+                </device>
+            </root>
+            """.utf8), statusCode: 200)
+        ])
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "192.168.1.2", host: "192.168.1.2", pskKey: "key")
+
+        let name = try await client.fetchDeviceName(device: device, credential: .psk("1234"))
+
+        #expect(name == "Living Room TV")
+        #expect(transport.requests.first?.url?.absoluteString == "http://192.168.1.2:80/sony/webapi/ssdp/dd.xml")
+    }
+
     @Test func mapsUnauthorizedStatus() async {
         let client = BRAVIAClient(transport: MockTransport(response: HTTPResponse(data: Data(), statusCode: 401)))
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
@@ -178,15 +212,25 @@ private struct TestBody: Encodable {
 }
 
 private final class MockTransport: HTTPTransport, @unchecked Sendable {
-    let response: HTTPResponse
+    private let response: HTTPResponse
+    private var responses: [HTTPResponse]
     private(set) var requests: [URLRequest] = []
 
     init(response: HTTPResponse = HTTPResponse(data: Data(), statusCode: 200)) {
         self.response = response
+        self.responses = []
+    }
+
+    init(responses: [HTTPResponse]) {
+        self.response = HTTPResponse(data: Data(), statusCode: 200)
+        self.responses = responses
     }
 
     func data(for request: URLRequest) async throws -> HTTPResponse {
         requests.append(request)
+        if !responses.isEmpty {
+            return responses.removeFirst()
+        }
         return response
     }
 }

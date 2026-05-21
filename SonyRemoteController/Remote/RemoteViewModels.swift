@@ -14,6 +14,7 @@ final class RemotePageViewModel {
     private let braviaClient: BRAVIAControlling
     private let pairingClient: BRAVIAPairing
     private let discoveryService: BRAVIADiscoveryServicing
+    private var deviceNameRefreshTask: Task<Void, Never>?
 
     init(
         state: RemotePageState,
@@ -99,6 +100,26 @@ final class RemotePageViewModel {
         state.isSettingsPresented = false
         state.settings.presentedRoute = nil
         refreshFromRepository()
+    }
+
+    func refreshDeviceNameOnHomeAppear() {
+        deviceNameRefreshTask?.cancel()
+
+        guard !state.isAutoConnectPresented, let device = state.savedDevice else {
+            return
+        }
+
+        deviceNameRefreshTask = Task {
+            await refreshDeviceName(for: device)
+        }
+    }
+
+    func refreshDeviceNameIfNeeded() async {
+        guard !state.isAutoConnectPresented, let device = state.savedDevice else {
+            return
+        }
+
+        await refreshDeviceName(for: device)
     }
 
     func openInputSourceSheet() {
@@ -287,6 +308,31 @@ final class RemotePageViewModel {
         }
     }
 
+    private func refreshDeviceName(for device: SonyDevice) async {
+        do {
+            let credential = try repository.readCredential(for: device)
+            guard let normalizedName = normalizedFetchedDeviceName(
+                try await braviaClient.fetchDeviceName(device: device, credential: credential)
+            ) else {
+                return
+            }
+
+            guard !Task.isCancelled,
+                  normalizedName != device.displayName,
+                  state.savedDevice == device else {
+                return
+            }
+
+            let updatedDevice = try repository.updateDeviceName(normalizedName, for: device)
+            guard !Task.isCancelled, state.savedDevice == device else { return }
+            state.savedDevice = updatedDevice
+            state.autoConnect.rememberedDevice = updatedDevice
+            updateStatus(state.status)
+        } catch {
+            return
+        }
+    }
+
     private func updateStatus(_ status: ConnectionStatus) {
         state.status = status
         state.remotePad.isEnabled = status.allowsRemoteCommands
@@ -428,12 +474,24 @@ final class DeviceSettingsViewModel {
 
     private func fetchAndStoreDeviceName(host: String, credential: BRAVIAAuthCredential) async {
         let testDevice = SonyDevice(name: "", host: host, pskKey: "fetch", connectionMode: .psk)
-        guard let name = try? await braviaClient.fetchDeviceName(device: testDevice, credential: credential),
-              !name.isEmpty else {
+        guard let name = normalizedFetchedDeviceName(try? await braviaClient.fetchDeviceName(device: testDevice, credential: credential)) else {
             return
         }
         state.tvName = name
     }
+}
+
+private func normalizedFetchedDeviceName(_ value: String?) -> String? {
+    let name = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    guard !name.isEmpty else {
+        return nil
+    }
+
+    let genericNames = ["BRAVIA", "TV", "SONY", "SONY TV", "SONY BRAVIA"]
+    guard !genericNames.contains(name.uppercased()) else {
+        return nil
+    }
+    return name
 }
 
 @MainActor

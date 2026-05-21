@@ -6,6 +6,7 @@ protocol DeviceRepository: Sendable {
     func saveDevice(name: String, host: String, psk: String) throws -> SonyDevice
     func saveDevice(name: String, host: String, port: Int, psk: String) throws -> SonyDevice
     func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice
+    func updateDeviceName(_ name: String, for device: SonyDevice) throws -> SonyDevice
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential
     func readPSK(for device: SonyDevice) throws -> String
     func deleteDevice() throws
@@ -62,6 +63,18 @@ struct LocalDeviceRepository: DeviceRepository {
             try? secretStore.delete(for: existingPSKKey)
         }
         return device
+    }
+
+    func updateDeviceName(_ name: String, for device: SonyDevice) throws -> SonyDevice {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedName.isEmpty else {
+            return device
+        }
+
+        var updatedDevice = device
+        updatedDevice.name = normalizedName
+        try metadataStore.saveDevice(updatedDevice)
+        return updatedDevice
     }
 
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {

@@ -3,6 +3,7 @@ import SonyRemoteCore
 
 public protocol BRAVIAControlling: Sendable {
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String?
     func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
     func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
 }
@@ -57,6 +58,10 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     }
 
     public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+        if let descriptionName = await fetchDeviceDescriptionName(device: device) {
+            return descriptionName
+        }
+
         let request = try makeJSONRPCRequest(
             device: device,
             service: "system",
@@ -74,12 +79,12 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         // The result structure varies: array of arrays or array of objects.
         // Walk through the result to find a dictionary with the "name" key.
         for item in result {
-            if let dict = item as? [String: Any], let name = dict["name"] as? String, !name.isEmpty {
+            if let dict = item as? [String: Any], let name = usableDeviceName(dict["name"] as? String) {
                 return name
             }
             if let innerArray = item as? [[String: Any]] {
                 for innerDict in innerArray {
-                    if let name = innerDict["name"] as? String, !name.isEmpty {
+                    if let name = usableDeviceName(innerDict["name"] as? String) {
                         return name
                     }
                 }
@@ -302,6 +307,56 @@ private extension BRAVIAClient {
 
         let challenge = response.headers["www-authenticate"]?.lowercased() ?? ""
         return challenge.contains("basic")
+    }
+
+    func fetchDeviceDescriptionName(device: SonyDevice) async -> String? {
+        for url in deviceDescriptionURLs(device: device) {
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.timeoutInterval = 2
+            guard let response = try? await transport.data(for: request),
+                  response.statusCode == 200,
+                  let xml = String(data: response.data, encoding: .utf8),
+                  let name = friendlyName(in: xml) else {
+                continue
+            }
+            return name
+        }
+        return nil
+    }
+
+    func deviceDescriptionURLs(device: SonyDevice) -> [URL] {
+        [
+            URL(string: "http://\(device.host):\(device.port)/sony/webapi/ssdp/dd.xml"),
+            URL(string: "http://\(device.host):52323/dmr.xml"),
+            URL(string: "http://\(device.host):52323/MediaRenderer.xml")
+        ].compactMap { $0 }
+    }
+
+    func friendlyName(in xml: String) -> String? {
+        guard let openRange = xml.range(of: "<friendlyName>", options: [.caseInsensitive]),
+              let closeRange = xml.range(of: "</friendlyName>", options: [.caseInsensitive], range: openRange.upperBound..<xml.endIndex)
+        else {
+            return nil
+        }
+
+        let rawName = String(xml[openRange.upperBound..<closeRange.lowerBound])
+            .replacingOccurrences(of: "<![CDATA[", with: "")
+            .replacingOccurrences(of: "]]>", with: "")
+        return usableDeviceName(rawName)
+    }
+
+    func usableDeviceName(_ value: String?) -> String? {
+        let name = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !name.isEmpty else {
+            return nil
+        }
+
+        let genericNames = ["BRAVIA", "TV", "SONY", "SONY TV", "SONY BRAVIA"]
+        guard !genericNames.contains(name.uppercased()) else {
+            return nil
+        }
+        return name
     }
 }
 

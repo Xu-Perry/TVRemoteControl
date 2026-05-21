@@ -4,6 +4,7 @@ import SonyRemoteCore
 struct RemotePageView: View {
     let state: RemotePageState
     let viewModel: RemotePageViewModel
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -83,6 +84,14 @@ struct RemotePageView: View {
                 )
                 .presentationDetents([.height(120)])
                 .presentationDragIndicator(.visible)
+            }
+        }
+        .onAppear {
+            viewModel.refreshDeviceNameOnHomeAppear()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                viewModel.refreshDeviceNameOnHomeAppear()
             }
         }
         .navigationTitle("BRAVIA Controller")

@@ -276,6 +276,64 @@ struct SonyRemoteControllerTests {
         #expect(state.connection.subtitle == ConnectionStatus.failed(.unreachable).displayText)
     }
 
+    @Test func homeAppearRefreshesSavedDeviceNameFromTV() async throws {
+        let state = RemotePageState()
+        let repository = MockDeviceRepository()
+        let savedDevice = SonyDevice(name: "192.168.1.2", host: "192.168.1.2", pskKey: "key")
+        repository.stubDevice(savedDevice, psk: "1234")
+        let client = MockBRAVIAClient(fetchedDeviceName: "Living Room TV")
+        let viewModel = RemotePageViewModel(
+            state: state,
+            repository: repository,
+            braviaClient: client,
+            pairingClient: client,
+            discoveryService: EmptyDiscoveryService()
+        )
+
+        state.isAutoConnectPresented = false
+        await viewModel.refreshDeviceNameIfNeeded()
+
+        #expect(state.savedDevice?.displayName == "Living Room TV")
+        let persistedDevice = try #require(try repository.loadDevice())
+        #expect(persistedDevice.displayName == "Living Room TV")
+        #expect(persistedDevice.pskKey == savedDevice.pskKey)
+        #expect(state.connection.title == "Living Room TV")
+    }
+
+    @Test func homeAppearDoesNotReplaceDeviceNameWithGenericBRAVIAName() async throws {
+        let state = RemotePageState()
+        let repository = MockDeviceRepository()
+        let savedDevice = SonyDevice(name: "BRAVIA XR-65A80L", host: "192.168.1.2", pskKey: "key")
+        repository.stubDevice(savedDevice, psk: "1234")
+        let client = MockBRAVIAClient(fetchedDeviceName: "BRAVIA")
+        let viewModel = RemotePageViewModel(
+            state: state,
+            repository: repository,
+            braviaClient: client,
+            pairingClient: client,
+            discoveryService: EmptyDiscoveryService()
+        )
+
+        state.isAutoConnectPresented = false
+        await viewModel.refreshDeviceNameIfNeeded()
+
+        #expect(state.savedDevice?.displayName == "BRAVIA XR-65A80L")
+        let persistedDevice = try #require(try repository.loadDevice())
+        #expect(persistedDevice.displayName == "BRAVIA XR-65A80L")
+        #expect(state.connection.title == "BRAVIA XR-65A80L")
+    }
+
+    @Test func manualConnectionDoesNotSaveGenericFetchedBRAVIAName() async {
+        let harness = Harness(client: MockBRAVIAClient(fetchedDeviceName: "BRAVIA"))
+        harness.state.settings.ipAddress = "192.168.1.2"
+        harness.state.settings.psk = "1234"
+
+        await harness.viewModel.settings.testConnection()
+        harness.viewModel.saveSettings()
+
+        #expect(harness.state.savedDevice?.displayName == "192.168.1.2")
+    }
+
     @Test func missingPersistedPSKRetainsDeviceAndShowsRecoveryError() {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
@@ -366,6 +424,10 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
 
     func stubDevice(psk: String?) {
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+        stubDevice(device, psk: psk)
+    }
+
+    func stubDevice(_ device: SonyDevice, psk: String?) {
         self.device = device
         if let psk {
             self.secretByKey[device.pskKey] = psk
@@ -389,6 +451,18 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
         self.device = device
         secretByKey[device.pskKey] = credential.headerValue
         return device
+    }
+
+    func updateDeviceName(_ name: String, for device: SonyDevice) throws -> SonyDevice {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedName.isEmpty else {
+            return device
+        }
+
+        var updatedDevice = device
+        updatedDevice.name = normalizedName
+        self.device = updatedDevice
+        return updatedDevice
     }
 
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
@@ -444,18 +518,21 @@ private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @uncheck
     var sendError: RemoteControlError?
     var connectionDelayNanoseconds: UInt64
     var connectionResults: [RemoteControlError?]
+    var fetchedDeviceName: String?
     private(set) var sentCommands: [RemoteCommand] = []
 
     init(
         connectionError: RemoteControlError? = nil,
         sendError: RemoteControlError? = nil,
         connectionDelayNanoseconds: UInt64 = 0,
-        connectionResults: [RemoteControlError?] = []
+        connectionResults: [RemoteControlError?] = [],
+        fetchedDeviceName: String? = nil
     ) {
         self.connectionError = connectionError
         self.sendError = sendError
         self.connectionDelayNanoseconds = connectionDelayNanoseconds
         self.connectionResults = connectionResults
+        self.fetchedDeviceName = fetchedDeviceName
     }
 
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
@@ -485,6 +562,10 @@ private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @uncheck
         if let sendError {
             throw sendError
         }
+    }
+
+    func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+        fetchedDeviceName
     }
 
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String {
