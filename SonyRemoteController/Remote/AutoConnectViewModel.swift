@@ -60,7 +60,8 @@ final class AutoConnectViewModel {
     }
 
     func startScan() {
-        cancelScan()
+        let previousScanTask = scanTask
+        previousScanTask?.cancel()
         let sessionID = UUID()
         state.screen = .scanning
         state.discoveredDevices = []
@@ -72,8 +73,11 @@ final class AutoConnectViewModel {
             startedAt: Date()
         )
 
-        scanTask = Task { [weak self] in
+        scanTask = Task { [weak self, previousScanTask] in
             guard let self else { return }
+            await previousScanTask?.value
+            guard !Task.isCancelled, state.session.id == sessionID else { return }
+
             do {
                 for try await event in discoveryService.discover(timeout: 8) {
                     guard !Task.isCancelled, state.session.id == sessionID else { return }
@@ -99,12 +103,15 @@ final class AutoConnectViewModel {
                     }
                 }
             } catch is CancellationError {
+                guard state.session.id == sessionID else { return }
                 state.session.phase = .cancelled
                 state.session.completedAt = Date()
             } catch DiscoveryError.cancelled {
+                guard state.session.id == sessionID else { return }
                 state.session.phase = .cancelled
                 state.session.completedAt = Date()
             } catch {
+                guard state.session.id == sessionID else { return }
                 state.session.phase = .failed
                 state.session.completedAt = Date()
                 state.connectionError = RemoteControlError.map(error)

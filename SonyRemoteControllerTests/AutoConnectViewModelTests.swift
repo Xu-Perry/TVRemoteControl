@@ -32,6 +32,30 @@ struct AutoConnectViewModelTests {
         #expect(harness.state.autoConnect.screen == .firstLaunch)
         #expect(harness.state.autoConnect.discoveredDevices.isEmpty)
     }
+
+    @Test func restartingScanWaitsForPreviousDiscoveryStreamToTerminate() async throws {
+        let state = RemotePageState()
+        let repository = AutoConnectMockDeviceRepository()
+        let client = AutoConnectMockBRAVIAClient()
+        let discoveryService = AutoConnectTrackingDiscoveryService()
+        let viewModel = RemotePageViewModel(
+            state: state,
+            repository: repository,
+            braviaClient: client,
+            pairingClient: client,
+            discoveryService: discoveryService
+        )
+
+        viewModel.autoConnect.startScan()
+        try await discoveryService.waitForStartedCount(1)
+        viewModel.autoConnect.startScan()
+        try await discoveryService.waitForStartedCount(2)
+
+        #expect(discoveryService.maxActiveStreams == 1)
+        #expect(discoveryService.terminationCount >= 1)
+
+        viewModel.autoConnect.cancelScan()
+    }
 }
 
 @MainActor
@@ -189,6 +213,50 @@ final class AutoConnectFakeDiscoveryService: BRAVIADiscoveryServicing, @unchecke
                 continuation.finish()
             }
         }
+    }
+}
+
+final class AutoConnectTrackingDiscoveryService: BRAVIADiscoveryServicing, @unchecked Sendable {
+    private let queue = DispatchQueue(label: "AutoConnectTrackingDiscoveryService")
+    private var startedCount = 0
+    private var activeStreams = 0
+    private var maximumActiveStreams = 0
+    private var terminations = 0
+
+    var maxActiveStreams: Int {
+        queue.sync { maximumActiveStreams }
+    }
+
+    var terminationCount: Int {
+        queue.sync { terminations }
+    }
+
+    func discover(timeout: TimeInterval) -> AsyncThrowingStream<BRAVIADiscoveryEvent, Error> {
+        AsyncThrowingStream { continuation in
+            queue.sync {
+                startedCount += 1
+                activeStreams += 1
+                maximumActiveStreams = max(maximumActiveStreams, activeStreams)
+            }
+            continuation.yield(.deviceFound(.livingRoom))
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                queue.sync {
+                    self.activeStreams -= 1
+                    self.terminations += 1
+                }
+            }
+        }
+    }
+
+    func waitForStartedCount(_ expectedCount: Int) async throws {
+        for _ in 0..<100 {
+            if queue.sync(execute: { startedCount >= expectedCount }) {
+                return
+            }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        Issue.record("Timed out waiting for discovery start count \(expectedCount)")
     }
 }
 

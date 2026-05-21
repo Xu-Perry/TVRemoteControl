@@ -7,6 +7,14 @@ private func posixError(_ fn: String) -> String {
     "\(fn) failed: \(String(cString: strerror(errno))) (errno \(errno))"
 }
 
+private actor SSDPSearchCoordinator {
+    static let shared = SSDPSearchCoordinator()
+
+    func run(_ operation: @Sendable () throws -> Void) rethrows {
+        try operation()
+    }
+}
+
 struct IPv4MulticastInterface: Sendable {
     let name: String
     let index: UInt32
@@ -111,7 +119,10 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         AsyncThrowingStream { continuation in
             let task = Task.detached {
                 do {
-                    try runSearch(timeout: timeout, continuation: continuation)
+                    try await SSDPSearchCoordinator.shared.run {
+                        try Task.checkCancellation()
+                        try runSearch(timeout: timeout, continuation: continuation)
+                    }
                     continuation.finish()
                 } catch is CancellationError {
                     continuation.finish(throwing: DiscoveryError.cancelled)
@@ -162,6 +173,7 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         let connectionGroup = NWConnectionGroup(with: groupDescriptor, using: parameters)
         let queue = DispatchQueue(label: "com.perry.braviacontroller.ssdp")
         let readySemaphore = DispatchSemaphore(value: 0)
+        let cancelSemaphore = DispatchSemaphore(value: 0)
         let state = NetworkSearchState()
 
         connectionGroup.stateUpdateHandler = { groupState in
@@ -175,6 +187,7 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
                 readySemaphore.signal()
             case .cancelled:
                 readySemaphore.signal()
+                cancelSemaphore.signal()
             case .setup:
                 break
             @unknown default:
@@ -206,10 +219,14 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         }
 
         connectionGroup.start(queue: queue)
+        defer {
+            connectionGroup.cancel()
+            _ = cancelSemaphore.wait(timeout: .now() + 1)
+        }
+
         let didSignalReady = readySemaphore.wait(timeout: .now() + 5) == .success
         let readySnapshot = state.readySnapshot()
         guard didSignalReady, readySnapshot.0 else {
-            connectionGroup.cancel()
             if let startError = readySnapshot.1 {
                 throw DiscoveryError.unknown("Network.framework SSDP group failed: \(startError)")
             }
@@ -246,7 +263,6 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         }
 
         Self.debugLog("Finished Network.framework SSDP receive loop uniqueLocations=\(state.locationCount)")
-        connectionGroup.cancel()
     }
 
     private func runSocketSearch(
