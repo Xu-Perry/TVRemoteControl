@@ -3,17 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BRAVIA Controller</title>
+  <title>BRAVIA Controller 技术支持</title>
+  <meta name="description" content="BRAVIA Controller 技术支持、故障排查、联系方式和隐私政策。">
   <style>
     :root {
       color-scheme: light;
       --text: #111827;
       --muted: #5f6673;
-      --border: #dfe5ee;
-      --accent: #007aff;
+      --subtle: #eef2f7;
+      --border: #d9e1ea;
       --surface: #ffffff;
-      --background: #f7f9fc;
+      --surface-soft: #f7f9fc;
+      --background: #f2f6fb;
+      --blue: #0a84ff;
+      --green: #2f855a;
+      --red: #d92d20;
+      --ink: #182235;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
@@ -21,40 +32,401 @@
       background: var(--background);
       line-height: 1.65;
     }
-    main {
-      max-width: 720px;
+
+    a {
+      color: var(--blue);
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1080px;
       margin: 0 auto;
-      padding: 56px 22px;
+      padding: 28px 22px 64px;
     }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 28px;
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 10px 0 28px;
     }
-    h1 {
-      margin: 0 0 12px;
-      font-size: 30px;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.16);
+    }
+
+    .brand-title {
+      display: grid;
+      gap: 1px;
+    }
+
+    .brand-title strong {
+      font-size: 17px;
       line-height: 1.2;
     }
-    p {
-      margin: 0 0 20px;
+
+    .brand-title span {
       color: var(--muted);
+      font-size: 13px;
     }
-    a {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: none;
+
+    nav {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 14px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      gap: 28px;
+      align-items: center;
+      padding: 32px 0 42px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      color: var(--ink);
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 640px;
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .button.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #ffffff;
+    }
+
+    .device-panel {
+      position: relative;
+      min-height: 330px;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(24, 34, 53, 0.95), rgba(19, 48, 77, 0.9)),
+        url("./app-icon.png") center / 42% no-repeat;
+      box-shadow: 0 22px 50px rgba(17, 24, 39, 0.22);
+    }
+
+    .screen {
+      position: absolute;
+      left: 32px;
+      right: 32px;
+      top: 34px;
+      height: 120px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .remote-pad {
+      position: absolute;
+      left: 50%;
+      bottom: 38px;
+      width: 150px;
+      height: 150px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .remote-pad::before {
+      content: "";
+      position: absolute;
+      inset: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    .status-pill {
+      position: absolute;
+      left: 50%;
+      top: 180px;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    section {
+      margin-top: 26px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--ink);
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .card p,
+    .card li {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .card p {
+      margin: 0;
+    }
+
+    ol,
+    ul {
+      margin: 0;
+      padding-left: 21px;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--red);
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 780px) {
+      header,
+      .hero,
+      .two-column,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding-top: 18px;
+      }
+
+      .device-panel {
+        min-height: 290px;
+      }
+
+      .footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <section class="panel">
-      <h1>BRAVIA Controller</h1>
-      <p>BRAVIA Controller 是一款用于在本地网络中发现并控制 Sony BRAVIA 电视的 iOS 应用。</p>
-      <a href="./privacy.html">查看隐私政策</a>
-    </section>
-  </main>
+  <div class="page">
+    <header>
+      <a class="brand" href="./index.html" aria-label="BRAVIA Controller 技术支持首页">
+        <img src="./app-icon.png" alt="BRAVIA Controller app icon">
+        <span class="brand-title">
+          <strong>BRAVIA Controller</strong>
+          <span>技术支持</span>
+        </span>
+      </a>
+      <nav aria-label="支持导航">
+        <a href="#requirements">使用前提</a>
+        <a href="#troubleshooting">故障排查</a>
+        <a href="#contact">联系支持</a>
+        <a href="./privacy.html">隐私政策</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="support-title">
+        <div>
+          <h1 id="support-title">BRAVIA Controller 技术支持</h1>
+          <p class="lead">这里提供 Sony BRAVIA 电视发现、配对、连接和遥控操作的常见问题处理方式。遇到问题时，请先确认本地网络、电视端 IP Control 设置和应用权限。</p>
+          <div class="actions">
+            <a class="button primary" href="mailto:xuanyue.pan@icloud.com?subject=BRAVIA%20Controller%20Support">发送邮件支持</a>
+            <a class="button" href="./privacy.html">查看隐私政策</a>
+          </div>
+        </div>
+        <div class="device-panel" aria-hidden="true">
+          <div class="screen"></div>
+          <div class="status-pill"><span class="dot"></span>Local Network Connected</div>
+          <div class="remote-pad"></div>
+        </div>
+      </section>
+
+      <section id="requirements" aria-labelledby="requirements-title">
+        <h2 id="requirements-title">使用前提</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>同一 Wi-Fi 网络</h3>
+            <p>iPhone 需要和 Sony BRAVIA 电视连接到同一个本地网络。访客网络、隔离网络或 VPN 可能导致发现失败。</p>
+          </article>
+          <article class="card">
+            <h3>电视端设置</h3>
+            <p>请在电视设置中开启 IP Control、Remote Device Control，并按电视提示完成配对或认证设置。</p>
+          </article>
+          <article class="card">
+            <h3>本地网络权限</h3>
+            <p>首次扫描时，请允许 iOS 的本地网络访问权限。关闭权限后，应用无法自动发现电视。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+        <h2 id="troubleshooting-title">故障排查</h2>
+        <div class="two-column">
+          <article class="card">
+            <h3>无法发现电视</h3>
+            <ol>
+              <li>确认手机和电视在同一 Wi-Fi 网络。</li>
+              <li>确认 iOS 设置中已允许本地网络权限。</li>
+              <li>确认电视已开机，并且 IP Control 已启用。</li>
+              <li>如果自动发现仍不可用，请使用手动输入 IP。</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>配对或连接失败</h3>
+            <ol>
+              <li>检查电视屏幕上显示的配对码是否输入正确。</li>
+              <li>确认电视端允许新的远程控制设备连接。</li>
+              <li>如果使用手动 IP，请确认 IP 地址、端口和认证方式正确。</li>
+              <li>重启电视或重新扫描后再次连接。</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>遥控按键无响应</h3>
+            <ol>
+              <li>确认应用顶部显示的电视仍处于已连接状态。</li>
+              <li>确认电视未处于断网、休眠或输入源切换状态。</li>
+              <li>尝试返回设备管理重新连接。</li>
+            </ol>
+          </article>
+          <article class="card notice">
+            <h3>反馈时请附带</h3>
+            <ul>
+              <li>电视型号和系统版本。</li>
+              <li>iPhone 型号和 iOS 版本。</li>
+              <li>连接方式：自动发现或手动 IP。</li>
+              <li>问题截图、错误文案和复现步骤。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" aria-labelledby="contact-title">
+        <h2 id="contact-title">联系支持</h2>
+        <div class="two-column">
+          <article class="card">
+            <h3>邮件支持</h3>
+            <p>请发送邮件到 <a href="mailto:xuanyue.pan@icloud.com?subject=BRAVIA%20Controller%20Support">xuanyue.pan@icloud.com</a>。通常会优先处理可复现的连接、配对和遥控问题。</p>
+          </article>
+          <article class="card">
+            <h3>隐私与数据</h3>
+            <p>应用不需要账号，不接入广告 SDK 或分析 SDK。电视信息和认证凭据仅保存在你的设备本地。详细说明见 <a href="./privacy.html">隐私政策</a>。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 BRAVIA Controller</span>
+      <span>Support URL: xu-perry.github.io/SonyController</span>
+    </footer>
+  </div>
 </body>
 </html>

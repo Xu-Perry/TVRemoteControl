@@ -9,7 +9,7 @@ Use this file as the source material for App Store Connect and App Review.
 - Version: `1.0.0`
 - Build: `1`
 - Primary category: Utilities
-- Platforms: iPhone and iPad
+- Platforms: iPhone
 - Minimum OS: iOS 18.0
 - Support URL: `https://xu-perry.github.io/SonyController/`
 - Privacy Policy URL: `https://xu-perry.github.io/SonyController/privacy.html`
@@ -27,7 +27,7 @@ Discover and control Sony BRAVIA TVs on your local network with a simple, focuse
 
 ### Description
 
-Bravia Controller turns your iPhone or iPad into a local-network remote for Sony BRAVIA TVs.
+Bravia Controller turns your iPhone into a local-network remote for Sony BRAVIA TVs.
 
 Key features:
 
@@ -112,7 +112,7 @@ Suggested App Review note:
 
 Prerequisites for full functionality:
 
-- iPhone or iPad and Sony BRAVIA TV are on the same local network.
+- iPhone and Sony BRAVIA TV are on the same local network.
 - Local Network permission is allowed.
 - BRAVIA TV is powered on.
 - TV-side IP Control and Remote Device Control are enabled.
@@ -136,5 +136,5 @@ Suggested review flow:
 - [ ] Validate and upload the archive to App Store Connect.
 - [ ] Fill App Store Connect App Privacy with the answers above.
 - [ ] Confirm App Store Connect accepts the export compliance answer without additional documentation.
-- [ ] Upload screenshots for required iPhone and iPad sizes.
+- [ ] Upload screenshots for required iPhone sizes.
 - [ ] Run `docs/ManualSmokeTest.md` on a real BRAVIA TV and record the result.
