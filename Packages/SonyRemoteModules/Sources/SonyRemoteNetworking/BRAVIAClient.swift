@@ -7,6 +7,14 @@ public protocol BRAVIAControlling: Sendable {
     func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
 }
 
+extension BRAVIAControlling {
+    /// Returns the TV's friendly name as set in the TV system settings, or nil.
+    /// Default returns nil; override in the real client to fetch from the TV.
+    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+        nil
+    }
+}
+
 public protocol BRAVIAPairing: Sendable {
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String
     func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String
@@ -25,22 +33,59 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     }
 
     public func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        // Use getRemoteControllerInfo instead of getPowerStatus because the latter
+        // is available without authentication on many BRAVIA models, making it
+        // impossible to verify the PSK. getRemoteControllerInfo requires auth
+        // and returns 401 with an invalid PSK.
         let request = try makeJSONRPCRequest(
             device: device,
             service: "system",
             credential: credential,
-            body: JSONRPCRequest(method: "getPowerStatus", params: [String]())
+            body: JSONRPCRequest(method: "getRemoteControllerInfo", params: [String]())
         )
         let response = try await transport.data(for: request)
         try validate(response)
 
-        let rpcResponse = try decoder.decode(JSONRPCResponse<[PowerStatus]>.self, from: response.data)
-        if rpcResponse.error != nil {
-            throw mapRPCError(rpcResponse.error)
+        // Confirm the response is valid JSON to rule out a mangled response
+        // from a non-BRAVIA device on the same IP, while still honoring
+        // JSON-RPC error payloads that may arrive with HTTP 200.
+        _ = try JSONSerialization.jsonObject(with: response.data)
+        let rpcResponse = try decoder.decode(JSONRPCErrorEnvelope.self, from: response.data)
+        if let error = rpcResponse.error {
+            throw mapRPCError(error)
         }
-        guard rpcResponse.result != nil else {
-            throw RemoteControlError.invalidResponse
+    }
+
+    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+        let request = try makeJSONRPCRequest(
+            device: device,
+            service: "system",
+            credential: credential,
+            body: JSONRPCRequest(method: "getSystemInformation", params: [String]())
+        )
+        let response = try await transport.data(for: request)
+        guard response.statusCode == 200 else {
+            return nil
         }
+        guard let json = try? JSONSerialization.jsonObject(with: response.data) as? [String: Any],
+              let result = json["result"] as? [Any] else {
+            return nil
+        }
+        // The result structure varies: array of arrays or array of objects.
+        // Walk through the result to find a dictionary with the "name" key.
+        for item in result {
+            if let dict = item as? [String: Any], let name = dict["name"] as? String, !name.isEmpty {
+                return name
+            }
+            if let innerArray = item as? [[String: Any]] {
+                for innerDict in innerArray {
+                    if let name = innerDict["name"] as? String, !name.isEmpty {
+                        return name
+                    }
+                }
+            }
+        }
+        return nil
     }
 
     public func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
@@ -280,6 +325,10 @@ private struct JSONRPCResponse<Result: Decodable>: Decodable {
     let id: Int?
 }
 
+private struct JSONRPCErrorEnvelope: Decodable {
+    let error: JSONRPCError?
+}
+
 private struct JSONRPCError: Decodable {
     let code: Int
     let message: String
@@ -289,10 +338,6 @@ private struct JSONRPCError: Decodable {
         self.code = try container.decode(Int.self)
         self.message = try container.decode(String.self)
     }
-}
-
-private struct PowerStatus: Decodable {
-    let status: String
 }
 
 private struct PairingInitResult: Decodable {

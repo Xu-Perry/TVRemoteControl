@@ -6,6 +6,7 @@ import SonyRemoteNetworking
 final class RemotePageViewModel {
     let state: RemotePageState
     let settings: DeviceSettingsViewModel
+    let connectionDiagnostics: ConnectionDiagnosticsViewModel
     let remotePad: RemotePadViewModel
     let autoConnect: AutoConnectViewModel
 
@@ -32,6 +33,13 @@ final class RemotePageViewModel {
             repository: repository,
             braviaClient: braviaClient
         )
+        self.connectionDiagnostics = ConnectionDiagnosticsViewModel(
+            state: state.connectionDiagnostics,
+            pageState: state,
+            repository: repository,
+            braviaClient: braviaClient,
+            discoveryService: discoveryService
+        )
         self.remotePad = RemotePadViewModel(
             state: state.remotePad,
             pageState: state,
@@ -57,6 +65,7 @@ final class RemotePageViewModel {
             state.settings.ipAddress = device.host
             state.settings.psk = ""
             state.settings.canSave = false
+            state.settings.pskRequired = nil
             state.settings.error = nil
             state.settings.successMessage = nil
         }
@@ -313,36 +322,100 @@ final class DeviceSettingsViewModel {
     func testConnection() async {
         state.error = nil
         state.successMessage = nil
-        state.canSave = false
 
-        do {
-            let host = try validatedHost()
-            let psk = try validatedPSK()
-            state.isTestingConnection = true
-            defer { state.isTestingConnection = false }
-
-            let device = SonyDevice(
-                name: state.tvName,
-                host: host,
-                pskKey: "test",
-                connectionMode: .psk
-            )
-            try await braviaClient.testConnection(device: device, credential: .psk(psk))
-            state.lastTestedHost = host
-            state.canSave = true
-            state.successMessage = "Connection succeeded."
-        } catch {
-            state.error = RemoteControlError.map(error)
+        if state.pskRequired == true {
+            // Stage 2: TV needs PSK — verify the entered value.
+            await verifyWithPSK()
+        } else {
+            // Stage 1: probe whether the TV requires PSK at all.
+            await probePSKRequirement()
         }
     }
 
     func save() throws -> SonyDevice {
         let host = try validatedHost()
-        let psk = try validatedPSK()
+        let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
         guard state.canSave, state.lastTestedHost == host else {
             throw RemoteControlError.unreachable
         }
         return try repository.saveDevice(name: state.tvName, host: host, port: 80, psk: psk)
+    }
+
+    // MARK: - Stage 1: detect TV auth mode
+
+    private func probePSKRequirement() async {
+        state.canSave = false
+        state.pskRequired = nil
+
+        do {
+            let host = try validatedHost()
+            state.isTestingConnection = true
+            defer { state.isTestingConnection = false }
+
+            let testDevice = SonyDevice(
+                name: state.tvName,
+                host: host,
+                pskKey: "test",
+                connectionMode: .psk
+            )
+
+            do {
+                try await braviaClient.testConnection(device: testDevice, credential: .psk(""))
+                // TV answers without auth → no PSK needed.
+                state.pskRequired = false
+                state.lastTestedHost = host
+                state.canSave = true
+                state.successMessage = "连接成功，此电视无需 PSK 认证。"
+                await fetchAndStoreDeviceName(host: host, credential: .psk(""))
+            } catch RemoteControlError.unauthorized {
+                // TV requires auth — reveal the PSK field, don't show an error.
+                state.pskRequired = true
+                state.lastTestedHost = host
+                state.error = nil
+            }
+        } catch let error as RemoteControlError {
+            state.error = error
+        } catch {
+            state.error = RemoteControlError.map(error)
+        }
+    }
+
+    // MARK: - Stage 2: verify with PSK
+
+    private func verifyWithPSK() async {
+        state.canSave = false
+
+        do {
+            let host = try validatedHost()
+            let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !psk.isEmpty else {
+                state.error = .missingPSK
+                return
+            }
+            guard host == state.lastTestedHost else {
+                await probePSKRequirement()
+                return
+            }
+
+            state.isTestingConnection = true
+            defer { state.isTestingConnection = false }
+
+            let testDevice = SonyDevice(
+                name: state.tvName,
+                host: host,
+                pskKey: "test",
+                connectionMode: .psk
+            )
+            try await braviaClient.testConnection(device: testDevice, credential: .psk(psk))
+            state.lastTestedHost = host
+            state.canSave = true
+            state.successMessage = "连接成功，PSK 认证通过。"
+            await fetchAndStoreDeviceName(host: host, credential: .psk(psk))
+        } catch let error as RemoteControlError {
+            state.error = error
+        } catch {
+            state.error = RemoteControlError.map(error)
+        }
     }
 
     private func validatedHost() throws -> String {
@@ -353,12 +426,13 @@ final class DeviceSettingsViewModel {
         return host
     }
 
-    private func validatedPSK() throws -> String {
-        let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !psk.isEmpty else {
-            throw RemoteControlError.missingPSK
+    private func fetchAndStoreDeviceName(host: String, credential: BRAVIAAuthCredential) async {
+        let testDevice = SonyDevice(name: "", host: host, pskKey: "fetch", connectionMode: .psk)
+        guard let name = try? await braviaClient.fetchDeviceName(device: testDevice, credential: credential),
+              !name.isEmpty else {
+            return
         }
-        return psk
+        state.tvName = name
     }
 }
 

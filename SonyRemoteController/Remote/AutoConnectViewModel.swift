@@ -250,6 +250,7 @@ final class AutoConnectViewModel {
         pageState.settings.psk = ""
         pageState.settings.isTestingConnection = false
         pageState.settings.canSave = false
+        pageState.settings.pskRequired = nil
         pageState.settings.lastTestedHost = nil
         pageState.settings.error = nil
         pageState.settings.successMessage = nil

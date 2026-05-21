@@ -55,6 +55,11 @@ private final class InMemoryDeviceRepository: DeviceRepository, @unchecked Senda
     }
 
     func saveDevice(name: String, host: String, port: Int, credential: BRAVIAAuthCredential, connectionMode: ConnectionMode) throws -> SonyDevice {
+        // Clean up old PSK before writing new one to stay consistent with LocalDeviceRepository.
+        if let existing = device {
+            secretByKey.removeValue(forKey: existing.pskKey)
+        }
+
         let pskKey = "mock-\(UUID().uuidString)"
         let savedDevice = SonyDevice(
             name: name.isEmpty ? host : name,
@@ -90,10 +95,8 @@ private final class InMemoryDeviceRepository: DeviceRepository, @unchecked Senda
     }
 
     func deleteDevice() throws {
-        if let device {
-            secretByKey.removeValue(forKey: device.pskKey)
-        }
         device = nil
+        secretByKey.removeAll()
     }
 }
 

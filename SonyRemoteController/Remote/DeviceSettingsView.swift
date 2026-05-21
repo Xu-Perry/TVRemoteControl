@@ -34,7 +34,7 @@ struct DeviceSettingsView: View {
             RemoteDesign.background
 
             sectionTitle("设备", y: 82)
-            settingsGroup(rowCount: 1, y: 131) {
+            settingsGroup(rowCount: 2, y: 158) {
                 SettingsNavigationRow(
                     title: "设备管理",
                     systemImage: "tv",
@@ -42,10 +42,18 @@ struct DeviceSettingsView: View {
                     tint: RemoteDesign.primaryBlue,
                     action: pageViewModel.openSettingsDeviceManagement
                 )
+                SettingsNavigationRow(
+                    title: "连接诊断",
+                    systemImage: "wrench.and.screwdriver",
+                    value: nil,
+                    tint: RemoteDesign.primaryBlue
+                ) {
+                    pageViewModel.openSettingsRoute(.connectionDiagnostics)
+                }
             }
 
-            sectionTitle("遥控器", y: 210)
-            settingsGroup(rowCount: 1, y: 259) {
+            sectionTitle("遥控器", y: 246)
+            settingsGroup(rowCount: 1, y: 295) {
                 SettingsToggleRow(
                     title: "按键震动反馈",
                     systemImage: "iphone.radiowaves.left.and.right",
@@ -54,8 +62,8 @@ struct DeviceSettingsView: View {
                 )
             }
 
-            sectionTitle("关于", y: 338)
-            settingsGroup(rowCount: 3, y: 439) {
+            sectionTitle("关于", y: 374)
+            settingsGroup(rowCount: 3, y: 475) {
                 SettingsNavigationRow(title: "帮助与反馈", systemImage: "questionmark.circle", value: nil, tint: RemoteDesign.primaryBlue) {
                     pageViewModel.openSettingsRoute(.help)
                 }
@@ -98,6 +106,11 @@ struct DeviceSettingsView: View {
                 onManualEntrySave: pageViewModel.saveSettings,
                 presentationMode: .settingsDetail,
                 onDone: pageViewModel.closeSettingsRoute
+            )
+        case .connectionDiagnostics:
+            ConnectionDiagnosticsView(
+                state: pageState.connectionDiagnostics,
+                viewModel: pageViewModel.connectionDiagnostics
             )
         case .help:
             HelpFeedbackView()

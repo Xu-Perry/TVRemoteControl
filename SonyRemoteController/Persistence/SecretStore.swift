@@ -6,6 +6,7 @@ protocol SecretStore: Sendable {
     func save(_ value: String, for key: String) throws
     func read(for key: String) throws -> String?
     func delete(for key: String) throws
+    func deleteAll() throws
 }
 
 struct KeychainSecretStore: SecretStore {
@@ -63,6 +64,17 @@ struct KeychainSecretStore: SecretStore {
         let status = SecItemDelete(baseQuery(for: key) as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw RemoteControlError.keychainFailure("Unable to delete the saved Pre-Shared Key.")
+        }
+    }
+
+    func deleteAll() throws {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw RemoteControlError.keychainFailure("Unable to clear saved credentials.")
         }
     }
 

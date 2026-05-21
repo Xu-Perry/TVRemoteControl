@@ -22,7 +22,8 @@ struct SonyRemoteControllerTests {
         await harness.viewModel.settings.testConnection()
 
         #expect(harness.state.settings.canSave)
-        #expect(harness.state.settings.successMessage == "Connection succeeded.")
+        #expect(harness.state.settings.pskRequired == false)
+        #expect(harness.state.settings.successMessage != nil)
         #expect(harness.state.settings.error == nil)
     }
 
@@ -49,6 +50,24 @@ struct SonyRemoteControllerTests {
         #expect(harness.state.status == .connected)
         #expect(harness.state.remotePad.isEnabled)
         #expect(harness.state.savedDevice?.displayName == "Living Room")
+    }
+
+    @Test func manualConnectionReprobesWhenIPChangesAfterPSKRequirement() async {
+        let harness = Harness(client: MockBRAVIAClient(connectionResults: [.unauthorized, nil]))
+        harness.state.settings.ipAddress = "192.168.1.2"
+
+        await harness.viewModel.settings.testConnection()
+        #expect(harness.state.settings.pskRequired == true)
+        #expect(!harness.state.settings.canSave)
+
+        harness.state.settings.ipAddress = "192.168.1.3"
+        harness.state.settings.psk = "1234"
+        await harness.viewModel.settings.testConnection()
+
+        #expect(harness.state.settings.pskRequired == false)
+        #expect(harness.state.settings.lastTestedHost == "192.168.1.3")
+        #expect(harness.state.settings.canSave)
+        #expect(harness.state.settings.error == nil)
     }
 
     @Test func commandFailureShowsErrorBannerState() async {
@@ -150,6 +169,20 @@ struct SonyRemoteControllerTests {
         #expect(try restoredRepository.readPSK(for: restoredDevice) == "1234")
         #expect(rawMetadataText.contains(restoredDevice.pskKey))
         #expect(!rawMetadataText.contains("1234"))
+    }
+
+    @Test func localRepositoryPreservesExistingCredentialWhenMetadataSaveFails() throws {
+        let existingDevice = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "old-key")
+        let metadataStore = FailingSaveDeviceMetadataStore(existingDevice: existingDevice)
+        let secretStore = MockSecretStore()
+        try secretStore.save("old-psk", for: existingDevice.pskKey)
+        let repository = LocalDeviceRepository(metadataStore: metadataStore, secretStore: secretStore)
+
+        #expect(throws: RemoteControlError.keychainFailure("Unable to save the BRAVIA TV settings.")) {
+            try repository.saveDevice(name: "Bedroom", host: "192.168.1.3", psk: "new-psk")
+        }
+        #expect(try secretStore.read(for: existingDevice.pskKey) == "old-psk")
+        #expect(secretStore.values.count == 1)
     }
 
     @Test func keychainMetadataStoreMigratesLegacyUserDefaultsDevice() throws {
@@ -387,7 +420,7 @@ private final class MockDeviceRepository: DeviceRepository, @unchecked Sendable 
 }
 
 private final class MockSecretStore: SecretStore, @unchecked Sendable {
-    private var values: [String: String] = [:]
+    private(set) var values: [String: String] = [:]
 
     func save(_ value: String, for key: String) throws {
         values[key] = value
@@ -400,27 +433,41 @@ private final class MockSecretStore: SecretStore, @unchecked Sendable {
     func delete(for key: String) throws {
         values.removeValue(forKey: key)
     }
+
+    func deleteAll() throws {
+        values.removeAll()
+    }
 }
 
 private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     var connectionError: RemoteControlError?
     var sendError: RemoteControlError?
     var connectionDelayNanoseconds: UInt64
+    var connectionResults: [RemoteControlError?]
     private(set) var sentCommands: [RemoteCommand] = []
 
     init(
         connectionError: RemoteControlError? = nil,
         sendError: RemoteControlError? = nil,
-        connectionDelayNanoseconds: UInt64 = 0
+        connectionDelayNanoseconds: UInt64 = 0,
+        connectionResults: [RemoteControlError?] = []
     ) {
         self.connectionError = connectionError
         self.sendError = sendError
         self.connectionDelayNanoseconds = connectionDelayNanoseconds
+        self.connectionResults = connectionResults
     }
 
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         if connectionDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: connectionDelayNanoseconds)
+        }
+        if !connectionResults.isEmpty {
+            let result = connectionResults.removeFirst()
+            if let result {
+                throw result
+            }
+            return
         }
         if let connectionError {
             throw connectionError
@@ -458,5 +505,20 @@ private struct EmptyDiscoveryService: BRAVIADiscoveryServicing {
             continuation.yield(.finished([]))
             continuation.finish()
         }
+    }
+}
+
+private struct FailingSaveDeviceMetadataStore: DeviceMetadataStore {
+    let existingDevice: SonyDevice
+
+    func loadDevice() throws -> SonyDevice? {
+        existingDevice
+    }
+
+    func saveDevice(_ device: SonyDevice) throws {
+        throw RemoteControlError.keychainFailure("Unable to save the BRAVIA TV settings.")
+    }
+
+    func deleteDevice() throws {
     }
 }

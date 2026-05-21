@@ -44,12 +44,13 @@ final class AutoConnectHarness {
 
     init(
         discoveryEvents: [BRAVIADiscoveryEvent] = [],
+        discoveryError: Error? = nil,
         connectionError: RemoteControlError? = nil
     ) {
         self.state = RemotePageState()
         self.repository = AutoConnectMockDeviceRepository()
         self.client = AutoConnectMockBRAVIAClient(connectionError: connectionError)
-        self.discoveryService = AutoConnectFakeDiscoveryService(events: discoveryEvents)
+        self.discoveryService = AutoConnectFakeDiscoveryService(events: discoveryEvents, error: discoveryError)
         self.viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
@@ -158,9 +159,11 @@ final class AutoConnectMockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unch
 
 final class AutoConnectFakeDiscoveryService: BRAVIADiscoveryServicing, @unchecked Sendable {
     var events: [BRAVIADiscoveryEvent]
+    var error: Error?
 
-    init(events: [BRAVIADiscoveryEvent]) {
+    init(events: [BRAVIADiscoveryEvent], error: Error? = nil) {
         self.events = events
+        self.error = error
     }
 
     func discover(timeout: TimeInterval) -> AsyncThrowingStream<BRAVIADiscoveryEvent, Error> {
@@ -168,7 +171,11 @@ final class AutoConnectFakeDiscoveryService: BRAVIADiscoveryServicing, @unchecke
             for event in events {
                 continuation.yield(event)
             }
-            continuation.finish()
+            if let error {
+                continuation.finish(throwing: error)
+            } else {
+                continuation.finish()
+            }
         }
     }
 }

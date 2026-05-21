@@ -12,7 +12,7 @@ struct BRAVIAClientTests {
             device: device,
             service: "system",
             credential: .psk("1234"),
-            body: TestBody(method: "getPowerStatus")
+            body: TestBody(method: "getRemoteControllerInfo")
         )
 
         #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/system")
@@ -20,7 +20,7 @@ struct BRAVIAClientTests {
         #expect(request.value(forHTTPHeaderField: "X-Auth-PSK") == "1234")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json; charset=UTF-8")
         let body = try #require(request.httpBody.flatMap { String(data: $0, encoding: .utf8) })
-        #expect(body.contains("getPowerStatus"))
+        #expect(body.contains("getRemoteControllerInfo"))
     }
 
     @Test func buildsIRCCRequest() throws {
@@ -74,6 +74,19 @@ struct BRAVIAClientTests {
         }
     }
 
+    @Test func testConnectionMapsJSONRPCErrorBody() async {
+        let transport = MockTransport(response: HTTPResponse(
+            data: Data("{\"error\":[401,\"Unauthorized\"],\"id\":1}".utf8),
+            statusCode: 200
+        ))
+        let client = BRAVIAClient(transport: transport)
+        let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
+
+        await #expect(throws: RemoteControlError.unauthorized) {
+            try await client.testConnection(device: device, credential: .psk("bad"))
+        }
+    }
+
     @Test func buildsJSONRPCRequestWithCookieCredential() throws {
         let client = BRAVIAClient(transport: MockTransport())
         let device = SonyDevice(name: "Living Room", host: "192.168.1.2", pskKey: "key")
@@ -82,7 +95,7 @@ struct BRAVIAClientTests {
             device: device,
             service: "system",
             credential: .cookie("auth=sample-cookie"),
-            body: TestBody(method: "getPowerStatus")
+            body: TestBody(method: "getRemoteControllerInfo")
         )
 
         #expect(request.value(forHTTPHeaderField: "Cookie") == "auth=sample-cookie")

@@ -758,32 +758,27 @@ private struct ManualIPEntryView: View {
             VStack(alignment: .leading, spacing: 22) {
                 InfoHeader(
                     systemImage: "network",
-                    title: "手动输入 IP",
-                    subtitle: "自动发现失败时，可输入电视 IP 地址和预共享密钥继续连接。"
+                    title: "手动连接电视",
+                    subtitle: "输入电视的 IP 地址，先测试连接。如需 PSK 认证，系统会自动提示。"
                 )
 
                 VStack(spacing: 0) {
-                    textFieldRow(
-                        title: "电视名称",
-                        placeholder: "客厅电视",
-                        text: $state.tvName,
-                        keyboardType: .default,
-                        submitLabel: .next
-                    )
-                    Divider().padding(.leading, 18)
                     textFieldRow(
                         title: "IP 地址",
                         placeholder: "192.168.1.2",
                         text: $state.ipAddress,
                         keyboardType: .numbersAndPunctuation,
-                        submitLabel: .next
+                        submitLabel: .done
                     )
-                    Divider().padding(.leading, 18)
-                    secureFieldRow(
-                        title: "预共享密钥",
-                        placeholder: "电视 IP Control 中配置的 PSK",
-                        text: $state.psk
-                    )
+
+                    if state.pskRequired == true {
+                        Divider().padding(.leading, 18)
+                        secureFieldRow(
+                            title: "预共享密钥",
+                            placeholder: "电视 IP Control 中配置的 PSK",
+                            text: $state.psk
+                        )
+                    }
                 }
                 .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
                 .overlay {
@@ -805,7 +800,7 @@ private struct ManualIPEntryView: View {
                             ProgressView()
                                 .tint(.white)
                         } else {
-                            Label("测试连接", systemImage: "antenna.radiowaves.left.and.right")
+                            Label(testButtonTitle, systemImage: testButtonSymbol)
                         }
                     }
                     .buttonStyle(PrimaryManualButtonStyle())
@@ -821,7 +816,7 @@ private struct ManualIPEntryView: View {
                 ManualInfoSection(title: "连接前确认", items: [
                     "电视和 iPhone 已连接到同一个网络。",
                     "电视已开启 IP Control，并允许移动设备控制。",
-                    "预共享密钥需要与电视设置中的 PSK 保持一致。"
+                    "如电视需要 PSK 认证，会在测试连接后提示您输入。"
                 ])
             }
             .padding(.horizontal, 22)
@@ -829,8 +824,16 @@ private struct ManualIPEntryView: View {
             .padding(.bottom, 40)
         }
         .background(AutoConnectDesign.background.ignoresSafeArea())
-        .navigationTitle("手动输入 IP")
+        .navigationTitle("手动连接电视")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var testButtonTitle: String {
+        state.pskRequired == true ? "验证 PSK" : "测试连接"
+    }
+
+    private var testButtonSymbol: String {
+        state.pskRequired == true ? "lock.shield" : "antenna.radiowaves.left.and.right"
     }
 
     private func textFieldRow(

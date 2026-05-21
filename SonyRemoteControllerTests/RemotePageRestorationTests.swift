@@ -229,6 +229,10 @@ struct RemotePageRestorationTests {
         #expect(harness.state.settings.presentedRoute == .about)
         snapshot.assertStillMatches(harness.state)
 
+        harness.viewModel.openSettingsRoute(.connectionDiagnostics)
+        #expect(harness.state.settings.presentedRoute == .connectionDiagnostics)
+        snapshot.assertStillMatches(harness.state)
+
         harness.viewModel.closeSettingsRoute()
         #expect(harness.state.settings.presentedRoute == nil)
         snapshot.assertStillMatches(harness.state)

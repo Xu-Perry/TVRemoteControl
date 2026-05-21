@@ -7,6 +7,7 @@ import SonyRemoteCore
 final class RemotePageState {
     var connection = ConnectionHeaderState()
     var settings = DeviceSettingsState()
+    var connectionDiagnostics = ConnectionDiagnosticsState()
     var remotePad = RemotePadState()
     var autoConnect = AutoConnectState()
     var presentedRemoteSurface: RemoteSurface?
@@ -45,10 +46,15 @@ final class DeviceSettingsState {
     var error: RemoteControlError?
     var successMessage: String?
     var presentedRoute: SettingsRoute?
+
+    /// Whether the TV requires PSK authentication.
+    /// nil = not yet tested, true = requires PSK, false = no PSK needed.
+    var pskRequired: Bool?
 }
 
 enum SettingsRoute: Hashable, Identifiable, Sendable {
     case deviceManagement
+    case connectionDiagnostics
     case help
     case about
 

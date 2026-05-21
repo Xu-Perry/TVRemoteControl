@@ -40,6 +40,9 @@ struct LocalDeviceRepository: DeviceRepository {
         let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let pskKey = secretKey(connectionMode: connectionMode)
         let displayName = normalizedName.isEmpty ? normalizedHost : normalizedName
+
+        let existingPSKKey = try? metadataStore.loadDevice()?.pskKey
+
         let device = SonyDevice(
             name: displayName,
             host: normalizedHost,
@@ -55,13 +58,17 @@ struct LocalDeviceRepository: DeviceRepository {
             try? secretStore.delete(for: pskKey)
             throw error
         }
+        if let existingPSKKey, existingPSKKey != pskKey {
+            try? secretStore.delete(for: existingPSKKey)
+        }
         return device
     }
 
     func readCredential(for device: SonyDevice) throws -> BRAVIAAuthCredential {
-        guard let value = try secretStore.read(for: device.pskKey), !value.isEmpty else {
+        guard let value = try secretStore.read(for: device.pskKey) else {
             throw RemoteControlError.missingPSK
         }
+        // Allow empty credentials — some TVs don't require PSK authentication.
         switch device.connectionMode {
         case .psk:
             return .psk(value)
@@ -79,11 +86,8 @@ struct LocalDeviceRepository: DeviceRepository {
     }
 
     func deleteDevice() throws {
-        guard let device = try metadataStore.loadDevice() else {
-            return
-        }
         try metadataStore.deleteDevice()
-        try secretStore.delete(for: device.pskKey)
+        try secretStore.deleteAll()
     }
 
     private func secretKey(connectionMode: ConnectionMode) -> String {
