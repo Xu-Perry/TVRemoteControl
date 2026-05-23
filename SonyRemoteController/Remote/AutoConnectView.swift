@@ -108,8 +108,8 @@ struct AutoConnectView: View {
             iconCircle(systemName: "tv", color: AutoConnectDesign.secondaryText, strokeColor: AutoConnectDesign.border)
                 .position(x: 215, y: 308)
 
-            centeredTitle("连接 BRAVIA 电视", y: 438)
-            centeredSubtitle("首次使用前，请先扫描同一网络中的 Sony BRAVIA 电视。", y: 484)
+            centeredTitle("连接电视", y: 438)
+            centeredSubtitle("首次使用前，请先扫描同一网络中的电视。", y: 484)
 
             primaryButton("扫描附近设备", systemImage: "magnifyingglass", action: viewModel.startScan)
                 .position(x: 215, y: 673)
@@ -129,7 +129,7 @@ struct AutoConnectView: View {
 
     private var scanningContent: some View {
         ZStack(alignment: .topLeading) {
-            pageTitle("正在扫描附近设备", subtitle: "正在搜索同一网络中的 BRAVIA 电视。")
+            pageTitle("正在扫描附近设备", subtitle: "正在搜索同一网络中的电视。")
 
             ZStack {
                 Circle()
@@ -173,7 +173,7 @@ struct AutoConnectView: View {
 
     private var connectingContent: some View {
         ZStack(alignment: .topLeading) {
-            let deviceName = state.selectedDevice?.displayName ?? "BRAVIA"
+            let deviceName = state.selectedDevice?.displayName ?? "电视"
             pageTitle("正在连接电视", subtitle: "已选择 \(deviceName)，正在建立连接。")
 
             if let device = state.selectedDevice {
@@ -187,7 +187,7 @@ struct AutoConnectView: View {
 
     private var connectedContent: some View {
         ZStack(alignment: .topLeading) {
-            let deviceName = state.selectedDevice?.displayName ?? state.rememberedDevice?.displayName ?? "BRAVIA"
+            let deviceName = state.selectedDevice?.displayName ?? state.rememberedDevice?.displayName ?? "电视"
             pageTitle("已连接", subtitle: "\(deviceName) 已准备就绪。")
 
             tvStatusCard(
@@ -334,7 +334,7 @@ struct AutoConnectView: View {
 
     private var noDevicesContent: some View {
         ZStack(alignment: .topLeading) {
-            pageTitle("未发现设备", subtitle: "没有找到同一网络中的 BRAVIA 电视。")
+            pageTitle("未发现设备", subtitle: "没有找到同一网络中的电视。")
 
             iconCircle(systemName: "magnifyingglass", color: AutoConnectDesign.secondaryText, strokeColor: AutoConnectDesign.border)
                 .position(x: 215, y: 308)
@@ -649,12 +649,6 @@ struct AutoConnectView: View {
                 .frame(width: 95, height: 51)
                 .position(x: 48, y: 26)
 
-            Text("BRAVIA")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 60, height: 16)
-                .position(x: 48, y: 30)
-
             Rectangle()
                 .fill(AutoConnectDesign.text)
                 .frame(width: 10, height: 2)
@@ -732,7 +726,7 @@ enum AutoConnectPresentationMode {
     var navigationTitle: String {
         switch self {
         case .primaryFlow:
-            "BRAVIA Controller"
+            "TV Remote Control"
         case .settingsDetail:
             "设备管理"
         }

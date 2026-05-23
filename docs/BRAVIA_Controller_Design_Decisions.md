@@ -1,8 +1,8 @@
-# BRAVIA Controller 设计讨论结论
+# TV Remote Control 设计讨论结论
 
 ## 1. 产品定位
 
-**BRAVIA Controller** 是一款面向 **Sony BRAVIA TV** 的 iOS 遥控器应用。
+**TV Remote Control** 是一款面向 **compatible TV TV** 的 iOS 遥控器应用。
 
 产品核心定位是：
 
@@ -22,8 +22,8 @@
 
 不采用以下方向：
 
-- 不做 Sony 全生态控制器
-- 不支持 Sony 音响、播放器、家庭影院等其他设备
+- 不做 特定品牌生态控制器
+- 不支持 品牌音响、播放器、家庭影院等其他设备
 - 不做内容聚合 / 推荐
 - 不做账号体系
 - 不做 Apple Watch、小组件或横屏版本
@@ -34,13 +34,13 @@
 
 产品名称确定为：
 
-> **BRAVIA Controller**
+> **TV Remote Control**
 
 原因：
 
-- 明确表达只服务于 BRAVIA TV
-- 比 “Sony Remote” 更聚焦
-- 避免用户误解为可以控制所有 Sony 设备
+- 明确表达只服务于 compatible TV
+- 比 “TV Remote” 更聚焦
+- 避免用户误解为可以控制所有同品牌设备
 - 适合作为 App Store 上架名称或产品工作名
 
 ---
@@ -69,12 +69,12 @@
 
 第一版只支持：
 
-- **Sony BRAVIA TV**
+- **compatible TV TV**
 
 不支持：
 
-- Sony 音响
-- Sony 蓝光播放器
+- 品牌音响
+- 品牌蓝光播放器
 - PlayStation
 - 家庭影院系统
 - 其他智能家居设备
@@ -87,7 +87,7 @@
 
 ### 5.1 自动发现
 
-App 可以在局域网内自动发现附近的 BRAVIA TV。
+App 可以在局域网内自动发现附近的 compatible TV。
 
 使用场景：
 
@@ -112,7 +112,7 @@ App 可以在局域网内自动发现附近的 BRAVIA TV。
 
 用于展示：
 
-- 已发现的 BRAVIA TV 列表
+- 已发现的 compatible TV 列表
 - 设备名称
 - 设备状态，例如“可连接”“已配对”
 - 点击设备进入连接 / 配对流程
@@ -121,7 +121,7 @@ App 可以在局域网内自动发现附近的 BRAVIA TV。
 
 ### 5.2 局域网连接
 
-App 通过局域网连接 BRAVIA TV。
+App 通过局域网连接 compatible TV。
 
 需要支持：
 
@@ -139,7 +139,7 @@ App 启动后不进入营销首页，也不进入功能首页。
 
 默认行为：
 
-1. 检查是否存在上次连接过的 BRAVIA TV
+1. 检查是否存在上次连接过的 compatible TV
 2. 如果存在，自动连接
 3. 连接成功后直接进入主遥控器页
 4. 如果连接失败，提示重试或进入设备发现页
@@ -167,7 +167,7 @@ App 启动后不进入营销首页，也不进入功能首页。
 推荐页面 / 模块结构：
 
 ```text
-BRAVIA Controller
+TV Remote Control
 ├── 启动 / 自动连接状态
 ├── 主遥控器页
 ├── 设备发现页
@@ -197,7 +197,7 @@ BRAVIA Controller
 
 顶部包括：
 
-- 页面标题：BRAVIA Controller
+- 页面标题：TV Remote Control
 - 右上角设置按钮
 - 当前连接设备卡片
 
@@ -205,7 +205,7 @@ BRAVIA Controller
 
 设备卡片内容：
 
-- 设备名称，例如 `BRAVIA XR-65A80L`
+- 设备名称，例如 `TV XR-65A80L`
 - 连接状态，例如 `已连接`
 - 电视缩略图 / 图标
 - 进入设备管理或切换设备的箭头
@@ -351,7 +351,7 @@ D-pad 下方放置常用按钮：
 
 包括：
 
-- 当前输入目标：正在输入到 BRAVIA XR-65A80L
+- 当前输入目标：正在输入到 TV XR-65A80L
 - 文本输入框
 - 发送到电视
 - 清空
@@ -535,7 +535,7 @@ Image(systemName: "chevron.right")
 
 ### P0：第一版必须有
 
-- 自动发现 BRAVIA TV
+- 自动发现 compatible TV
 - 设备空列表状态
 - 设备有列表状态
 - 手动输入 IP
@@ -610,9 +610,9 @@ Image(systemName: "chevron.right")
 最终确认如下：
 
 ```text
-产品名：BRAVIA Controller
+产品名：TV Remote Control
 平台：iOS 独立 App
-设备：仅 Sony BRAVIA TV
+设备：仅 compatible TV TV
 视觉：浅色、简洁、iOS 原生感
 结构：无底部 Tab
 首页：主遥控器页

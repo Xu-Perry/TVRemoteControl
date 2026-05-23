@@ -11,9 +11,9 @@ enum AppEnvironment {
         let pairingClient: BRAVIAPairing
         let discoveryService: BRAVIADiscoveryServicing
 
-        if processInfo.environment["SONY_REMOTE_USE_MOCKS"] == "1" {
+        if processInfo.environment["TV_REMOTE_USE_MOCKS"] == "1" {
             let mockClient = MockBRAVIAClient(
-                shouldFailConnection: processInfo.environment["SONY_REMOTE_MOCK_CONNECTION_FAILURE"] == "1"
+                shouldFailConnection: processInfo.environment["TV_REMOTE_MOCK_CONNECTION_FAILURE"] == "1"
             )
             repository = InMemoryDeviceRepository()
             client = mockClient
@@ -153,13 +153,13 @@ private struct MockBRAVIADiscoveryService: BRAVIADiscoveryServicing {
         AsyncThrowingStream { continuation in
             let devices = [
                 DiscoveredBRAVIADevice(
-                    name: "BRAVIA XR-65A80L",
+                    name: "Living Room TV",
                     host: "192.168.1.20",
                     uniqueIdentifier: "mock-xr-65a80l",
                     connectionReadiness: .connectable
                 ),
                 DiscoveredBRAVIADevice(
-                    name: "BRAVIA KD-75X80K",
+                    name: "Bedroom TV",
                     host: "192.168.1.21",
                     uniqueIdentifier: "mock-kd-75x80k",
                     connectionReadiness: .paired

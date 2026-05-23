@@ -30,7 +30,7 @@ final class AutoConnectState {
     var title: String {
         switch screen {
         case .firstLaunch:
-            "连接 BRAVIA 电视"
+            "连接电视"
         case .scanning:
             "正在扫描附近设备"
         case .devicesFound:
@@ -38,7 +38,7 @@ final class AutoConnectState {
         case .connecting:
             "正在连接电视"
         case .connectedReady, .clearConfirmation:
-            "\(selectedDevice?.displayName ?? rememberedDevice?.displayName ?? "BRAVIA") 已准备就绪。"
+            "\(selectedDevice?.displayName ?? rememberedDevice?.displayName ?? "电视") 已准备就绪。"
         case .noDevices:
             "未发现设备"
         }
@@ -47,17 +47,17 @@ final class AutoConnectState {
     var subtitle: String {
         switch screen {
         case .firstLaunch:
-            "首次使用前，请先扫描同一网络中的 Sony BRAVIA 电视。"
+            "首次使用前，请先扫描同一网络中的电视。"
         case .scanning:
-            "正在搜索同一网络中的 BRAVIA 电视。"
+            "正在搜索同一网络中的电视。"
         case .devicesFound:
             "发现 \(discoveredDevices.count) 台附近设备，选择一台开始连接。"
         case .connecting:
-            "已选择 \(selectedDevice?.displayName ?? "BRAVIA")，正在建立连接。"
+            "已选择 \(selectedDevice?.displayName ?? "电视")，正在建立连接。"
         case .connectedReady, .clearConfirmation:
             "连接后会自动记住设备，下次打开 App 可直接进入遥控器。"
         case .noDevices:
-            "没有找到同一网络中的 BRAVIA 电视。"
+            "没有找到同一网络中的电视。"
         }
     }
 }

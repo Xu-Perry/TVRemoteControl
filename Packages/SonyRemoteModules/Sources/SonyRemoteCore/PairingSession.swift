@@ -6,7 +6,7 @@ public struct PairingSession: Equatable, Sendable {
     public var deviceName: String
 
     public init(clientID: String? = nil, registrationID: String? = nil, deviceName: String = "") {
-        self.clientID = clientID ?? "bravia-controller:\(UUID().uuidString)"
+        self.clientID = clientID ?? "tv-remote:\(UUID().uuidString)"
         self.registrationID = registrationID
         self.deviceName = deviceName
     }

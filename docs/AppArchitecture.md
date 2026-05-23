@@ -37,7 +37,7 @@ final class RemotePageState {
 @Observable
 @MainActor
 final class RemoteHeaderState {
-    var title: String = "Sony Remote"
+    var title: String = "TV Remote"
     var connectionText: String = "Disconnected"
 }
 
@@ -126,7 +126,7 @@ final class DeviceListViewModel {
             state.devices = try await discoveryService.discoverDevices()
             state.errorMessage = nil
         } catch {
-            state.errorMessage = "Unable to find Sony devices."
+            state.errorMessage = "Unable to find compatible TVs."
         }
     }
 }
@@ -246,7 +246,7 @@ Recommended split:
 
 - Discovery service: local network scanning and SSDP parsing.
 - Device repository: saved devices, selected device, pairing metadata.
-- Remote command service: Sony device API calls and command serialization.
+- Remote command service: TV device API calls and command serialization.
 - Settings repository: user preferences and app-level settings.
 
 The domain layer should define stable models such as `SonyDevice`,

@@ -1,11 +1,11 @@
-# Manual BRAVIA Smoke Test
+# Manual TV Smoke Test
 
-Use this checklist when validating the MVP against a real BRAVIA TV.
+Use this checklist when validating the MVP against a real compatible TV.
 
 ## Prerequisites
 
-- iPhone and BRAVIA TV are on the same local network.
-- BRAVIA TV is awake.
+- iPhone and TV are on the same local network.
+- TV is awake.
 - TV-side IP Control is enabled.
 - TV-side Pre-Shared Key authentication is enabled.
 - TV-side Remote Device Control is enabled.
@@ -15,7 +15,7 @@ Use this checklist when validating the MVP against a real BRAVIA TV.
 
 1. Build and run `SonyRemoteController` on an iPhone or simulator that can reach
    the same local network.
-2. Confirm the first screen shows `连接 BRAVIA 电视`.
+2. Confirm the first screen shows `连接电视`.
 3. Confirm `扫描附近设备` and `手动输入 IP` are visible.
 
 ## Automatic Discovery
@@ -23,12 +23,12 @@ Use this checklist when validating the MVP against a real BRAVIA TV.
 1. Tap `扫描附近设备`.
 2. Confirm the screen shows `正在扫描附近设备`.
 3. Confirm the scan can be cancelled.
-4. Wait for the BRAVIA TV to appear in the discovered device list.
-5. Select the BRAVIA TV.
+4. Wait for the TV to appear in the discovered device list.
+5. Select the TV.
 6. Confirm the screen shows `正在连接电视`.
-7. Confirm the screen shows the selected BRAVIA TV is ready.
+7. Confirm the screen shows the selected TV is ready.
 8. Tap `进入遥控器`.
-9. Confirm the remote header shows the selected BRAVIA TV as connected.
+9. Confirm the remote header shows the selected TV as connected.
 
 ## Discovery Recovery
 
@@ -39,7 +39,7 @@ different Wi-Fi network or turning the TV off:
 2. Confirm the screen shows `未发现设备`.
 3. Confirm `重新扫描`, `手动输入 IP`, and troubleshooting guidance are visible.
 4. Restore the prerequisite and tap `重新扫描`.
-5. Confirm the BRAVIA TV can appear without restarting the app.
+5. Confirm the TV can appear without restarting the app.
 
 ## Configure TV
 

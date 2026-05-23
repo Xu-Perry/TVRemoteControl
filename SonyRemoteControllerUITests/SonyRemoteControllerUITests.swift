@@ -25,20 +25,20 @@ final class SonyRemoteControllerUITests: XCTestCase {
     @MainActor
     func testExample() throws {
         let app = XCUIApplication()
-        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
+        app.launchEnvironment["TV_REMOTE_USE_MOCKS"] = "1"
         app.launch()
 
-        XCTAssertTrue(app.buttons["connectBraviaButton"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["autoConnectPrimaryAction"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["tvSettingsButton"].exists)
     }
 
     @MainActor
     func testSettingsFormCanConnectAndSaveWithMocks() throws {
         let app = XCUIApplication()
-        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
+        app.launchEnvironment["TV_REMOTE_USE_MOCKS"] = "1"
         app.launch()
 
-        app.buttons["connectBraviaButton"].tap()
+        app.buttons["autoConnectPrimaryAction"].tap()
         XCTAssertTrue(app.textFields["ipAddressField"].waitForExistence(timeout: 3))
 
         app.textFields["tvNameField"].tap()
@@ -59,11 +59,11 @@ final class SonyRemoteControllerUITests: XCTestCase {
     @MainActor
     func testMockConnectionFailureShowsLayeredError() throws {
         let app = XCUIApplication()
-        app.launchEnvironment["SONY_REMOTE_USE_MOCKS"] = "1"
-        app.launchEnvironment["SONY_REMOTE_MOCK_CONNECTION_FAILURE"] = "1"
+        app.launchEnvironment["TV_REMOTE_USE_MOCKS"] = "1"
+        app.launchEnvironment["TV_REMOTE_MOCK_CONNECTION_FAILURE"] = "1"
         app.launch()
 
-        app.buttons["connectBraviaButton"].tap()
+        app.buttons["autoConnectPrimaryAction"].tap()
         XCTAssertTrue(app.textFields["ipAddressField"].waitForExistence(timeout: 3))
 
         app.textFields["ipAddressField"].tap()

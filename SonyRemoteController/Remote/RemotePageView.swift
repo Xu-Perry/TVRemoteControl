@@ -71,7 +71,7 @@ struct RemotePageView: View {
             }
             .sheet(isPresented: keyboardInputBinding) {
                 KeyboardInputSheet(
-                    deviceName: state.savedDevice?.displayName ?? "BRAVIA",
+                    deviceName: state.savedDevice?.displayName ?? "TV",
                     text: keyboardDraftTextBinding,
                     statusText: state.keyboardDraft.statusText,
                     status: state.keyboardDraft.status,
@@ -94,7 +94,7 @@ struct RemotePageView: View {
                 viewModel.refreshDeviceNameOnHomeAppear()
             }
         }
-        .navigationTitle("BRAVIA Controller")
+        .navigationTitle("TV Remote Control")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -268,18 +268,22 @@ struct TVThumbnail: View {
     let height: CGFloat
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.08, green: 0.10, blue: 0.13))
-                .frame(width: width, height: height * 0.82)
+        ZStack {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(red: 0.925, green: 0.955, blue: 1))
                 .overlay {
-                    Text("BRAVIA")
-                        .font(.system(size: max(10, width * 0.13), weight: .bold))
-                        .foregroundStyle(.white)
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.808, green: 0.875, blue: 0.973), lineWidth: 1)
                 }
-            RoundedRectangle(cornerRadius: 1)
-                .fill(Color(red: 0.2, green: 0.22, blue: 0.26))
-                .frame(width: width * 0.32, height: 4)
+
+            Circle()
+                .fill(Color.white.opacity(0.86))
+                .frame(width: height * 0.72, height: height * 0.72)
+
+            Image(systemName: "tv.fill")
+                .font(.system(size: height * 0.46, weight: .semibold))
+                .foregroundStyle(RemoteDesign.primaryBlue)
+                .symbolRenderingMode(.hierarchical)
         }
         .frame(width: width, height: height)
         .accessibilityHidden(true)
@@ -706,9 +710,9 @@ private struct MoreKeysSheet: View {
 #Preview("Connected Remote") {
     let state = RemotePageState()
     let viewModel = AppEnvironment.makeRemotePageViewModel(state: state)
-    state.savedDevice = SonyDevice(name: "BRAVIA XR-65A80L", host: "192.168.1.20", pskKey: "preview")
+    state.savedDevice = SonyDevice(name: "Living Room TV", host: "192.168.1.20", pskKey: "preview")
     state.status = .connected
-    state.connection.title = "BRAVIA XR-65A80L"
+    state.connection.title = "Living Room TV"
     state.connection.subtitle = "Connected"
     state.remotePad.isEnabled = true
     state.isAutoConnectPresented = false

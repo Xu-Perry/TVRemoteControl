@@ -31,7 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2B476F862FA331D40003AC16 /* SonyRemoteController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonyRemoteController.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B476F862FA331D40003AC16 /* TVRemoteController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TVRemoteController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B476F932FA331D60003AC16 /* SonyRemoteControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SonyRemoteControllerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B476F9D2FA331D60003AC16 /* SonyRemoteControllerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SonyRemoteControllerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -109,7 +109,7 @@
 		2B476F872FA331D40003AC16 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2B476F862FA331D40003AC16 /* SonyRemoteController.app */,
+				2B476F862FA331D40003AC16 /* TVRemoteController.app */,
 				2B476F932FA331D60003AC16 /* SonyRemoteControllerTests.xctest */,
 				2B476F9D2FA331D60003AC16 /* SonyRemoteControllerUITests.xctest */,
 			);
@@ -140,7 +140,7 @@
 				2B0000112FA4000000000001 /* SonyRemoteNetworking */,
 			);
 			productName = SonyRemoteController;
-			productReference = 2B476F862FA331D40003AC16 /* SonyRemoteController.app */;
+			productReference = 2B476F862FA331D40003AC16 /* TVRemoteController.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2B476F922FA331D60003AC16 /* SonyRemoteControllerTests */ = {
@@ -440,7 +440,8 @@
 				);
 				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.braviacontroller;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = SonyRemoteController;
+				PRODUCT_NAME = TVRemoteController;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -471,7 +472,8 @@
 				);
 				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perry.braviacontroller;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = SonyRemoteController;
+				PRODUCT_NAME = TVRemoteController;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -493,7 +495,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.perry.TVRemoteControllerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -501,7 +503,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SonyRemoteController.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SonyRemoteController";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TVRemoteController.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TVRemoteController";
 			};
 			name = Debug;
 		};
@@ -515,7 +517,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.perry.TVRemoteControllerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -523,7 +525,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SonyRemoteController.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SonyRemoteController";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TVRemoteController.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TVRemoteController";
 			};
 			name = Release;
 		};
@@ -535,7 +537,7 @@
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.perry.TVRemoteControllerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -555,7 +557,7 @@
 				DEVELOPMENT_TEAM = LSBVPJ7WRY;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.perry.SonyRemoteControllerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.perry.TVRemoteControllerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

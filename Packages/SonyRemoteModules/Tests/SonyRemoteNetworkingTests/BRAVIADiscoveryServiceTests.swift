@@ -4,7 +4,7 @@ import SonyRemoteCore
 @testable import SonyRemoteNetworking
 
 struct BRAVIADiscoveryServiceTests {
-    @Test func filtersAndDeduplicatesBRAVIADevices() async throws {
+    @Test func filtersAndDeduplicatesCompatibleDevices() async throws {
         let client = MockSSDPClient(responses: [
             SSDPDiscoveryResponse(location: URL(string: "http://192.168.1.20:80/a.xml")!),
             SSDPDiscoveryResponse(location: URL(string: "http://192.168.1.20:80/b.xml")!),
@@ -17,10 +17,11 @@ struct BRAVIADiscoveryServiceTests {
             return Data("""
             <root>
               <device>
-                <friendlyName>BRAVIA XR-65A80L</friendlyName>
-                <manufacturer>Sony</manufacturer>
+                <friendlyName>Living Room TV</friendlyName>
+                <manufacturer>Example</manufacturer>
                 <UDN>uuid:one</UDN>
               </device>
+              <X_ScalarWebAPI_ServiceList></X_ScalarWebAPI_ServiceList>
             </root>
             """.utf8)
         }
@@ -33,7 +34,7 @@ struct BRAVIADiscoveryServiceTests {
         }
 
         #expect(finishedDevices.count == 1)
-        #expect(finishedDevices.first?.displayName == "BRAVIA XR-65A80L")
+        #expect(finishedDevices.first?.displayName == "Living Room TV")
     }
 
     @Test func emptySearchFinishesWithNoDevices() async throws {
@@ -62,10 +63,11 @@ struct BRAVIADiscoveryServiceTests {
             return Data("""
             <root>
               <device>
-                <friendlyName>BRAVIA XR-65A80L</friendlyName>
-                <manufacturer>Sony</manufacturer>
+                <friendlyName>Living Room TV</friendlyName>
+                <manufacturer>Example</manufacturer>
                 <UDN>uuid:one</UDN>
               </device>
+              <X_ScalarWebAPI_ServiceList></X_ScalarWebAPI_ServiceList>
             </root>
             """.utf8)
         }
@@ -78,7 +80,7 @@ struct BRAVIADiscoveryServiceTests {
         }
 
         #expect(finishedDevices.count == 1)
-        #expect(finishedDevices.first?.displayName == "BRAVIA XR-65A80L")
+        #expect(finishedDevices.first?.displayName == "Living Room TV")
     }
 }
 

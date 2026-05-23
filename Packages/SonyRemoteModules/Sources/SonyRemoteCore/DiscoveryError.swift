@@ -10,7 +10,7 @@ public enum DiscoveryError: Error, Equatable, LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .noDevices:
-            "No BRAVIA devices were discovered on the local network."
+            "No compatible TVs were discovered on the local network."
         case .cancelled:
             "Discovery was cancelled."
         case .malformedDeviceDescription:

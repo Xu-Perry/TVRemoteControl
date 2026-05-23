@@ -487,7 +487,7 @@ private func normalizedFetchedDeviceName(_ value: String?) -> String? {
         return nil
     }
 
-    let genericNames = ["BRAVIA", "TV", "SONY", "SONY TV", "SONY BRAVIA"]
+    let genericNames = ["TV", "TELEVISION"]
     guard !genericNames.contains(name.uppercased()) else {
         return nil
     }

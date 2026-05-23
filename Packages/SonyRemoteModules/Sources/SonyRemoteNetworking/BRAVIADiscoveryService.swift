@@ -67,9 +67,9 @@ public struct BRAVIADiscoveryService: BRAVIADiscoveryServicing {
             let data = try await fetchDescription(response.location)
             let device = try parser.parse(data: data, location: response.location)
             if let device {
-                Self.debugLog("Parsed BRAVIA name=\(device.displayName) host=\(device.host) port=\(device.port)")
+                Self.debugLog("Parsed TV name=\(device.displayName) host=\(device.host) port=\(device.port)")
             } else {
-                Self.debugLog("Ignored non-BRAVIA description location=\(response.location.absoluteString)")
+                Self.debugLog("Ignored incompatible description location=\(response.location.absoluteString)")
             }
             return device
         } catch {
@@ -80,7 +80,7 @@ public struct BRAVIADiscoveryService: BRAVIADiscoveryServicing {
 
     private static func debugLog(_ message: String) {
         #if DEBUG
-        print("[BRAVIADiscovery] \(message)")
+        print("[TVDiscovery] \(message)")
         #endif
     }
 }
