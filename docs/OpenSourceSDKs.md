@@ -11,12 +11,12 @@ complexity without weakening the architecture in `docs/AppArchitecture.md`.
 
 Do not add third-party runtime packages yet.
 
-For the v1 BRAVIA TV MVP, the expected implementation can use:
+For the v1 compatible TV MVP, the expected implementation can use:
 
-- `URLSession` for BRAVIA REST JSON-RPC and IRCC-IP HTTP requests.
+- `URLSession` for TV REST JSON-RPC and IRCC-IP HTTP requests.
 - `Security` framework for Keychain access.
 - `OSLog` for local diagnostics.
-- `Network.framework` for automatic BRAVIA discovery and UDP multicast behavior.
+- `Network.framework` for automatic TV discovery and UDP multicast behavior.
 - Swift Testing for unit tests.
 
 Add a third-party package only when the first implementation proves the native
@@ -30,7 +30,7 @@ API cost is high enough to justify the dependency.
 - Product: `KeychainAccess`
 - License: MIT
 - Current SPI release checked: `v4.2.2`
-- Role: simpler Keychain wrapper for saving BRAVIA PSK values.
+- Role: simpler Keychain wrapper for saving TV PSK values.
 - Recommendation: evaluate when implementing PSK persistence.
 
 Why it may help:
@@ -124,7 +124,7 @@ Why it may help:
 Why not add immediately:
 
 - V1 IRCC-IP can generate a small SOAP envelope directly.
-- BRAVIA REST APIs are JSON-RPC, not XML.
+- TV REST APIs are JSON-RPC, not XML.
 
 Adoption rule:
 
@@ -227,7 +227,7 @@ Before adding any package:
 1. Start v1 implementation with no third-party runtime dependencies.
 2. Implement `SecretStore` using native `Security`; switch to KeychainAccess only
    if native code becomes noisy.
-3. Implement BRAVIA networking with `URLSession`.
+3. Implement TV networking with `URLSession`.
 4. Add SnapshotTesting later only after the remote screen layout stabilizes.
 5. Revisit discovery-related packages when automatic discovery becomes an
    explicit v2 scope item.

@@ -19,7 +19,7 @@ public enum ConnectionStatus: Equatable, Sendable {
     public var displayText: String {
         switch self {
         case .noDevice:
-            "Add a BRAVIA TV to start"
+            "Add a TV to start"
         case .disconnected:
             "Disconnected"
         case .connecting:

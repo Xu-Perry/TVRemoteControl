@@ -31,7 +31,7 @@ final class RemotePageState {
 @MainActor
 final class ConnectionHeaderState {
     var title = "No TV Connected"
-    var subtitle = "Add a BRAVIA TV to start"
+    var subtitle = "Add a TV to start"
 }
 
 @Observable

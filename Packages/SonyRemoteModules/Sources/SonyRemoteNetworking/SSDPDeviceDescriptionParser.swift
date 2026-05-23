@@ -10,9 +10,7 @@ public struct SSDPDeviceDescriptionParser: Sendable {
         }
 
         let lowercaseXML = xml.lowercased()
-        let isSony = lowercaseXML.contains("sony")
-        let isBRAVIA = lowercaseXML.contains("bravia") || lowercaseXML.contains("scalarwebapi")
-        guard isSony || isBRAVIA else {
+        guard lowercaseXML.contains("scalarwebapi") else {
             return nil
         }
 

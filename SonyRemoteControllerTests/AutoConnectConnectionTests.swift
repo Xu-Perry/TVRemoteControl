@@ -28,7 +28,7 @@ struct AutoConnectConnectionTests {
 
         #expect(harness.state.autoConnect.screen == .connectedReady)
         #expect(!harness.state.autoConnect.isPinSheetPresented)
-        #expect(harness.state.savedDevice?.displayName == "BRAVIA XR-65A80L")
+        #expect(harness.state.savedDevice?.displayName == "Living Room TV")
         #expect(harness.state.status == .connected)
         #expect(harness.state.remotePad.isEnabled)
         #expect(!harness.state.isAutoConnectPresented)

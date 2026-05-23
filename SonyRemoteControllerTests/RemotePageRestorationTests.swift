@@ -86,13 +86,13 @@ struct RemotePageRestorationTests {
     @Test func keyboardDraftClearDeleteAndCountUseConnectedTarget() async {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
-        harness.viewModel.updateKeyboardDraftText("SONY")
+        harness.viewModel.updateKeyboardDraftText("TEXT")
 
         #expect(harness.state.keyboardDraft.characterCountText == "4/500")
         #expect(harness.state.keyboardDraft.status == .editing)
 
         harness.viewModel.deleteLastKeyboardCharacter()
-        #expect(harness.state.keyboardDraft.text == "SON")
+        #expect(harness.state.keyboardDraft.text == "TEX")
         #expect(harness.state.keyboardDraft.characterCountText == "3/500")
 
         harness.viewModel.clearKeyboardDraft()
@@ -105,12 +105,12 @@ struct RemotePageRestorationTests {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
         harness.viewModel.openKeyboardInput()
-        harness.viewModel.updateKeyboardDraftText("SONY")
+        harness.viewModel.updateKeyboardDraftText("TEXT")
 
         harness.viewModel.closeKeyboardInput()
 
         #expect(!harness.state.isKeyboardInputActive)
-        #expect(harness.state.keyboardDraft.text == "SONY")
+        #expect(harness.state.keyboardDraft.text == "TEXT")
         #expect(harness.state.keyboardDraft.status == .editing)
     }
 
@@ -128,11 +128,11 @@ struct RemotePageRestorationTests {
     @Test func keyboardDraftSendsTrimmedTextToConnectedTV() async {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
-        harness.viewModel.updateKeyboardDraftText("  Sony TV  ")
+        harness.viewModel.updateKeyboardDraftText("  Living Room  ")
 
         await harness.viewModel.sendKeyboardDraft()
 
-        #expect(harness.client.sentTexts == ["Sony TV"])
+        #expect(harness.client.sentTexts == ["Living Room"])
         #expect(harness.state.keyboardDraft.status == .sent)
         #expect(harness.state.keyboardDraft.errorMessage == nil)
     }
@@ -141,12 +141,12 @@ struct RemotePageRestorationTests {
         let harness = RestorationHarness()
         await harness.connectSavedDevice()
         harness.client.sendTextError = .remoteControlUnavailable
-        harness.viewModel.updateKeyboardDraftText("Sony")
+        harness.viewModel.updateKeyboardDraftText("Text")
 
         await harness.viewModel.sendKeyboardDraft()
 
-        #expect(harness.client.sentTexts == ["Sony"])
-        #expect(harness.state.keyboardDraft.text == "Sony")
+        #expect(harness.client.sentTexts == ["Text"])
+        #expect(harness.state.keyboardDraft.text == "Text")
         #expect(harness.state.keyboardDraft.status == .failed)
         #expect(harness.state.keyboardDraft.errorMessage == RemoteControlError.remoteControlUnavailable.recoverySuggestion)
     }

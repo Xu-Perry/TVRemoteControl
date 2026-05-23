@@ -57,7 +57,7 @@ public enum RemoteControlError: Error, Equatable, Sendable {
         case .missingPSK:
             "请输入电视上配置的预共享密钥。"
         case .missingDevice:
-            "请先添加一台 BRAVIA 电视。"
+            "请先添加一台电视。"
         case .timeout, .unreachable:
             "确认 iPhone 和电视在同一网络，且电视已开机。"
         case .unauthorized:

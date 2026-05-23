@@ -186,7 +186,7 @@ struct SonyRemoteControllerTests {
     }
 
     @Test func keychainMetadataStoreMigratesLegacyUserDefaultsDevice() throws {
-        let suiteName = "SonyRemoteControllerTests.\(UUID().uuidString)"
+        let suiteName = "TVRemoteControllerTests.\(UUID().uuidString)"
         let userDefaults = try #require(UserDefaults(suiteName: suiteName))
         defer { userDefaults.removePersistentDomain(forName: suiteName) }
 
@@ -300,12 +300,12 @@ struct SonyRemoteControllerTests {
         #expect(state.connection.title == "Living Room TV")
     }
 
-    @Test func homeAppearDoesNotReplaceDeviceNameWithGenericBRAVIAName() async throws {
+    @Test func homeAppearDoesNotReplaceDeviceNameWithGenericTVName() async throws {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
-        let savedDevice = SonyDevice(name: "BRAVIA XR-65A80L", host: "192.168.1.2", pskKey: "key")
+        let savedDevice = SonyDevice(name: "Living Room TV", host: "192.168.1.2", pskKey: "key")
         repository.stubDevice(savedDevice, psk: "1234")
-        let client = MockBRAVIAClient(fetchedDeviceName: "BRAVIA")
+        let client = MockBRAVIAClient(fetchedDeviceName: "TV")
         let viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
@@ -317,14 +317,14 @@ struct SonyRemoteControllerTests {
         state.isAutoConnectPresented = false
         await viewModel.refreshDeviceNameIfNeeded()
 
-        #expect(state.savedDevice?.displayName == "BRAVIA XR-65A80L")
+        #expect(state.savedDevice?.displayName == "Living Room TV")
         let persistedDevice = try #require(try repository.loadDevice())
-        #expect(persistedDevice.displayName == "BRAVIA XR-65A80L")
-        #expect(state.connection.title == "BRAVIA XR-65A80L")
+        #expect(persistedDevice.displayName == "Living Room TV")
+        #expect(state.connection.title == "Living Room TV")
     }
 
-    @Test func manualConnectionDoesNotSaveGenericFetchedBRAVIAName() async {
-        let harness = Harness(client: MockBRAVIAClient(fetchedDeviceName: "BRAVIA"))
+    @Test func manualConnectionDoesNotSaveGenericFetchedTVName() async {
+        let harness = Harness(client: MockBRAVIAClient(fetchedDeviceName: "TV"))
         harness.state.settings.ipAddress = "192.168.1.2"
         harness.state.settings.psk = "1234"
 

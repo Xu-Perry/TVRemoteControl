@@ -1,6 +1,6 @@
-# SonyController
+# TV Remote Control
 
-SonyRemoteController is an iOS 18 SwiftUI app for controlling Sony BRAVIA TVs on the local network.
+TV Remote Control is an iOS 18 SwiftUI app for controlling compatible TVs on the local network.
 
 License: PolyForm Noncommercial License 1.0.0. Noncommercial use is permitted;
 commercial use is not licensed by this repository.
@@ -47,4 +47,4 @@ env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test
 
 ## API
 
-[Bravia Rest API](https://pro-bravia.sony.net/zhs/remote-display-control/rest-api/)
+The app communicates with compatible TVs over the local network.

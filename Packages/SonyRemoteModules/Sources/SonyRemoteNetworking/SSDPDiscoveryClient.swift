@@ -171,7 +171,7 @@ public struct SSDPDiscoveryClient: SSDPDiscoveryClientProtocol {
         parameters.requiredInterfaceType = .wifi
 
         let connectionGroup = NWConnectionGroup(with: groupDescriptor, using: parameters)
-        let queue = DispatchQueue(label: "com.perry.braviacontroller.ssdp")
+        let queue = DispatchQueue(label: "com.perry.tvremotecontroller.ssdp")
         let readySemaphore = DispatchSemaphore(value: 0)
         let cancelSemaphore = DispatchSemaphore(value: 0)
         let state = NetworkSearchState()

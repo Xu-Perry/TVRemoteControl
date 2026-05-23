@@ -4,15 +4,15 @@ import SonyRemoteCore
 @testable import SonyRemoteNetworking
 
 struct SSDPDeviceDescriptionParserTests {
-    @Test func parsesBRAVIADeviceDescription() throws {
+    @Test func parsesCompatibleDeviceDescription() throws {
         let parser = SSDPDeviceDescriptionParser()
         let data = Data("""
         <root>
           <device>
-            <friendlyName>BRAVIA XR-65A80L</friendlyName>
-            <manufacturer>Sony Corporation</manufacturer>
-            <modelName>BRAVIA</modelName>
-            <UDN>uuid:sony-bravia-1</UDN>
+            <friendlyName>Living Room TV</friendlyName>
+            <manufacturer>Example</manufacturer>
+            <modelName>TV</modelName>
+            <UDN>uuid:living-room-tv</UDN>
           </device>
           <X_ScalarWebAPI_ServiceList></X_ScalarWebAPI_ServiceList>
         </root>
@@ -23,22 +23,22 @@ struct SSDPDeviceDescriptionParserTests {
             location: URL(string: "http://192.168.1.20:52323/dmr.xml")!
         ))
 
-        #expect(device.displayName == "BRAVIA XR-65A80L")
+        #expect(device.displayName == "Living Room TV")
         #expect(device.host == "192.168.1.20")
         #expect(device.port == 80)
-        #expect(device.id == "uuid:sony-bravia-1")
+        #expect(device.id == "uuid:living-room-tv")
         #expect(device.connectionReadiness == .connectable)
     }
 
-    @Test func usesSonyControlPortAndPreservesCustomFriendlyName() throws {
+    @Test func usesControlPortAndPreservesCustomFriendlyName() throws {
         let parser = SSDPDeviceDescriptionParser()
         let data = Data("""
         <root>
           <device>
             <friendlyName>S</friendlyName>
-            <manufacturer>Sony Corporation</manufacturer>
+            <manufacturer>Example</manufacturer>
             <modelName>XR-75X91J</modelName>
-            <UDN>uuid:sony-bravia-real</UDN>
+            <UDN>uuid:compatible-tv-real</UDN>
             <serviceList>
               <service>
                 <serviceType>urn:schemas-sony-com:service:ScalarWebAPI:1</serviceType>
@@ -60,7 +60,7 @@ struct SSDPDeviceDescriptionParserTests {
         #expect(device.port == 80)
     }
 
-    @Test func ignoresNonSonyDeviceDescription() throws {
+    @Test func ignoresIncompatibleDeviceDescription() throws {
         let parser = SSDPDeviceDescriptionParser()
         let data = Data("""
         <root>
@@ -81,7 +81,7 @@ struct SSDPDeviceDescriptionParserTests {
 
     @Test func throwsForMalformedLocation() throws {
         let parser = SSDPDeviceDescriptionParser()
-        let data = Data("<root><device><manufacturer>Sony</manufacturer></device></root>".utf8)
+        let data = Data("<root><device><X_ScalarWebAPI_ServiceList></X_ScalarWebAPI_ServiceList></device></root>".utf8)
 
         #expect(throws: DiscoveryError.malformedDeviceDescription) {
             _ = try parser.parse(data: data, location: URL(string: "file:///tmp/device.xml")!)

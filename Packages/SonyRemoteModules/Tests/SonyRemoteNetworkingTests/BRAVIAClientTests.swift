@@ -65,12 +65,12 @@ struct BRAVIAClientTests {
         #expect(request.url?.absoluteString == "http://192.168.1.2:80/sony/appControl")
     }
 
-    @Test func fetchDeviceNameIgnoresGenericBRAVIAName() async throws {
+    @Test func fetchDeviceNameIgnoresGenericTVName() async throws {
         let transport = MockTransport(responses: [
             HTTPResponse(data: Data(), statusCode: 404),
             HTTPResponse(data: Data(), statusCode: 404),
             HTTPResponse(data: Data(), statusCode: 404),
-            HTTPResponse(data: Data("{\"result\":[{\"name\":\"BRAVIA\"}],\"id\":33}".utf8), statusCode: 200)
+            HTTPResponse(data: Data("{\"result\":[{\"name\":\"TV\"}],\"id\":33}".utf8), statusCode: 200)
         ])
         let client = BRAVIAClient(transport: transport)
         let device = SonyDevice(name: "192.168.1.2", host: "192.168.1.2", pskKey: "key")

@@ -2,16 +2,16 @@
 
 This document is the UI and interaction source of truth for v1.
 
-The v1 app is a native, simple, one-handed iPhone remote for BRAVIA TV. It
-supports automatic BRAVIA discovery, manual IP + PSK fallback setup, a core TV
+The v1 app is a native, simple, one-handed iPhone remote for compatible TV. It
+supports automatic TV discovery, manual IP + PSK fallback setup, a core TV
 remote layout, a dedicated settings page, and layered connection error guidance.
 
 ## Product Goals
 
 - Make the first usable version feel like a real remote, not a setup demo.
 - Keep the main screen focused on controlling the TV.
-- Let users automatically discover a BRAVIA TV on the local network.
-- Let users manually configure a BRAVIA TV with IP address and Pre-Shared Key
+- Let users automatically discover a compatible TV on the local network.
+- Let users manually configure a compatible TV with IP address and Pre-Shared Key
   when discovery is unavailable.
 - Save the PSK securely in Keychain.
 - Explain connection failures well enough for users to fix common TV or network
@@ -81,8 +81,8 @@ It follows the Figma frames:
 
 The flow contains:
 
-- App title `BRAVIA Controller`.
-- First-launch title `连接 BRAVIA 电视`.
+- App title `TV Remote Control`.
+- First-launch title `连接 TV 电视`.
 - Primary action `扫描附近设备`.
 - Secondary action `手动输入 IP`.
 - Scanning title `正在扫描附近设备` with cancel action.
@@ -121,7 +121,7 @@ It contains:
 - Save button.
 - Short requirements block:
   - TV and iPhone must be on the same local network.
-  - BRAVIA IP Control must be enabled.
+  - TV IP Control must be enabled.
   - Pre-Shared Key authentication must be enabled and match the entered PSK.
   - Remote Device Control must be enabled.
 
@@ -138,9 +138,9 @@ Every page state must map to explicit State fields in the architecture layer.
 No saved TV exists.
 
 - Header title: `No TV Connected`.
-- Header detail: `Add a BRAVIA TV to start`.
+- Header detail: `Add a compatible TV to start`.
 - Remote controls are disabled.
-- Primary action: `Connect a BRAVIA TV`.
+- Primary action: `Connect a compatible TV`.
 - Settings entry remains visible.
 
 ### Disconnected
@@ -313,7 +313,7 @@ Accessibility:
 1. App opens on Remote Page.
 2. State is `no device`.
 3. Remote controls are disabled.
-4. User taps `Connect a BRAVIA TV`.
+4. User taps `Connect a compatible TV`.
 5. App opens Device Settings Page.
 
 ### Test Connection
@@ -322,7 +322,7 @@ Accessibility:
 2. User taps `Test Connection`.
 3. Settings state becomes `connecting`.
 4. App validates local input.
-5. App calls the BRAVIA test endpoint.
+5. App calls the TV test endpoint.
 6. Success shows connected confirmation and enables `Save`.
 7. Failure shows layered error guidance.
 
@@ -339,7 +339,7 @@ Accessibility:
 
 1. User taps an enabled remote button.
 2. Remote Pad View calls its ViewModel intent method.
-3. ViewModel sends the mapped BRAVIA command.
+3. ViewModel sends the mapped TV command.
 4. On success, the pressed state clears without additional navigation.
 5. On failure, Error Banner appears with a mapped recovery message.
 

@@ -56,7 +56,7 @@ final class ConnectionDiagnosticsViewModel {
         state.update(
             .deviceReachability,
             status: .running,
-            message: "正在扫描附近 BRAVIA 电视..."
+            message: "正在扫描附近电视..."
         )
 
         do {
@@ -98,7 +98,7 @@ final class ConnectionDiagnosticsViewModel {
             state.update(
                 .deviceReachability,
                 status: .passed,
-                message: "已发现 \(discoveredDevices.count) 台 BRAVIA 电视，可返回设备管理页选择并连接。"
+                message: "已发现 \(discoveredDevices.count) 台电视，可返回设备管理页选择并连接。"
             )
             state.update(
                 .televisionSettings,
@@ -136,7 +136,7 @@ final class ConnectionDiagnosticsViewModel {
             state.update(
                 .deviceReachability,
                 status: .failed,
-                message: "没有发现附近 BRAVIA，也无法确认已保存电视在线。请确认电视已开机，手机和电视连接同一个 Wi-Fi。"
+                message: "没有发现附近电视，也无法确认已保存电视在线。请确认电视已开机，手机和电视连接同一个 Wi-Fi。"
             )
             state.update(
                 .televisionSettings,
@@ -166,7 +166,7 @@ final class ConnectionDiagnosticsViewModel {
             state.update(
                 .localNetworkPermission,
                 status: .failed,
-                message: "本地网络发现不可用。请到 iOS 设置 > 隐私与安全性 > 本地网络，允许 Bravia Controller 访问本地网络。之后请彻底关闭 App 再重新打开。"
+                message: "本地网络发现不可用。请到 iOS 设置 > 隐私与安全性 > 本地网络，允许 TV Remote Control 访问本地网络。之后请彻底关闭 App 再重新打开。"
             )
             state.update(
                 .deviceReachability,

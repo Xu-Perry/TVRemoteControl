@@ -19,7 +19,7 @@ struct AutoConnectViewModelTests {
 
         #expect(harness.state.autoConnect.screen == .devicesFound)
         #expect(harness.state.autoConnect.discoveredDevices.count == 1)
-        #expect(harness.state.autoConnect.discoveredDevices.first?.displayName == "BRAVIA XR-65A80L")
+        #expect(harness.state.autoConnect.discoveredDevices.first?.displayName == "Living Room TV")
     }
 
     @Test func cancellingScanReturnsToFirstLaunchAndIgnoresLaterResults() async {
@@ -262,14 +262,14 @@ final class AutoConnectTrackingDiscoveryService: BRAVIADiscoveryServicing, @unch
 
 extension DiscoveredBRAVIADevice {
     static let livingRoom = DiscoveredBRAVIADevice(
-        name: "BRAVIA XR-65A80L",
+        name: "Living Room TV",
         host: "192.168.1.20",
         uniqueIdentifier: "uuid:living-room",
         connectionReadiness: .connectable
     )
 
     static let livingRoomDuplicate = DiscoveredBRAVIADevice(
-        name: "BRAVIA XR-65A80L",
+        name: "Living Room TV",
         host: "192.168.1.20",
         uniqueIdentifier: "uuid:living-room",
         connectionReadiness: .connectable

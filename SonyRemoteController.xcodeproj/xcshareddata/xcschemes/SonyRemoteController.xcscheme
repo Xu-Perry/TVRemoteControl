@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2B476F852FA331D40003AC16"
-               BuildableName = "SonyRemoteController.app"
+               BuildableName = "TVRemoteController.app"
                BlueprintName = "SonyRemoteController"
                ReferencedContainer = "container:SonyRemoteController.xcodeproj">
             </BuildableReference>
@@ -69,7 +69,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B476F852FA331D40003AC16"
-            BuildableName = "SonyRemoteController.app"
+            BuildableName = "TVRemoteController.app"
             BlueprintName = "SonyRemoteController"
             ReferencedContainer = "container:SonyRemoteController.xcodeproj">
          </BuildableReference>
@@ -86,7 +86,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B476F852FA331D40003AC16"
-            BuildableName = "SonyRemoteController.app"
+            BuildableName = "TVRemoteController.app"
             BlueprintName = "SonyRemoteController"
             ReferencedContainer = "container:SonyRemoteController.xcodeproj">
          </BuildableReference>

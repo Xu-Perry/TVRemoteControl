@@ -146,7 +146,7 @@ private enum SettingsDesign {
 
 private enum SettingsLinks {
     static let privacyPolicyURL = URL(string: "https://xu-perry.github.io/SonyController/privacy.html")!
-    static let supportEmailURL = URL(string: "mailto:xuanyue.pan@icloud.com?subject=BRAVIA%20Controller%20Feedback")!
+    static let supportEmailURL = URL(string: "mailto:xuanyue.pan@icloud.com?subject=TV%20Remote%20Control%20Feedback")!
 }
 
 private struct SettingsNavigationRow: View {
@@ -253,7 +253,7 @@ private struct HelpFeedbackView: View {
                 )
 
                 InfoSection(title: "连接检查", items: [
-                    "确认 iPhone 和 BRAVIA 电视连接到同一个 Wi-Fi。",
+                    "确认 iPhone 和电视连接到同一个 Wi-Fi。",
                     "确认电视已开启 IP Control 或远程设备控制权限。",
                     "如果自动发现失败，可以返回设备管理页重新扫描。"
                 ])
@@ -292,7 +292,7 @@ private struct AboutAppView: View {
                 InfoPageHeader(
                     systemImage: "tv",
                     title: appName,
-                    subtitle: "用于在本地网络中发现并控制 Sony BRAVIA 电视。"
+                    subtitle: "用于在本地网络中发现并控制电视。"
                 )
 
                 VStack(spacing: 0) {
@@ -320,7 +320,7 @@ private struct AboutAppView: View {
     private var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
             ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-            ?? "BRAVIA Controller"
+            ?? "TV Remote Control"
     }
 
     private var versionText: String {
@@ -418,9 +418,9 @@ private struct InfoValueRow: View {
 #Preview("Settings") {
     let state = RemotePageState()
     let viewModel = AppEnvironment.makeRemotePageViewModel(state: state)
-    state.savedDevice = SonyDevice(name: "BRAVIA XR-65A80L", host: "192.168.1.20", pskKey: "preview")
+    state.savedDevice = SonyDevice(name: "Living Room TV", host: "192.168.1.20", pskKey: "preview")
     state.status = .connected
-    state.connection.title = "BRAVIA XR-65A80L"
+    state.connection.title = "Living Room TV"
     return NavigationStack {
         DeviceSettingsView(
             pageState: state,

@@ -68,8 +68,8 @@ final class ConnectionDiagnosticsState {
             ),
             ConnectionDiagnosticStep(
                 id: .deviceReachability,
-                title: "发现 BRAVIA 电视",
-                message: "扫描同一 Wi-Fi 下的 BRAVIA 电视，或测试已保存电视是否可连接。",
+                title: "发现电视",
+                message: "扫描同一 Wi-Fi 下的电视，或测试已保存电视是否可连接。",
                 status: .pending
             ),
             ConnectionDiagnosticStep(

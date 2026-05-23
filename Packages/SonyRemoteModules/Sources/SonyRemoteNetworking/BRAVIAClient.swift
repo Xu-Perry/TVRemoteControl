@@ -35,7 +35,7 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
 
     public func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
         // Use getRemoteControllerInfo instead of getPowerStatus because the latter
-        // is available without authentication on many BRAVIA models, making it
+        // is available without authentication on many compatible TV models, making it
         // impossible to verify the PSK. getRemoteControllerInfo requires auth
         // and returns 401 with an invalid PSK.
         let request = try makeJSONRPCRequest(
@@ -48,7 +48,7 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         try validate(response)
 
         // Confirm the response is valid JSON to rule out a mangled response
-        // from a non-BRAVIA device on the same IP, while still honoring
+        // from an incompatible device on the same IP, while still honoring
         // JSON-RPC error payloads that may arrive with HTTP 200.
         _ = try JSONSerialization.jsonObject(with: response.data)
         let rpcResponse = try decoder.decode(JSONRPCErrorEnvelope.self, from: response.data)
@@ -352,7 +352,7 @@ private extension BRAVIAClient {
             return nil
         }
 
-        let genericNames = ["BRAVIA", "TV", "SONY", "SONY TV", "SONY BRAVIA"]
+        let genericNames = ["TV", "TELEVISION"]
         guard !genericNames.contains(name.uppercased()) else {
             return nil
         }
@@ -487,7 +487,7 @@ private actor BRAVIAPairingChallengeRegistry {
 }
 
 private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegate, @unchecked Sendable {
-    private let queue = DispatchQueue(label: "SonyRemote.PendingBRAVIAPairingRequest")
+    private let queue = DispatchQueue(label: "TVRemote.PendingPairingRequest")
     private var session: URLSession?
     private var task: URLSessionDataTask?
     private var response: HTTPURLResponse?
