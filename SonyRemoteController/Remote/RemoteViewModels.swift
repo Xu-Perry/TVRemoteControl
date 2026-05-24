@@ -393,11 +393,17 @@ final class DeviceSettingsViewModel {
                 pskKey: "test",
                 connectionMode: .psk
             )
-            try await braviaClient.testConnection(device: testDevice, credential: .psk(psk))
+            let credential = BRAVIAAuthCredential.psk(psk)
+            try await braviaClient.testConnection(device: testDevice, credential: credential)
+            // Some BRAVIA models accept `getRemoteControllerInfo` without a valid
+            // PSK, so the JSON-RPC test alone is not enough to prove that the
+            // PSK actually works for sending commands. Probe the IRCC endpoint
+            // to make sure the PSK is accepted before letting the user save.
+            try await braviaClient.testCommandAccess(device: testDevice, credential: credential)
             state.lastTestedHost = host
             state.canSave = true
             state.successMessage = "连接成功，PSK 认证通过。"
-            await fetchAndStoreDeviceName(host: host, credential: .psk(psk))
+            await fetchAndStoreDeviceName(host: host, credential: credential)
         } catch let error as RemoteControlError {
             state.error = error
         } catch {

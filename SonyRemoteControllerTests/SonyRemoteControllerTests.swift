@@ -72,6 +72,20 @@ struct SonyRemoteControllerTests {
         #expect(!harness.state.settings.canSave)
     }
 
+    @Test func testConnectionRejectsInvalidPSKDetectedByIRCCProbe() async {
+        // Some BRAVIA models accept getRemoteControllerInfo without a valid
+        // PSK, so we must additionally probe the IRCC endpoint to catch a
+        // wrong PSK before allowing save.
+        let harness = Harness(client: MockBRAVIAClient(commandAccessError: .unauthorized))
+        harness.state.settings.ipAddress = "192.168.1.2"
+        harness.state.settings.psk = "wrong"
+
+        await harness.viewModel.settings.testConnection()
+
+        #expect(harness.state.settings.error == .unauthorized)
+        #expect(!harness.state.settings.canSave)
+    }
+
     @Test func commandFailureShowsErrorBannerState() async {
         let harness = Harness(client: MockBRAVIAClient(sendError: .timeout))
         await harness.connectSavedDevice()
@@ -517,6 +531,7 @@ private final class MockSecretStore: SecretStore, @unchecked Sendable {
 
 private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @unchecked Sendable {
     var connectionError: RemoteControlError?
+    var commandAccessError: RemoteControlError?
     var sendError: RemoteControlError?
     var connectionDelayNanoseconds: UInt64
     var connectionResults: [RemoteControlError?]
@@ -525,12 +540,14 @@ private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @uncheck
 
     init(
         connectionError: RemoteControlError? = nil,
+        commandAccessError: RemoteControlError? = nil,
         sendError: RemoteControlError? = nil,
         connectionDelayNanoseconds: UInt64 = 0,
         connectionResults: [RemoteControlError?] = [],
         fetchedDeviceName: String? = nil
     ) {
         self.connectionError = connectionError
+        self.commandAccessError = commandAccessError
         self.sendError = sendError
         self.connectionDelayNanoseconds = connectionDelayNanoseconds
         self.connectionResults = connectionResults
@@ -550,6 +567,12 @@ private final class MockBRAVIAClient: BRAVIAControlling, BRAVIAPairing, @uncheck
         }
         if let connectionError {
             throw connectionError
+        }
+    }
+
+    func testCommandAccess(device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+        if let commandAccessError {
+            throw commandAccessError
         }
     }
 
