@@ -66,7 +66,6 @@ final class RemotePageViewModel {
             state.settings.ipAddress = device.host
             state.settings.psk = ""
             state.settings.canSave = false
-            state.settings.pskRequired = nil
             state.settings.error = nil
             state.settings.successMessage = nil
         }
@@ -112,6 +111,13 @@ final class RemotePageViewModel {
         deviceNameRefreshTask = Task {
             await refreshDeviceName(for: device)
         }
+    }
+
+    /// Re-reads the saved device from the keychain and re-runs the connection
+    /// verification. If no device is persisted, the app pushes the auto-connect
+    /// flow so the user can add or rediscover a TV.
+    func retryFromError() {
+        refreshFromRepository()
     }
 
     func refreshDeviceNameIfNeeded() async {
@@ -368,67 +374,6 @@ final class DeviceSettingsViewModel {
     func testConnection() async {
         state.error = nil
         state.successMessage = nil
-
-        if state.pskRequired == true {
-            // Stage 2: TV needs PSK — verify the entered value.
-            await verifyWithPSK()
-        } else {
-            // Stage 1: probe whether the TV requires PSK at all.
-            await probePSKRequirement()
-        }
-    }
-
-    func save() throws -> SonyDevice {
-        let host = try validatedHost()
-        let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard state.canSave, state.lastTestedHost == host else {
-            throw RemoteControlError.unreachable
-        }
-        return try repository.saveDevice(name: state.tvName, host: host, port: 80, psk: psk)
-    }
-
-    // MARK: - Stage 1: detect TV auth mode
-
-    private func probePSKRequirement() async {
-        state.canSave = false
-        state.pskRequired = nil
-
-        do {
-            let host = try validatedHost()
-            state.isTestingConnection = true
-            defer { state.isTestingConnection = false }
-
-            let testDevice = SonyDevice(
-                name: state.tvName,
-                host: host,
-                pskKey: "test",
-                connectionMode: .psk
-            )
-
-            do {
-                try await braviaClient.testConnection(device: testDevice, credential: .psk(""))
-                // TV answers without auth → no PSK needed.
-                state.pskRequired = false
-                state.lastTestedHost = host
-                state.canSave = true
-                state.successMessage = "连接成功，此电视无需 PSK 认证。"
-                await fetchAndStoreDeviceName(host: host, credential: .psk(""))
-            } catch RemoteControlError.unauthorized {
-                // TV requires auth — reveal the PSK field, don't show an error.
-                state.pskRequired = true
-                state.lastTestedHost = host
-                state.error = nil
-            }
-        } catch let error as RemoteControlError {
-            state.error = error
-        } catch {
-            state.error = RemoteControlError.map(error)
-        }
-    }
-
-    // MARK: - Stage 2: verify with PSK
-
-    private func verifyWithPSK() async {
         state.canSave = false
 
         do {
@@ -436,10 +381,6 @@ final class DeviceSettingsViewModel {
             let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !psk.isEmpty else {
                 state.error = .missingPSK
-                return
-            }
-            guard host == state.lastTestedHost else {
-                await probePSKRequirement()
                 return
             }
 
@@ -462,6 +403,15 @@ final class DeviceSettingsViewModel {
         } catch {
             state.error = RemoteControlError.map(error)
         }
+    }
+
+    func save() throws -> SonyDevice {
+        let host = try validatedHost()
+        let psk = state.psk.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard state.canSave, state.lastTestedHost == host else {
+            throw RemoteControlError.unreachable
+        }
+        return try repository.saveDevice(name: state.tvName, host: host, port: 80, psk: psk)
     }
 
     private func validatedHost() throws -> String {

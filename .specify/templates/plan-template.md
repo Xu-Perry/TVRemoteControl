@@ -37,6 +37,9 @@
 - Test-Driven Change: Does the plan define focused automated tests for behavior
   that can be tested without a real TV, plus manual smoke coverage where real
   device or local-network behavior is required?
+- Responsive Page Layout: Does every page UI use responsive SwiftUI layout
+  primitives, safe-area-aware placement, Dynamic Type support, and scrolling
+  where needed instead of hard-coded screen coordinates or single-device sizing?
 
 ## Project Structure
 

@@ -35,6 +35,9 @@ remote layout, a dedicated settings page, and layered connection error guidance.
 - Put setup and troubleshooting details in a separate settings page.
 - Make disabled and failed states explicit rather than silently ignoring taps.
 - Support Dynamic Type and VoiceOver from the first implementation.
+- Use responsive SwiftUI layout so pages fit compact portrait iPhone screens,
+  safe areas, and keyboard presentation without clipping or overlapping primary
+  actions.
 
 ## Information Architecture
 

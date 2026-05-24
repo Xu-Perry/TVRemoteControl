@@ -16,6 +16,7 @@ public enum RemoteCommand: String, CaseIterable, Codable, Equatable, Sendable {
     case hdmi1 = "Hdmi1"
     case hdmi2 = "Hdmi2"
     case hdmi3 = "Hdmi3"
+    case hdmi4 = "Hdmi4"
     case num0 = "Num0"
     case num1 = "Num1"
     case num2 = "Num2"
@@ -66,6 +67,8 @@ public enum RemoteCommand: String, CaseIterable, Codable, Equatable, Sendable {
             "AAAAAgAAABoAAABbAw=="
         case .hdmi3:
             "AAAAAgAAABoAAABcAw=="
+        case .hdmi4:
+            "AAAAAgAAABoAAABdAw=="
         case .num0:
             "AAAAAQAAAAEAAAAJAw=="
         case .num1:
@@ -131,6 +134,8 @@ public enum RemoteCommand: String, CaseIterable, Codable, Equatable, Sendable {
             "HDMI 2"
         case .hdmi3:
             "HDMI 3"
+        case .hdmi4:
+            "HDMI 4"
         case .num0:
             "0"
         case .num1:

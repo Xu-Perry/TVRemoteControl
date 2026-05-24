@@ -16,7 +16,7 @@ struct RemotePageRestorationTests {
         #expect(harness.state.presentedRemoteSurface == nil)
         #expect(!harness.state.isKeyboardInputActive)
         #expect(harness.state.remotePad.isEnabled)
-        #expect(harness.state.inputSources.map(\.title) == ["电视直播", "HDMI 1", "HDMI 2", "HDMI 3", "USB"])
+        #expect(harness.state.inputSources.map(\.title) == ["电视直播", "HDMI 1", "HDMI 2", "HDMI 3", "HDMI 4", "USB"])
         #expect(harness.state.moreKeyActions.map(\.title) == [
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "",
             "菜单", "返回", "信息", "选项"

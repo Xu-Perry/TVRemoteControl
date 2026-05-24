@@ -3,22 +3,34 @@ import SonyRemoteCore
 
 public protocol BRAVIAControlling: Sendable {
     func testConnection(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
-    func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String?
-    func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    func testCommandAccess(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+        -> String?
+    func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential)
+        async throws
     func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws
 }
 
 extension BRAVIAControlling {
     /// Returns the TV's friendly name as set in the TV system settings, or nil.
     /// Default returns nil; override in the real client to fetch from the TV.
-    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+        -> String?
+    {
         nil
     }
+
+    /// Tests whether the IRCC command endpoint accepts the given credential.
+    /// Default: no-op. Override in the real client to probe the IRCC endpoint.
+    public func testCommandAccess(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    {}
 }
 
 public protocol BRAVIAPairing: Sendable {
     func initiatePairing(device: SonyDevice, clientID: String) async throws -> String
-    func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String
+    func confirmPairingPIN(
+        device: SonyDevice, registrationID: String, pin: String, clientID: String
+    ) async throws -> String
     func cancelPairing(clientID: String) async
 }
 
@@ -57,7 +69,23 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         }
     }
 
-    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws -> String? {
+    public func testCommandAccess(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+    {
+        // Some TVs allow JSON-RPC access without PSK but require it for IRCC commands.
+        // Probe the IRCC endpoint to confirm the credential works for command sending.
+        let request = try makeIRCCRequest(device: device, credential: credential, irccCode: "")
+        let response = try await transport.data(for: request)
+        switch response.statusCode {
+        case 401, 403:
+            throw RemoteControlError.unauthorized
+        default:
+            break
+        }
+    }
+
+    public func fetchDeviceName(device: SonyDevice, credential: BRAVIAAuthCredential) async throws
+        -> String?
+    {
         if let descriptionName = await fetchDeviceDescriptionName(device: device) {
             return descriptionName
         }
@@ -73,13 +101,16 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
             return nil
         }
         guard let json = try? JSONSerialization.jsonObject(with: response.data) as? [String: Any],
-              let result = json["result"] as? [Any] else {
+            let result = json["result"] as? [Any]
+        else {
             return nil
         }
         // The result structure varies: array of arrays or array of objects.
         // Walk through the result to find a dictionary with the "name" key.
         for item in result {
-            if let dict = item as? [String: Any], let name = usableDeviceName(dict["name"] as? String) {
+            if let dict = item as? [String: Any],
+                let name = usableDeviceName(dict["name"] as? String)
+            {
                 return name
             }
             if let innerArray = item as? [[String: Any]] {
@@ -93,18 +124,24 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         return nil
     }
 
-    public func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
-        let request = try makeIRCCRequest(device: device, credential: credential, irccCode: command.irccCode)
+    public func send(command: RemoteCommand, device: SonyDevice, credential: BRAVIAAuthCredential)
+        async throws
+    {
+        let request = try makeIRCCRequest(
+            device: device, credential: credential, irccCode: command.irccCode)
         let response = try await transport.data(for: request)
         try validate(response)
     }
 
-    public func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential) async throws {
+    public func sendText(_ text: String, device: SonyDevice, credential: BRAVIAAuthCredential)
+        async throws
+    {
         let request = try makeTextFormRequest(device: device, credential: credential, text: text)
         let response = try await transport.data(for: request)
         try validate(response)
 
-        let rpcResponse = try decoder.decode(JSONRPCResponse<[EmptyRPCResult]>.self, from: response.data)
+        let rpcResponse = try decoder.decode(
+            JSONRPCResponse<[EmptyRPCResult]>.self, from: response.data)
         if rpcResponse.error != nil {
             throw mapRPCError(rpcResponse.error)
         }
@@ -133,7 +170,8 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
         }
         try validate(response)
 
-        let rpcResponse = try decoder.decode(JSONRPCResponse<[PairingInitResult]>.self, from: response.data)
+        let rpcResponse = try decoder.decode(
+            JSONRPCResponse<[PairingInitResult]>.self, from: response.data)
         if let error = rpcResponse.error {
             throw mapPairingError(error)
         }
@@ -147,8 +185,12 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
             .first ?? clientID
     }
 
-    public func confirmPairingPIN(device: SonyDevice, registrationID: String, pin: String, clientID: String) async throws -> String {
-        if let pendingRequest = await BRAVIAPairingChallengeRegistry.shared.remove(clientID: clientID) {
+    public func confirmPairingPIN(
+        device: SonyDevice, registrationID: String, pin: String, clientID: String
+    ) async throws -> String {
+        if let pendingRequest = await BRAVIAPairingChallengeRegistry.shared.remove(
+            clientID: clientID)
+        {
             let response = try await pendingRequest.resolve(pin: pin)
             return try processPairingConfirmation(response)
         }
@@ -161,7 +203,9 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     }
 
     public func cancelPairing(clientID: String) async {
-        if let pendingRequest = await BRAVIAPairingChallengeRegistry.shared.remove(clientID: clientID) {
+        if let pendingRequest = await BRAVIAPairingChallengeRegistry.shared.remove(
+            clientID: clientID)
+        {
             pendingRequest.cancel()
         }
     }
@@ -169,7 +213,8 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
     private func processPairingConfirmation(_ response: HTTPResponse) throws -> String {
         try validate(response)
 
-        let rpcResponse = try decoder.decode(JSONRPCResponse<[BRAVIAPairingResultEntry]>.self, from: response.data)
+        let rpcResponse = try decoder.decode(
+            JSONRPCResponse<[BRAVIAPairingResultEntry]>.self, from: response.data)
         if let error = rpcResponse.error {
             throw mapPairingError(error)
         }
@@ -183,8 +228,8 @@ public struct BRAVIAClient: BRAVIAControlling, BRAVIAPairing {
 
 // MARK: - Request Building
 
-public extension BRAVIAClient {
-    func makeJSONRPCRequest<T: Encodable>(
+extension BRAVIAClient {
+    public func makeJSONRPCRequest<T: Encodable>(
         device: SonyDevice,
         service: String,
         credential: BRAVIAAuthCredential,
@@ -205,7 +250,9 @@ public extension BRAVIAClient {
         return request
     }
 
-    func makeIRCCRequest(device: SonyDevice, credential: BRAVIAAuthCredential, irccCode: String) throws -> URLRequest {
+    public func makeIRCCRequest(
+        device: SonyDevice, credential: BRAVIAAuthCredential, irccCode: String
+    ) throws -> URLRequest {
         guard let url = URL(string: "http://\(device.host):\(device.port)/sony/ircc") else {
             throw RemoteControlError.invalidIPAddress
         }
@@ -214,7 +261,8 @@ public extension BRAVIAClient {
         request.httpMethod = "POST"
         request.timeoutInterval = 5
         request.setValue("text/xml; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-        request.setValue("\"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC\"", forHTTPHeaderField: "SOAPACTION")
+        request.setValue(
+            "\"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC\"", forHTTPHeaderField: "SOAPACTION")
         if !credential.isEmpty {
             request.setValue(credential.headerValue, forHTTPHeaderField: credential.headerName)
         }
@@ -222,7 +270,9 @@ public extension BRAVIAClient {
         return request
     }
 
-    func makeTextFormRequest(device: SonyDevice, credential: BRAVIAAuthCredential, text: String) throws -> URLRequest {
+    public func makeTextFormRequest(
+        device: SonyDevice, credential: BRAVIAAuthCredential, text: String
+    ) throws -> URLRequest {
         try makeJSONRPCRequest(
             device: device,
             service: "appControl",
@@ -232,8 +282,8 @@ public extension BRAVIAClient {
     }
 }
 
-private extension BRAVIAClient {
-    static func irccSOAPBody(code: String) -> String {
+extension BRAVIAClient {
+    fileprivate static func irccSOAPBody(code: String) -> String {
         """
         <?xml version="1.0"?>
         <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -246,7 +296,7 @@ private extension BRAVIAClient {
         """
     }
 
-    func validate(_ response: HTTPResponse) throws {
+    fileprivate func validate(_ response: HTTPResponse) throws {
         switch response.statusCode {
         case 200..<300:
             return
@@ -259,7 +309,7 @@ private extension BRAVIAClient {
         }
     }
 
-    func mapRPCError(_ error: JSONRPCError?) -> RemoteControlError {
+    fileprivate func mapRPCError(_ error: JSONRPCError?) -> RemoteControlError {
         guard let code = error?.code else {
             return .invalidResponse
         }
@@ -274,7 +324,7 @@ private extension BRAVIAClient {
         }
     }
 
-    func mapPairingError(_ error: JSONRPCError?) -> RemoteControlError {
+    fileprivate func mapPairingError(_ error: JSONRPCError?) -> RemoteControlError {
         guard let code = error?.code else {
             return .pairingFailed
         }
@@ -289,7 +339,7 @@ private extension BRAVIAClient {
         }
     }
 
-    func extractAuthCookie(from setCookieHeader: String) -> String {
+    fileprivate func extractAuthCookie(from setCookieHeader: String) -> String {
         let pairs = setCookieHeader.components(separatedBy: ";")
         for pair in pairs {
             let trimmed = pair.trimmingCharacters(in: .whitespaces)
@@ -297,10 +347,11 @@ private extension BRAVIAClient {
                 return trimmed
             }
         }
-        return setCookieHeader.components(separatedBy: ";").first?.trimmingCharacters(in: .whitespaces) ?? setCookieHeader
+        return setCookieHeader.components(separatedBy: ";").first?.trimmingCharacters(
+            in: .whitespaces) ?? setCookieHeader
     }
 
-    func isPairingChallenge(_ response: HTTPResponse) -> Bool {
+    fileprivate func isPairingChallenge(_ response: HTTPResponse) -> Bool {
         guard response.statusCode == 401 || response.statusCode == 403 else {
             return false
         }
@@ -309,15 +360,16 @@ private extension BRAVIAClient {
         return challenge.contains("basic")
     }
 
-    func fetchDeviceDescriptionName(device: SonyDevice) async -> String? {
+    fileprivate func fetchDeviceDescriptionName(device: SonyDevice) async -> String? {
         for url in deviceDescriptionURLs(device: device) {
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.timeoutInterval = 2
             guard let response = try? await transport.data(for: request),
-                  response.statusCode == 200,
-                  let xml = String(data: response.data, encoding: .utf8),
-                  let name = friendlyName(in: xml) else {
+                response.statusCode == 200,
+                let xml = String(data: response.data, encoding: .utf8),
+                let name = friendlyName(in: xml)
+            else {
                 continue
             }
             return name
@@ -325,17 +377,19 @@ private extension BRAVIAClient {
         return nil
     }
 
-    func deviceDescriptionURLs(device: SonyDevice) -> [URL] {
+    fileprivate func deviceDescriptionURLs(device: SonyDevice) -> [URL] {
         [
             URL(string: "http://\(device.host):\(device.port)/sony/webapi/ssdp/dd.xml"),
             URL(string: "http://\(device.host):52323/dmr.xml"),
-            URL(string: "http://\(device.host):52323/MediaRenderer.xml")
+            URL(string: "http://\(device.host):52323/MediaRenderer.xml"),
         ].compactMap { $0 }
     }
 
-    func friendlyName(in xml: String) -> String? {
+    fileprivate func friendlyName(in xml: String) -> String? {
         guard let openRange = xml.range(of: "<friendlyName>", options: [.caseInsensitive]),
-              let closeRange = xml.range(of: "</friendlyName>", options: [.caseInsensitive], range: openRange.upperBound..<xml.endIndex)
+            let closeRange = xml.range(
+                of: "</friendlyName>", options: [.caseInsensitive],
+                range: openRange.upperBound..<xml.endIndex)
         else {
             return nil
         }
@@ -346,7 +400,7 @@ private extension BRAVIAClient {
         return usableDeviceName(rawName)
     }
 
-    func usableDeviceName(_ value: String?) -> String? {
+    fileprivate func usableDeviceName(_ value: String?) -> String? {
         let name = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !name.isEmpty else {
             return nil
@@ -403,7 +457,9 @@ private struct PairingInitResult: Decodable {
     func extractRegistrationID() -> String? {
         if let results {
             for entry in results {
-                if let regID = entry["RegistrationId"] ?? entry["registrationId"] ?? entry["registerid"] {
+                if let regID = entry["RegistrationId"] ?? entry["registrationId"]
+                    ?? entry["registerid"]
+                {
                     return regID
                 }
             }
@@ -414,7 +470,6 @@ private struct PairingInitResult: Decodable {
 
 private struct BRAVIAPairingResultEntry: Decodable {}
 private struct EmptyRPCResult: Decodable {}
-
 
 private func makePairingRequest(device: SonyDevice, body: Data) throws -> URLRequest {
     guard let url = URL(string: "http://\(device.host):\(device.port)/sony/accessControl") else {
@@ -428,7 +483,9 @@ private func makePairingRequest(device: SonyDevice, body: Data) throws -> URLReq
     return request
 }
 
-private func makePairingRequest(device: SonyDevice, body: Data, basicPassword: String) throws -> URLRequest {
+private func makePairingRequest(device: SonyDevice, body: Data, basicPassword: String) throws
+    -> URLRequest
+{
     guard let url = URL(string: "http://\(device.host):\(device.port)/sony/accessControl") else {
         throw RemoteControlError.invalidIPAddress
     }
@@ -436,29 +493,35 @@ private func makePairingRequest(device: SonyDevice, body: Data, basicPassword: S
     request.httpMethod = "POST"
     request.timeoutInterval = 10
     request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-    request.setValue(basicAuthorizationHeader(password: basicPassword), forHTTPHeaderField: "Authorization")
+    request.setValue(
+        basicAuthorizationHeader(password: basicPassword), forHTTPHeaderField: "Authorization")
     request.httpBody = body
     return request
 }
 
-private func makeJSONRPCBody(method: String, params: Any, id: Int, version: String = "1.0") -> Data {
+private func makeJSONRPCBody(method: String, params: Any, id: Int, version: String = "1.0") -> Data
+{
     let dict: [String: Any] = [
         "method": method,
         "params": params,
         "id": id,
-        "version": version
+        "version": version,
     ]
     return try! JSONSerialization.data(withJSONObject: dict)
 }
 
 private func makePairingInitParams(clientID: String, nickname: String) -> Any {
-    let clientInfo: [String: String] = ["clientid": clientID, "nickname": nickname, "level": "private"]
+    let clientInfo: [String: String] = [
+        "clientid": clientID, "nickname": nickname, "level": "private",
+    ]
     let wolSettings: [[String: String]] = [["value": "yes", "function": "WOL"]]
     return [clientInfo, wolSettings] as [Any]
 }
 
 private func makePairingConfirmParams(clientID: String, nickname: String) -> Any {
-    let clientInfo: [String: String] = ["clientid": clientID, "nickname": nickname, "level": "private"]
+    let clientInfo: [String: String] = [
+        "clientid": clientID, "nickname": nickname, "level": "private",
+    ]
     let pinAndWol: [[String: String]] = [
         ["value": "yes", "function": "WOL"]
     ]
@@ -486,7 +549,9 @@ private actor BRAVIAPairingChallengeRegistry {
     }
 }
 
-private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegate,
+    @unchecked Sendable
+{
     private let queue = DispatchQueue(label: "TVRemote.PendingPairingRequest")
     private var session: URLSession?
     private var task: URLSessionDataTask?
@@ -578,9 +643,11 @@ private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegat
         _ session: URLSession,
         task: URLSessionTask,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        completionHandler:
+            @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
-        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodHTTPBasic else {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodHTTPBasic
+        else {
             completionHandler(.performDefaultHandling, nil)
             return
         }
@@ -611,18 +678,22 @@ private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegat
         }
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
+    {
         queue.async {
             let result: Result<HTTPResponse, Error>
             if let error {
                 result = .failure(error)
             } else if let response = self.response {
-                let headers = response.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+                let headers = response.allHeaderFields.reduce(into: [String: String]()) {
+                    result, pair in
                     if let key = pair.key as? String, let value = pair.value as? String {
                         result[key.lowercased()] = value
                     }
                 }
-                result = .success(HTTPResponse(data: self.data, statusCode: response.statusCode, headers: headers))
+                result = .success(
+                    HTTPResponse(data: self.data, statusCode: response.statusCode, headers: headers)
+                )
             } else {
                 result = .failure(RemoteControlError.invalidResponse)
             }
@@ -638,7 +709,9 @@ private final class PendingBRAVIAPairingRequest: NSObject, URLSessionDataDelegat
     }
 }
 
-private func withTimeout<T: Sendable>(seconds: UInt64, operation: @escaping @Sendable () async throws -> T) async throws -> T {
+private func withTimeout<T: Sendable>(
+    seconds: UInt64, operation: @escaping @Sendable () async throws -> T
+) async throws -> T {
     try await withThrowingTaskGroup(of: T.self) { group in
         group.addTask {
             try await operation()

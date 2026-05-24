@@ -26,6 +26,8 @@ struct AutoConnectView: View {
                     scanningResponsiveContent
                 case .devicesFound:
                     devicesFoundResponsiveContent
+                case .connecting:
+                    connectingResponsiveContent
                 case .connectedReady:
                     connectedResponsiveContent
                 case .clearConfirmation:
@@ -237,7 +239,7 @@ struct AutoConnectView: View {
             pageTitle("选择要连接的电视", subtitle: "发现 \(state.discoveredDevices.count) 台附近设备，选择一台开始连接。")
 
             ForEach(Array(state.discoveredDevices.prefix(5).enumerated()), id: \.element.id) { index, device in
-                deviceRow(device, y: 262 + CGFloat(index * 100), height: 84, status: device.connectionReadiness.displayText)
+                canvasDeviceRow(device, y: 262 + CGFloat(index * 100), height: 84, status: device.connectionReadiness.displayText)
             }
 
             secondaryButton("重新扫描", systemImage: "arrow.clockwise", width: 160, height: 50, action: viewModel.startScan)
@@ -271,12 +273,13 @@ struct AutoConnectView: View {
                     errorText(error)
                         .padding(.top, 12)
                 }
-
-                secondaryButton("重新扫描", systemImage: "arrow.clockwise", width: 160, height: 50, action: viewModel.startScan)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, state.discoveredDevices.count > 2 ? 56 : 236)
             }
             .padding(.horizontal, 28)
+
+            Spacer(minLength: 24)
+
+            responsiveSecondaryButton("重新扫描", systemImage: "arrow.clockwise", height: 50, action: viewModel.startScan)
+                .padding(.horizontal, 28)
 
             Spacer(minLength: 16)
         }
@@ -293,6 +296,37 @@ struct AutoConnectView: View {
 
             secondaryButton("取消连接", systemImage: nil, action: viewModel.cancelConnection)
                 .position(x: 215, y: 829)
+        }
+    }
+
+    private var connectingResponsiveContent: some View {
+        let deviceName = state.selectedDevice?.displayName ?? "电视"
+
+        return VStack(spacing: 0) {
+            Spacer(minLength: 16)
+
+            VStack(alignment: .leading, spacing: 0) {
+                secondaryHeader("正在连接电视", subtitle: "已选择 \(deviceName)，正在建立连接。")
+
+                if let device = state.selectedDevice {
+                    responsiveStatusCard(
+                        name: device.displayName,
+                        status: "正在连接...",
+                        statusColor: AutoConnectDesign.primaryBlue,
+                        showsCheckmark: false,
+                        height: 84
+                    )
+                    .padding(.top, 44)
+                }
+            }
+            .padding(.horizontal, 28)
+
+            Spacer(minLength: 80)
+
+            responsiveSecondaryButton("取消连接", systemImage: nil, action: viewModel.cancelConnection)
+                .padding(.horizontal, 28)
+
+            Spacer(minLength: 16)
         }
     }
 
@@ -379,6 +413,7 @@ struct AutoConnectView: View {
                     .offset(y: -keyboardOffset)
             }
         }
+        .ignoresSafeArea(.keyboard)
     }
 
     private var pinSheetContent: some View {
@@ -832,35 +867,42 @@ struct AutoConnectView: View {
         }
     }
 
-    private func deviceRow(_ device: DiscoveredBRAVIADevice, y: CGFloat, height: CGFloat, status: String) -> some View {
+    private func canvasDeviceRow(_ device: DiscoveredBRAVIADevice, y: CGFloat, height: CGFloat, status: String) -> some View {
         Button {
             viewModel.select(device)
         } label: {
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(AutoConnectDesign.surface)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(AutoConnectDesign.border, lineWidth: 1)
-                    }
-
+            HStack(spacing: 16) {
                 tvThumbnail
                     .frame(width: 96, height: 60)
-                    .position(x: 68, y: height / 2)
 
-                deviceName(device.displayName, width: 194)
-                    .position(x: 251, y: height / 2 - 10)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(device.displayName)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(AutoConnectDesign.text)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                statusLabel(status, color: device.connectionReadiness == .connectable ? AutoConnectDesign.primaryBlue : AutoConnectDesign.secondaryText, dotSize: 8)
-                    .position(x: 216, y: height / 2 + 17)
+                    statusLabel(
+                        status,
+                        color: device.connectionReadiness == .connectable ? AutoConnectDesign.primaryBlue : AutoConnectDesign.secondaryText,
+                        dotSize: 8
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(AutoConnectDesign.secondaryText)
-                    .frame(width: 26, height: 26)
-                    .position(x: 363, y: height / 2)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .frame(width: 386, height: height)
+            .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(AutoConnectDesign.border, lineWidth: 1)
+            }
         }
         .buttonStyle(.plain)
         .position(x: 215, y: y)
@@ -880,6 +922,7 @@ struct AutoConnectView: View {
                         .foregroundStyle(AutoConnectDesign.text)
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     statusLabel(
                         device.connectionReadiness.displayText,
@@ -887,17 +930,15 @@ struct AutoConnectView: View {
                         dotSize: 8
                     )
                 }
-
-                Spacer(minLength: 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(AutoConnectDesign.secondaryText)
-                    .frame(width: 26, height: 26)
             }
             .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
-            .frame(height: 84)
             .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 14))
             .overlay {
                 RoundedRectangle(cornerRadius: 14)
@@ -911,7 +952,8 @@ struct AutoConnectView: View {
         name: String,
         status: String,
         statusColor: Color,
-        showsCheckmark: Bool
+        showsCheckmark: Bool,
+        height: CGFloat = 126
     ) -> some View {
         HStack(spacing: 16) {
             tvThumbnail
@@ -923,22 +965,21 @@ struct AutoConnectView: View {
                     .foregroundStyle(AutoConnectDesign.text)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 statusLabel(status, color: statusColor, dotSize: showsCheckmark ? 10 : 8)
             }
-
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             if showsCheckmark {
                 Image(systemName: "checkmark")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(AutoConnectDesign.connectedGreen)
-                    .frame(width: 28, height: 28)
             }
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
-        .frame(height: 126)
+        .frame(height: height)
         .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)
@@ -1002,9 +1043,7 @@ struct AutoConnectView: View {
                 .font(.system(size: dotSize == 10 ? 14 : 13))
                 .foregroundStyle(color)
                 .lineLimit(1)
-            Spacer(minLength: 0)
         }
-        .frame(width: 130, height: 24)
     }
 
     private var tvThumbnail: some View {
@@ -1130,7 +1169,7 @@ private struct ManualIPEntryView: View {
                 InfoHeader(
                     systemImage: "network",
                     title: "手动连接电视",
-                    subtitle: "输入电视的 IP 地址，先测试连接。如需 PSK 认证，系统会自动提示。"
+                    subtitle: "输入电视的 IP 地址和电视 IP Control 中配置的预共享密钥 (PSK)。"
                 )
 
                 VStack(spacing: 0) {
@@ -1142,14 +1181,12 @@ private struct ManualIPEntryView: View {
                         submitLabel: .done
                     )
 
-                    if state.pskRequired == true {
-                        Divider().padding(.leading, 18)
-                        secureFieldRow(
-                            title: "预共享密钥",
-                            placeholder: "电视 IP Control 中配置的 PSK",
-                            text: $state.psk
-                        )
-                    }
+                    Divider().padding(.leading, 18)
+                    secureFieldRow(
+                        title: "预共享密钥",
+                        placeholder: "电视 IP Control 中配置的 PSK",
+                        text: $state.psk
+                    )
                 }
                 .background(AutoConnectDesign.surface, in: RoundedRectangle(cornerRadius: 16))
                 .overlay {
@@ -1171,7 +1208,7 @@ private struct ManualIPEntryView: View {
                             ProgressView()
                                 .tint(.white)
                         } else {
-                            Label(testButtonTitle, systemImage: testButtonSymbol)
+                            Label("测试连接", systemImage: "antenna.radiowaves.left.and.right")
                         }
                     }
                     .buttonStyle(PrimaryManualButtonStyle())
@@ -1187,7 +1224,7 @@ private struct ManualIPEntryView: View {
                 ManualInfoSection(title: "连接前确认", items: [
                     "电视和 iPhone 已连接到同一个网络。",
                     "电视已开启 IP Control，并允许移动设备控制。",
-                    "如电视需要 PSK 认证，会在测试连接后提示您输入。"
+                    "在电视 IP Control 中已配置预共享密钥 (PSK)。"
                 ])
             }
             .padding(.horizontal, 22)
@@ -1197,14 +1234,6 @@ private struct ManualIPEntryView: View {
         .background(AutoConnectDesign.background.ignoresSafeArea())
         .navigationTitle("手动连接电视")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var testButtonTitle: String {
-        state.pskRequired == true ? "验证 PSK" : "测试连接"
-    }
-
-    private var testButtonSymbol: String {
-        state.pskRequired == true ? "lock.shield" : "antenna.radiowaves.left.and.right"
     }
 
     private func textFieldRow(

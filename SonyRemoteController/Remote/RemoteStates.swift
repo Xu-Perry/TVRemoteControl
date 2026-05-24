@@ -46,10 +46,6 @@ final class DeviceSettingsState {
     var error: RemoteControlError?
     var successMessage: String?
     var presentedRoute: SettingsRoute?
-
-    /// Whether the TV requires PSK authentication.
-    /// nil = not yet tested, true = requires PSK, false = no PSK needed.
-    var pskRequired: Bool?
 }
 
 enum SettingsRoute: Hashable, Identifiable, Sendable {
@@ -87,6 +83,7 @@ struct InputSourceOption: Identifiable, Equatable, Sendable {
             InputSourceOption(id: "hdmi1", title: "HDMI 1", symbolName: "rectangle", command: .hdmi1, isSelected: true),
             InputSourceOption(id: "hdmi2", title: "HDMI 2", symbolName: "rectangle", command: .hdmi2, isSelected: false),
             InputSourceOption(id: "hdmi3", title: "HDMI 3", symbolName: "rectangle", command: .hdmi3, isSelected: false),
+            InputSourceOption(id: "hdmi4", title: "HDMI 4", symbolName: "rectangle", command: .hdmi4, isSelected: false),
             InputSourceOption(id: "usb", title: "USB", symbolName: "externaldrive", command: nil, isSelected: false)
         ]
     }

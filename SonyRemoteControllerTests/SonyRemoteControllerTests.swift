@@ -22,7 +22,6 @@ struct SonyRemoteControllerTests {
         await harness.viewModel.settings.testConnection()
 
         #expect(harness.state.settings.canSave)
-        #expect(harness.state.settings.pskRequired == false)
         #expect(harness.state.settings.successMessage != nil)
         #expect(harness.state.settings.error == nil)
     }
@@ -35,6 +34,16 @@ struct SonyRemoteControllerTests {
         await harness.viewModel.settings.testConnection()
 
         #expect(harness.state.settings.error == .invalidIPAddress)
+        #expect(!harness.state.settings.canSave)
+    }
+
+    @Test func testConnectionWithoutPSKShowsMissingPSKError() async {
+        let harness = Harness()
+        harness.state.settings.ipAddress = "192.168.1.2"
+
+        await harness.viewModel.settings.testConnection()
+
+        #expect(harness.state.settings.error == .missingPSK)
         #expect(!harness.state.settings.canSave)
     }
 
@@ -52,22 +61,15 @@ struct SonyRemoteControllerTests {
         #expect(harness.state.savedDevice?.displayName == "Living Room")
     }
 
-    @Test func manualConnectionReprobesWhenIPChangesAfterPSKRequirement() async {
-        let harness = Harness(client: MockBRAVIAClient(connectionResults: [.unauthorized, nil]))
+    @Test func unauthorizedTestConnectionSurfacesAuthError() async {
+        let harness = Harness(client: MockBRAVIAClient(connectionError: .unauthorized))
         harness.state.settings.ipAddress = "192.168.1.2"
+        harness.state.settings.psk = "wrong"
 
         await harness.viewModel.settings.testConnection()
-        #expect(harness.state.settings.pskRequired == true)
+
+        #expect(harness.state.settings.error == .unauthorized)
         #expect(!harness.state.settings.canSave)
-
-        harness.state.settings.ipAddress = "192.168.1.3"
-        harness.state.settings.psk = "1234"
-        await harness.viewModel.settings.testConnection()
-
-        #expect(harness.state.settings.pskRequired == false)
-        #expect(harness.state.settings.lastTestedHost == "192.168.1.3")
-        #expect(harness.state.settings.canSave)
-        #expect(harness.state.settings.error == nil)
     }
 
     @Test func commandFailureShowsErrorBannerState() async {

@@ -176,7 +176,7 @@ struct RemotePageView: View {
             .position(x: 215, y: 685)
 
             if let error = state.error {
-                ErrorBannerView(error: error, onOpenSettings: viewModel.openSettings)
+                ErrorBannerView(error: error, onRetry: viewModel.retryFromError)
                     .frame(width: 360)
                     .position(x: 215, y: 172)
             }
@@ -474,28 +474,36 @@ private struct ActionCard: View {
 
 private struct ErrorBannerView: View {
     let error: RemoteControlError
-    let onOpenSettings: () -> Void
+    let onRetry: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .center, spacing: 10) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(RemoteDesign.danger)
                 .font(.system(size: 18, weight: .semibold))
             VStack(alignment: .leading, spacing: 3) {
                 Text(error.title)
                     .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(RemoteDesign.text)
                 Text(error.recoverySuggestion)
                     .font(.system(size: 12))
                     .foregroundStyle(RemoteDesign.secondaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
-            Button("设置", action: onOpenSettings)
-                .font(.system(size: 13, weight: .semibold))
+            Spacer(minLength: 8)
+            Button(action: onRetry) {
+                Label("重试", systemImage: "arrow.clockwise")
+                    .font(.system(size: 13, weight: .semibold))
+                    .labelStyle(.titleAndIcon)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(RemoteDesign.primaryBlue)
+            .accessibilityLabel("重试连接")
         }
         .padding(.horizontal, 12)
-        .frame(height: 36)
+        .padding(.vertical, 10)
+        .frame(minHeight: 56)
         .background(Color.white.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
         .overlay { RoundedRectangle(cornerRadius: 14).stroke(RemoteDesign.danger.opacity(0.25), lineWidth: 1) }
     }
@@ -537,8 +545,9 @@ private struct InputSourceSheet: View {
                         Image(systemName: "chevron.right")
                             .foregroundStyle(RemoteDesign.secondaryText)
                     }
-                    .frame(height: 52)
                     .padding(.horizontal, 20)
+                    .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .disabled(option.command == nil)
@@ -667,24 +676,32 @@ private struct MoreKeysSheet: View {
             .padding(.horizontal, 20)
             .padding(.top, 34)
 
-            HStack(alignment: .top, spacing: 32) {
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(54), spacing: 10), count: 3), spacing: 12) {
+            HStack(alignment: .top, spacing: 18) {
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3),
+                    spacing: 12
+                ) {
                     ForEach(state.moreKeyActions.prefix(12)) { action in
                         moreKeyButton(action)
-                            .frame(width: 54, height: 42)
+                            .frame(height: 42)
                     }
                 }
-                .frame(width: 182)
+                .frame(maxWidth: .infinity)
 
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(74), spacing: 22), count: 2), spacing: 18) {
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2),
+                    spacing: 18
+                ) {
                     ForEach(state.moreKeyActions.dropFirst(12)) { action in
                         moreKeyButton(action)
-                            .frame(width: 74, height: 58)
+                            .frame(height: 58)
                     }
                 }
-                .frame(width: 170)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 24)
+            .frame(maxWidth: 432)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
 
             Spacer(minLength: 0)
         }
