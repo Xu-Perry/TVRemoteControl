@@ -39,17 +39,21 @@ struct RemotePageView: View {
 
     private var mainRemote: some View {
         GeometryReader { proxy in
-            let scale = proxy.size.width / RemoteDesign.canvasWidth
+            let scale = RemoteDesign.canvasScale(for: proxy.size)
 
             ZStack {
                 RemoteDesign.background
                     .ignoresSafeArea()
 
-                mainCanvas
-                    .frame(width: RemoteDesign.canvasWidth, height: RemoteDesign.canvasHeight)
-                    .scaleEffect(scale, anchor: .top)
-                    .offset(y: -20)
-                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
+                ScrollView(showsIndicators: false) {
+                    mainCanvas
+                        .frame(width: RemoteDesign.canvasWidth, height: RemoteDesign.fittedContentHeight)
+                        .scaleEffect(scale, anchor: .top)
+                        .frame(width: RemoteDesign.canvasWidth * scale, height: RemoteDesign.fittedContentHeight * scale)
+                        .frame(width: proxy.size.width)
+                        .padding(.top, 18)
+                        .padding(.bottom, 28)
+                }
             }
             .sheet(isPresented: inputSourceBinding) {
                 InputSourceSheet(
@@ -173,8 +177,8 @@ struct RemotePageView: View {
 
             if let error = state.error {
                 ErrorBannerView(error: error, onOpenSettings: viewModel.openSettings)
-                    .frame(width: 390)
-                    .position(x: 215, y: 168)
+                    .frame(width: 360)
+                    .position(x: 215, y: 172)
             }
         }
         .clipped()
@@ -205,6 +209,7 @@ struct RemotePageView: View {
 enum RemoteDesign {
     static let canvasWidth: CGFloat = 430
     static let canvasHeight: CGFloat = 932
+    static let fittedContentHeight: CGFloat = 750
     static let background = Color(red: 0.969, green: 0.976, blue: 0.988)
     static let surface = Color.white
     static let border = Color(red: 0.898, green: 0.918, blue: 0.945)
@@ -213,6 +218,14 @@ enum RemoteDesign {
     static let text = Color(red: 0.067, green: 0.094, blue: 0.153)
     static let secondaryText = Color(red: 0.42, green: 0.447, blue: 0.502)
     static let danger = Color(red: 1, green: 0.231, blue: 0.188)
+
+    static func canvasScale(for size: CGSize) -> CGFloat {
+        guard size.width > 0, size.height > 0 else {
+            return 1
+        }
+
+        return size.width / canvasWidth
+    }
 }
 
 struct DeviceSummaryCard: View {
@@ -467,19 +480,22 @@ private struct ErrorBannerView: View {
         HStack(spacing: 10) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(RemoteDesign.danger)
+                .font(.system(size: 18, weight: .semibold))
             VStack(alignment: .leading, spacing: 3) {
                 Text(error.title)
                     .font(.system(size: 14, weight: .semibold))
                 Text(error.recoverySuggestion)
                     .font(.system(size: 12))
                     .foregroundStyle(RemoteDesign.secondaryText)
-                    .lineLimit(2)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             Spacer()
             Button("设置", action: onOpenSettings)
                 .font(.system(size: 13, weight: .semibold))
         }
-        .padding(12)
+        .padding(.horizontal, 12)
+        .frame(height: 36)
         .background(Color.white.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
         .overlay { RoundedRectangle(cornerRadius: 14).stroke(RemoteDesign.danger.opacity(0.25), lineWidth: 1) }
     }
