@@ -1,4 +1,4 @@
-# SonyRemoteController Architecture
+# TVRemoteController Architecture
 
 This document adapts the architecture pattern for SwiftUI App with Observation and MVVM
 
@@ -192,7 +192,7 @@ entry, scene root, or feature coordinator. The root owns dependency construction
 
 ```swift
 @main
-struct SonyRemoteControllerApp: App {
+struct TVRemoteControllerApp: App {
     @State private var state = RemotePageState()
     @State private var viewModel: RemotePageViewModel
 
@@ -202,7 +202,7 @@ struct SonyRemoteControllerApp: App {
         _viewModel = State(initialValue: RemotePageViewModel(
             state: state,
             discoveryService: SSDPDeviceDiscoveryService(),
-            remoteService: SonyRemoteCommandService()
+            remoteService: TVRemoteCommandService()
         ))
     }
 
@@ -249,7 +249,7 @@ Recommended split:
 - Remote command service: TV device API calls and command serialization.
 - Settings repository: user preferences and app-level settings.
 
-The domain layer should define stable models such as `SonyDevice`,
+The domain layer should define stable models such as `TVDevice`,
 `RemoteCommand`, `ConnectionState`, and `DeviceCapability`.
 
 ## Rules

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Use the restored main remote page (Priority: P1)
 
-As a user with a connected BRAVIA TV, I want the main remote page to match the latest design so that the app feels like a complete daily-use remote rather than a setup-only utility.
+As a user with a connected TV TV, I want the main remote page to match the latest design so that the app feels like a complete daily-use remote rather than a setup-only utility.
 
 **Why this priority**: The main remote page is the primary surface users see after setup and carries the core value of the app.
 
@@ -68,7 +68,7 @@ As a user, I want the settings page to match the latest design and clearly separ
 ### Functional Requirements
 
 - **FR-001**: The app MUST present the main remote page using the latest Figma design frame `01 Main Remote` as the visual and content reference.
-- **FR-002**: The main remote page MUST include the app title `BRAVIA Controller`, a settings entry, a connected device card, volume control, channel control, directional navigation, OK, power, home, back, mute, input source, keyboard input, and more keys controls.
+- **FR-002**: The main remote page MUST include the app title `TV Remote Control`, a settings entry, a connected device card, volume control, channel control, directional navigation, OK, power, home, back, mute, input source, keyboard input, and more keys controls.
 - **FR-003**: The main remote page MUST keep settings accessible from the top-right area and MUST NOT introduce a bottom tab bar for this restoration.
 - **FR-004**: Users MUST be able to open the input source sheet from the main remote page.
 - **FR-005**: The input source sheet MUST present `电视直播`, `HDMI 1`, `HDMI 2`, `HDMI 3`, and `USB`, and MUST visibly indicate the selected input when one is known.
@@ -107,7 +107,7 @@ As a user, I want the settings page to match the latest design and clearly separ
 
 ## Assumptions
 
-- The latest design source is the connected `figma-use` file `BRAVIA Controller UI Kit`, page `BRAVIA Controller - UI Screens`.
+- The latest design source is the connected `figma-use` file `TV Remote Control UI Kit`, page `TV Remote Control - UI Screens`.
 - The relevant Figma frames are `01 Main Remote`, `03 Input Source Sheet`, `04 Keyboard Input`, `05 More Keys Sheet`, `06 Settings`, and `07 Design Tokens`.
 - Existing automatic discovery and connection behavior remains the source for reaching a connected or no-device state.
 - The settings `关于` rows are intentionally visible but inactive for this feature because their content pages are not ready.

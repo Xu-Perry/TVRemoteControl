@@ -17,10 +17,10 @@
 
 **Purpose**: Confirm the active feature context and current implementation surface before changing behavior.
 
-- [X] T001 Review current command send state mutations in `SonyRemoteController/Remote/RemoteViewModels.swift`
-- [X] T002 [P] Review current Remote Page conditional rendering and button disabled logic in `SonyRemoteController/Remote/RemotePageView.swift`
-- [X] T003 [P] Review existing Remote Page state fields and derived command enablement in `SonyRemoteController/Remote/RemoteStates.swift`
-- [X] T004 [P] Review existing app test harness and mocks in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
+- [X] T001 Review current command send state mutations in `TVRemoteController/Remote/RemoteViewModels.swift`
+- [X] T002 [P] Review current Remote Page conditional rendering and button disabled logic in `TVRemoteController/Remote/RemotePageView.swift`
+- [X] T003 [P] Review existing Remote Page state fields and derived command enablement in `TVRemoteController/Remote/RemoteStates.swift`
+- [X] T004 [P] Review existing app test harness and mocks in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
 
 ---
 
@@ -30,11 +30,11 @@
 
 **Critical**: No user story implementation should begin until these tasks are complete.
 
-- [X] T005 Add command-send call recording support to `MockBRAVIAClient` in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T006 Add a connected remote harness helper that saves a mock device and PSK in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T007 Add snapshot helper assertions for stable header/status/remote enabled state in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
+- [X] T005 Add command-send call recording support to `MockTVRemoteClient` in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T006 Add a connected remote harness helper that saves a mock device and PSK in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T007 Add snapshot helper assertions for stable header/status/remote enabled state in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
 
-**Checkpoint**: Test harness can verify command-send state changes without a real BRAVIA TV.
+**Checkpoint**: Test harness can verify command-send state changes without a real TV TV.
 
 ---
 
@@ -48,16 +48,16 @@
 
 > Write these tests first and confirm they fail if the current implementation does not meet the contract.
 
-- [X] T008 [US1] Add a successful command stability test for `RemotePadViewModel.send(_:)` in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T009 [US1] Add a repeated command stability test covering two sequential successful sends in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T010 [US1] Add a test that `RemotePadState.isSendingCommand` returns to false after successful send in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
+- [X] T008 [US1] Add a successful command stability test for `RemotePadViewModel.send(_:)` in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T009 [US1] Add a repeated command stability test covering two sequential successful sends in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T010 [US1] Add a test that `RemotePadState.isSendingCommand` returns to false after successful send in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Restrict successful command-send mutations to command-local state in `SonyRemoteController/Remote/RemoteViewModels.swift`
-- [X] T012 [US1] Ensure command progress does not mutate `RemotePageState.status`, `ConnectionHeaderState`, `savedDevice`, or `isSettingsPresented` in `SonyRemoteController/Remote/RemoteViewModels.swift`
-- [X] T013 [US1] Keep command button feedback local to button style and remote pad state in `SonyRemoteController/Remote/RemotePageView.swift`
-- [X] T014 [US1] Run the US1 app unit tests from `README.md` using `xcodebuild test -scheme SonyRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:SonyRemoteControllerTests`
+- [X] T011 [US1] Restrict successful command-send mutations to command-local state in `TVRemoteController/Remote/RemoteViewModels.swift`
+- [X] T012 [US1] Ensure command progress does not mutate `RemotePageState.status`, `ConnectionHeaderState`, `savedDevice`, or `isSettingsPresented` in `TVRemoteController/Remote/RemoteViewModels.swift`
+- [X] T013 [US1] Keep command button feedback local to button style and remote pad state in `TVRemoteController/Remote/RemotePageView.swift`
+- [X] T014 [US1] Run the US1 app unit tests from `README.md` using `xcodebuild test -scheme TVRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:TVRemoteControllerTests`
 
 **Checkpoint**: User Story 1 is independently functional when connected command success no longer changes broad page state and the focused tests pass.
 
@@ -71,17 +71,17 @@
 
 ### Tests for User Story 2
 
-- [X] T015 [US2] Add a command failure stability test for connected state in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T016 [US2] Add a test that failed command sends do not update `RemotePadState.lastCommand` in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T017 [US2] Add a disabled-state defensive send test that verifies no command is dispatched in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T018 [US2] Add a test that `RemotePadState.isSendingCommand` returns to false after command failure in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
+- [X] T015 [US2] Add a command failure stability test for connected state in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T016 [US2] Add a test that failed command sends do not update `RemotePadState.lastCommand` in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T017 [US2] Add a disabled-state defensive send test that verifies no command is dispatched in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T018 [US2] Add a test that `RemotePadState.isSendingCommand` returns to false after command failure in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Preserve best-known connected `ConnectionStatus` for transient command failures in `SonyRemoteController/Remote/RemoteViewModels.swift`
-- [X] T020 [US2] Keep existing layered error mapping for command failures in `SonyRemoteController/Remote/RemoteViewModels.swift`
-- [X] T021 [US2] Verify disabled button conditions remain tied to `RemotePadState.isEnabled` without using `isSendingCommand` to restyle the full control set in `SonyRemoteController/Remote/RemotePageView.swift`
-- [X] T022 [US2] Run the US2 app unit tests from `README.md` using `xcodebuild test -scheme SonyRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:SonyRemoteControllerTests`
+- [X] T019 [US2] Preserve best-known connected `ConnectionStatus` for transient command failures in `TVRemoteController/Remote/RemoteViewModels.swift`
+- [X] T020 [US2] Keep existing layered error mapping for command failures in `TVRemoteController/Remote/RemoteViewModels.swift`
+- [X] T021 [US2] Verify disabled button conditions remain tied to `RemotePadState.isEnabled` without using `isSendingCommand` to restyle the full control set in `TVRemoteController/Remote/RemotePageView.swift`
+- [X] T022 [US2] Run the US2 app unit tests from `README.md` using `xcodebuild test -scheme TVRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:TVRemoteControllerTests`
 
 **Checkpoint**: User Story 2 is independently functional when failure and disabled-state tests pass without regressing US1.
 
@@ -95,13 +95,13 @@
 
 ### Tests for User Story 3
 
-- [X] T023 [US3] Refactor command stability tests into clearly named test methods in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
-- [X] T024 [US3] Add comments or assertion grouping that names the stable-state contract in `SonyRemoteControllerTests/SonyRemoteControllerTests.swift`
+- [X] T023 [US3] Refactor command stability tests into clearly named test methods in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
+- [X] T024 [US3] Add comments or assertion grouping that names the stable-state contract in `TVRemoteControllerTests/TVRemoteControllerTests.swift`
 
 ### Implementation for User Story 3
 
 - [X] T025 [US3] Update manual smoke coverage for repeated command flicker checks in `docs/ManualSmokeTest.md`
-- [X] T026 [US3] Run all app unit tests from `README.md` using `xcodebuild test -scheme SonyRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:SonyRemoteControllerTests`
+- [X] T026 [US3] Run all app unit tests from `README.md` using `xcodebuild test -scheme TVRemoteController -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' -only-testing:TVRemoteControllerTests`
 
 **Checkpoint**: User Story 3 is complete when regression tests and manual smoke instructions both cover the visual stability contract.
 
@@ -111,9 +111,9 @@
 
 **Purpose**: Final validation and cleanup across the feature.
 
-- [X] T027 [P] Run the app build command from `README.md` using `xcodebuild build -scheme SonyRemoteController -destination 'generic/platform=iOS Simulator' -quiet`
-- [X] T028 [P] Run package tests from `README.md` using `cd Packages/SonyRemoteModules && env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test`
-- [X] T029 Review final Remote Page changes for constitution architecture boundaries in `SonyRemoteController/Remote/RemoteViewModels.swift`
+- [X] T027 [P] Run the app build command from `README.md` using `xcodebuild build -scheme TVRemoteController -destination 'generic/platform=iOS Simulator' -quiet`
+- [X] T028 [P] Run package tests from `README.md` using `cd Packages/TVRemoteModules && env CLANG_MODULE_CACHE_PATH=/private/tmp/tvremote-clang-cache swift test`
+- [X] T029 Review final Remote Page changes for constitution architecture boundaries in `TVRemoteController/Remote/RemoteViewModels.swift`
 - [X] T030 Review final Remote Page rendering changes against design guidance in `docs/AppDesign.md`
 - [ ] T031 Record real-device smoke result for repeated command taps in `docs/ManualSmokeTest.md`
 
@@ -154,18 +154,18 @@
 ## Parallel Example: User Story 1
 
 ```text
-Task: "T008 [US1] Add a successful command stability test for RemotePadViewModel.send(_:) in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
-Task: "T009 [US1] Add a repeated command stability test covering two sequential successful sends in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
-Task: "T010 [US1] Add a test that RemotePadState.isSendingCommand returns to false after successful send in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
+Task: "T008 [US1] Add a successful command stability test for RemotePadViewModel.send(_:) in TVRemoteControllerTests/TVRemoteControllerTests.swift"
+Task: "T009 [US1] Add a repeated command stability test covering two sequential successful sends in TVRemoteControllerTests/TVRemoteControllerTests.swift"
+Task: "T010 [US1] Add a test that RemotePadState.isSendingCommand returns to false after successful send in TVRemoteControllerTests/TVRemoteControllerTests.swift"
 ```
 
 ## Parallel Example: User Story 2
 
 ```text
-Task: "T015 [US2] Add a command failure stability test for connected state in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
-Task: "T016 [US2] Add a test that failed command sends do not update RemotePadState.lastCommand in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
-Task: "T017 [US2] Add a disabled-state defensive send test that verifies no command is dispatched in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
-Task: "T018 [US2] Add a test that RemotePadState.isSendingCommand returns to false after command failure in SonyRemoteControllerTests/SonyRemoteControllerTests.swift"
+Task: "T015 [US2] Add a command failure stability test for connected state in TVRemoteControllerTests/TVRemoteControllerTests.swift"
+Task: "T016 [US2] Add a test that failed command sends do not update RemotePadState.lastCommand in TVRemoteControllerTests/TVRemoteControllerTests.swift"
+Task: "T017 [US2] Add a disabled-state defensive send test that verifies no command is dispatched in TVRemoteControllerTests/TVRemoteControllerTests.swift"
+Task: "T018 [US2] Add a test that RemotePadState.isSendingCommand returns to false after command failure in TVRemoteControllerTests/TVRemoteControllerTests.swift"
 ```
 
 ## Implementation Strategy

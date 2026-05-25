@@ -4,8 +4,8 @@ This contract defines externally visible app behavior for the Figma page restora
 
 ## Design Source
 
-- Figma file: `BRAVIA Controller UI Kit`
-- Figma page: `BRAVIA Controller - UI Screens`
+- Figma file: `TV Remote Control UI Kit`
+- Figma page: `TV Remote Control - UI Screens`
 - Verified frames:
   - `01 Main Remote`
   - `03 Input Source Sheet`
@@ -17,7 +17,7 @@ This contract defines externally visible app behavior for the Figma page restora
 ## Main Remote Page
 
 **Given** a saved TV is connected, **when** the main remote page appears, **then** it must expose:
-- Title `BRAVIA Controller`.
+- Title `TV Remote Control`.
 - Top-right settings action.
 - Device card with TV thumbnail, device name, and connected status.
 - Vertical `音量` control with plus and minus actions.

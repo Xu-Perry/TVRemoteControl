@@ -13,7 +13,7 @@ Use this checklist when validating the MVP against a real compatible TV.
 
 ## Install And Launch
 
-1. Build and run `SonyRemoteController` on an iPhone or simulator that can reach
+1. Build and run `TVRemoteController` on an iPhone or simulator that can reach
    the same local network.
 2. Confirm the first screen shows `连接电视`.
 3. Confirm `扫描附近设备` and `手动输入 IP` are visible.

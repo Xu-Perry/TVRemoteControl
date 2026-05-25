@@ -13,7 +13,7 @@ Templates requiring updates:
 Follow-up TODOs: none
 -->
 
-# SonyRemoteController Constitution
+# TVRemoteController Constitution
 
 ## Core Principles
 
@@ -37,7 +37,7 @@ model state transitions from regressions that are hard to catch manually.
 Changes MUST NOT ship without focused automated tests when the behavior can be
 tested without a real TV. Real-device or local-network behavior MUST have a
 documented manual smoke path when automation is not practical. Tests MUST NOT
-depend on a real BRAVIA TV unless they are explicitly marked as manual or
+depend on a real TV TV unless they are explicitly marked as manual or
 integration-only.
 
 ### III. Responsive Page Layout

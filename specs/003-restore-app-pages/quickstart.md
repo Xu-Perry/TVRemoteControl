@@ -17,11 +17,11 @@ figma-use status
 figma-use query "//FRAME"
 ```
 
-Expected file: `BRAVIA Controller UI Kit`. Required frames include `01 Main Remote`, `03 Input Source Sheet`, `04 Keyboard Input`, `05 More Keys Sheet`, `06 Settings`, and `07 Design Tokens`.
+Expected file: `TV Remote Control UI Kit`. Required frames include `01 Main Remote`, `03 Input Source Sheet`, `04 Keyboard Input`, `05 More Keys Sheet`, `06 Settings`, and `07 Design Tokens`.
 
 ## Implementation Checklist
 
-1. Keep work in `SonyRemoteController/Remote/` unless shared command mappings require package changes.
+1. Keep work in `TVRemoteController/Remote/` unless shared command mappings require package changes.
 2. Extend `RemotePageState` with explicit presentation state for input source and more keys, plus keyboard input activation state.
 3. Extend view models with intent methods for opening and dismissing each secondary surface and keyboard input.
 4. Restore `RemotePageView` to match `01 Main Remote`.
@@ -38,16 +38,16 @@ Run focused app tests:
 
 ```sh
 xcodebuild test \
-  -scheme SonyRemoteController \
+  -scheme TVRemoteController \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' \
-  -only-testing:SonyRemoteControllerTests
+  -only-testing:TVRemoteControllerTests
 ```
 
 Run package tests only if package command mappings change:
 
 ```sh
-cd Packages/SonyRemoteModules
-env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test
+cd Packages/TVRemoteModules
+env CLANG_MODULE_CACHE_PATH=/private/tmp/tvremote-clang-cache swift test
 ```
 
 Recommended test cases:

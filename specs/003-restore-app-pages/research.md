@@ -2,7 +2,7 @@
 
 ## Decision: Treat Figma as the source of truth for restored page structure
 
-**Rationale**: The user explicitly asked to fetch the latest design with `figma-use` and restore the main page plus other pages. Current `figma-use status` confirms the active file is `BRAVIA Controller UI Kit`, and `figma-use query "//FRAME"` confirms the relevant frames are present: `01 Main Remote`, `03 Input Source Sheet`, `04 Keyboard Input`, `05 More Keys Sheet`, `06 Settings`, and `07 Design Tokens`.
+**Rationale**: The user explicitly asked to fetch the latest design with `figma-use` and restore the main page plus other pages. Current `figma-use status` confirms the active file is `TV Remote Control UI Kit`, and `figma-use query "//FRAME"` confirms the relevant frames are present: `01 Main Remote`, `03 Input Source Sheet`, `04 Keyboard Input`, `05 More Keys Sheet`, `06 Settings`, and `07 Design Tokens`.
 
 **Alternatives considered**:
 - Follow current `docs/AppDesign.md` only: rejected because it still contains earlier v1 non-goals for input source and numeric keypad that the latest Figma now supersedes for this feature.
@@ -10,7 +10,7 @@
 
 ## Decision: Keep implementation in the app target
 
-**Rationale**: The restoration is mostly page composition, presentation state, settings UI, and local view model coordination under `SonyRemoteController/Remote/`. The existing packages already hold reusable command and networking boundaries. Creating a new package for Figma-specific UI would add module overhead without a stable reusable surface.
+**Rationale**: The restoration is mostly page composition, presentation state, settings UI, and local view model coordination under `TVRemoteController/Remote/`. The existing packages already hold reusable command and networking boundaries. Creating a new package for Figma-specific UI would add module overhead without a stable reusable surface.
 
 **Alternatives considered**:
 - Extract a `RemoteUI` package immediately: rejected because the feature is still tightly coupled to app navigation and Figma-backed product flow.

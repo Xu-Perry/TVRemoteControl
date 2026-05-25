@@ -5,18 +5,18 @@
 
 ## Summary
 
-Restore the daily-use remote experience from the latest Figma file `BRAVIA Controller UI Kit`: main remote, input source bottom sheet, keyboard input bar above the system keyboard, more keys bottom sheet, and settings page. Keep the work in the app target because it is product-flow UI and page state, reuse existing BRAVIA command and persistence services, and add focused Swift Testing coverage around presentation state, inactive about rows, settings preferences, keyboard draft behavior, and command dispatch boundaries.
+Restore the daily-use remote experience from the latest Figma file `TV Remote Control UI Kit`: main remote, input source bottom sheet, keyboard input bar above the system keyboard, more keys bottom sheet, and settings page. Keep the work in the app target because it is product-flow UI and page state, reuse existing TV command and persistence services, and add focused Swift Testing coverage around presentation state, inactive about rows, settings preferences, keyboard draft behavior, and command dispatch boundaries.
 
 ## Technical Context
 
-**Language/Version**: Swift 6.0 package tools, iOS app using SwiftUI and Observation  
-**Primary Dependencies**: SwiftUI, Observation, Foundation, SonyRemoteCore, SonyRemoteNetworking; no new third-party packages planned  
-**Storage**: Existing `DeviceRepository`, `DeviceMetadataStore`, and `SecretStore` for saved TV metadata and credentials; lightweight app preference persistence may stay in app target if implemented  
-**Testing**: Swift Testing via `import Testing`; app tests under `SonyRemoteControllerTests`; package tests under `Packages/SonyRemoteModules/Tests` only if shared command mappings change  
-**Target Platform**: iOS 18+ portrait iPhone app  
-**Project Type**: Native iOS mobile app  
+**Language/Version**: Swift 6.0 package tools, iOS app using SwiftUI and Observation
+**Primary Dependencies**: SwiftUI, Observation, Foundation, TVRemoteCore, TVRemoteNetworking; no new third-party packages planned
+**Storage**: Existing `DeviceRepository`, `DeviceMetadataStore`, and `SecretStore` for saved TV metadata and credentials; lightweight app preference persistence may stay in app target if implemented
+**Testing**: Swift Testing via `import Testing`; app tests under `TVRemoteControllerTests`; package tests under `Packages/TVRemoteModules/Tests` only if shared command mappings change
+**Target Platform**: iOS 18+ portrait iPhone app
+**Project Type**: Native iOS mobile app
 **Performance Goals**: Main remote controls respond to taps immediately; sheets and the keyboard input bar appear without visible layout jump; command progress must not repaint unrelated page regions
-**Constraints**: UI must follow the latest Figma frames and design tokens; no bottom tab bar; no new package extraction unless stable reusable domain logic appears; tests must not require a real BRAVIA TV or local network  
+**Constraints**: UI must follow the latest Figma frames and design tokens; no bottom tab bar; no new package extraction unless stable reusable domain logic appears; tests must not require a real TV or local network
 **Scale/Scope**: Five Figma-backed app states for this feature: main remote, input source sheet, keyboard input, more keys sheet, and settings; existing auto-connect flow remains the no-device entry path
 
 ## Constitution Check
@@ -45,7 +45,7 @@ specs/003-restore-app-pages/
 ### Source Code (repository root)
 
 ```text
-SonyRemoteController/
+TVRemoteController/
 ├── Remote/
 │   ├── RemoteStates.swift
 │   ├── RemoteViewModels.swift
@@ -57,16 +57,16 @@ SonyRemoteController/
 │   └── SecretStore.swift
 └── AppEnvironment.swift
 
-SonyRemoteControllerTests/
-├── SonyRemoteControllerTests.swift
+TVRemoteControllerTests/
+├── TVRemoteControllerTests.swift
 └── RemotePageRestorationTests.swift
 
-Packages/SonyRemoteModules/
-├── Sources/SonyRemoteCore/RemoteCommand.swift
-└── Tests/SonyRemoteCoreTests/RemoteCommandTests.swift
+Packages/TVRemoteModules/
+├── Sources/TVRemoteCore/RemoteCommand.swift
+└── Tests/TVRemoteCoreTests/RemoteCommandTests.swift
 ```
 
-**Structure Decision**: Keep this feature in the app target. The work is primarily page composition, presentation state, settings rows, keyboard input activation and draft state, and Figma-aligned visual structure. Existing package code already owns reusable BRAVIA commands and networking; only touch `Packages/SonyRemoteModules` if a missing command mapping is required by the restored pages.
+**Structure Decision**: Keep this feature in the app target. The work is primarily page composition, presentation state, settings rows, keyboard input activation and draft state, and Figma-aligned visual structure. Existing package code already owns reusable TV commands and networking; only touch `Packages/TVRemoteModules` if a missing command mapping is required by the restored pages.
 
 ## Phase 0: Research
 

@@ -9,7 +9,7 @@ Represents the Remote Page UI state tree.
 - `connection: ConnectionHeaderState`
 - `settings: DeviceSettingsState`
 - `remotePad: RemotePadState`
-- `savedDevice: SonyDevice?`
+- `savedDevice: TVDevice?`
 - `status: ConnectionStatus`
 - `error: RemoteControlError?`
 - `isSettingsPresented: Bool`
@@ -70,21 +70,21 @@ Idle disabled
 
 ## RemoteCommand
 
-Represents a user-triggered Sony remote action.
+Represents a user-triggered TV remote action.
 
 **Fields involved**:
 
-- Command identity from `SonyRemoteCore.RemoteCommand`
+- Command identity from `TVRemoteCore.RemoteCommand`
 - IRCC code mapping in shared package tests
 
 **Validation rules**:
 
 - Command mapping remains unchanged by this feature.
-- Command serialization/networking remains owned by `SonyRemoteNetworking`.
+- Command serialization/networking remains owned by `TVRemoteNetworking`.
 
 ## Command Failure
 
-Represents a failure returned by repository PSK lookup or BRAVIA command send.
+Represents a failure returned by repository PSK lookup or TV command send.
 
 **Fields involved**:
 
