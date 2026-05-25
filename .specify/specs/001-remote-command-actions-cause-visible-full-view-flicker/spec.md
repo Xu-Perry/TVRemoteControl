@@ -3,9 +3,9 @@
 **Feature Branch**: `[001-remote-command-actions-cause-visible-full-view-flicker]`
 **Created**: 2026-04-30
 **Status**: Draft
-**Input**: GitHub Issue [Xu-Perry/SonyController#2](https://github.com/Xu-Perry/SonyController/issues/2)
+**Input**: GitHub Issue [Xu-Perry/TVRemoteControl#2](https://github.com/Xu-Perry/TVRemoteControl/issues/2)
 
-**Source Issue**: [Xu-Perry/SonyController#2](https://github.com/Xu-Perry/SonyController/issues/2)
+**Source Issue**: [Xu-Perry/TVRemoteControl#2](https://github.com/Xu-Perry/TVRemoteControl/issues/2)
 **Issue Author**: @Xu-Perry
 **Issue Status**: OPEN
 **Labels**: none
@@ -20,15 +20,15 @@ Real-device MVP smoke testing confirmed that remote commands can be sent success
 
 ### User Story 1 - Send repeated commands without full-page flicker (Priority: P1)
 
-As a user controlling a connected Sony device, I want repeated remote button taps to keep the Remote Page visually stable so that remote control feels reliable and responsive.
+As a user controlling a connected TV device, I want repeated remote button taps to keep the Remote Page visually stable so that remote control feels reliable and responsive.
 
 **Why this priority**: This is the primary reported defect. The command succeeds, but the full-view flash makes the core remote-control workflow feel broken during normal use.
 
-**Independent Test**: On a real device connected to a supported Sony target, repeatedly tap several remote buttons and confirm that the connection header, remote pad, and surrounding controls remain visually stable while commands are sent.
+**Independent Test**: On a real device connected to a supported TV target, repeatedly tap several remote buttons and confirm that the connection header, remote pad, and surrounding controls remain visually stable while commands are sent.
 
 **Acceptance Scenarios**:
 
-1. **Given** the app is connected to a Sony device, **When** the user repeatedly taps remote command buttons, **Then** commands are sent without any visible full-page redraw, flash, or reset.
+1. **Given** the app is connected to a TV device, **When** the user repeatedly taps remote command buttons, **Then** commands are sent without any visible full-page redraw, flash, or reset.
 2. **Given** a command is in flight, **When** the Remote Page updates command-related state, **Then** only local command feedback changes and the connection header, remote pad layout, and controls remain visually stable.
 
 ---
@@ -71,7 +71,7 @@ As a maintainer, I want focused tests around any changed command state transitio
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST allow remote command taps on a connected Sony device without causing a visible full-page flash, flicker, or reset.
+- **FR-001**: The system MUST allow remote command taps on a connected TV device without causing a visible full-page flash, flicker, or reset.
 - **FR-002**: The system MUST keep the connection header visually stable while a command is in flight unless the actual connection state changes.
 - **FR-003**: The system MUST keep the remote pad and command controls visually stable while command progress or command errors update.
 - **FR-004**: The system MUST preserve existing disabled and enabled behavior for disconnected and failed states.
@@ -82,7 +82,7 @@ As a maintainer, I want focused tests around any changed command state transitio
 ### Key Entities
 
 - **Remote Page**: The user-facing screen that contains the connection header, remote pad, command controls, and error presentation.
-- **Remote Command**: A user-triggered action sent to the connected Sony device.
+- **Remote Command**: A user-triggered action sent to the connected TV device.
 - **Connection State**: The state that determines whether remote commands should be enabled and how the connection header is presented.
 - **Command Failure**: An error returned from a command send that must be surfaced without resetting the full page.
 

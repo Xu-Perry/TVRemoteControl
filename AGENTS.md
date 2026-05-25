@@ -1,6 +1,6 @@
-# SonyRemoteController Agent Guide
+# TVRemoteController Agent Guide
 
-This repository contains an iOS app for controlling Sony devices. The app is
+This repository contains an iOS app for controlling TV devices. The app is
 expected to be built with SwiftUI, Observation, MVVM, and Swift Package Manager
 based modularization.
 
@@ -25,7 +25,7 @@ interaction behavior before local visual preference.
 
 Start in the app target unless [docs/AppArchitecture.md](docs/AppArchitecture.md)
 identifies a stable package boundary. Existing local packages are under
-`Packages/SonyRemoteModules`.
+`Packages/TVRemoteModules`.
 
 Dependency intake is tracked in [docs/OpenSourceSDKs.md](docs/OpenSourceSDKs.md).
 Do not add a third-party package without updating that document.
@@ -90,7 +90,7 @@ Add focused tests for:
 - Persistence migrations or encoding/decoding.
 
 Use test doubles for networking and discovery. Tests should not require a real
-Sony device or local network access unless they are explicitly marked as manual
+TV device or local network access unless they are explicitly marked as manual
 or integration tests.
 
 ## Commands

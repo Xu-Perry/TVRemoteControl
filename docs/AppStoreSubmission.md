@@ -5,14 +5,14 @@ Use this file as the source material for App Store Connect and App Review.
 ## App Information
 
 - App name: TV Remote Control
-- Bundle ID: `com.perry.braviacontroller`
-- Version: `1.0.1`
+- Bundle ID: `com.perry.tvremotecontrol`
+- Version: `1.0.3 (9)`
 - Build: `1`
 - Primary category: Utilities
 - Platforms: iPhone
 - Minimum OS: iOS 18.0
-- Support URL: `https://xu-perry.github.io/SonyController/`
-- Privacy Policy URL: `https://xu-perry.github.io/SonyController/privacy.html`
+- Support URL: `https://xu-perry.github.io/TVRemoteControl/`
+- Privacy Policy URL: `https://xu-perry.github.io/TVRemoteControl/privacy.html`
 - Support email: `xuanyue.pan@icloud.com`
 
 ## Product Page Draft
@@ -84,11 +84,11 @@ Recommended App Store Connect answer:
 - Uses encryption: No, or only exempt encryption.
 - Export compliance documentation: Not required.
 
-The app target sets `ITSAppUsesNonExemptEncryption` to `false` in `SonyRemoteController/Info.plist`, so App Store Connect should not require the export compliance questionnaire for each upload.
+The app target sets `ITSAppUsesNonExemptEncryption` to `false` in `TVRemoteController/Info.plist`, so App Store Connect should not require the export compliance questionnaire for each upload.
 
 ## Privacy Manifest
 
-The app target includes `SonyRemoteController/PrivacyInfo.xcprivacy`.
+The app target includes `TVRemoteController/PrivacyInfo.xcprivacy`.
 
 - `NSPrivacyTracking`: `false`
 - `NSPrivacyCollectedDataTypes`: empty
@@ -103,7 +103,7 @@ Current project entitlement:
 
 - `com.apple.developer.networking.multicast`: `true`
 
-Before App Store upload, confirm in the Apple Developer account that the App ID for `com.perry.braviacontroller` has the Multicast Networking restricted entitlement approved and enabled. Then regenerate the App Store provisioning profile and archive with that profile.
+Before App Store upload, confirm in the Apple Developer account that the App ID for `com.perry.tvremotecontrol` has the Multicast Networking restricted entitlement approved and enabled. Then regenerate the App Store provisioning profile and archive with that profile.
 
 Suggested App Review note:
 
@@ -130,7 +130,7 @@ Suggested review flow:
 
 ## Pre-Submission Checklist
 
-- [ ] Confirm `https://xu-perry.github.io/SonyController/privacy.html` is publicly reachable.
+- [ ] Confirm `https://xu-perry.github.io/TVRemoteControl/privacy.html` is publicly reachable.
 - [ ] Confirm the App ID has the approved Multicast Networking entitlement.
 - [ ] Regenerate and install the App Store distribution provisioning profile after entitlement approval.
 - [ ] Archive a Release build for `generic/platform=iOS`.

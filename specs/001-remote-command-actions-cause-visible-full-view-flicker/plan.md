@@ -7,18 +7,18 @@
 
 ## Summary
 
-Fix visible full-page flicker when sending remote commands from the Remote Page while preserving connected/disconnected behavior and command failure messaging. The implementation should stay in the app target's `SonyRemoteController/Remote` feature files, decouple transient command-send feedback from broad page-level state/identity changes, and add focused Swift Testing coverage for remote command state transitions. Real-device smoke testing remains required because the reported flicker is visual and hardware-confirmed.
+Fix visible full-page flicker when sending remote commands from the Remote Page while preserving connected/disconnected behavior and command failure messaging. The implementation should stay in the app target's `TVRemoteController/Remote` feature files, decouple transient command-send feedback from broad page-level state/identity changes, and add focused Swift Testing coverage for remote command state transitions. Real-device smoke testing remains required because the reported flicker is visual and hardware-confirmed.
 
 ## Technical Context
 
 **Language/Version**: Swift for iOS 18 app development, using SwiftUI and Observation
-**Primary Dependencies**: SwiftUI, Observation, SonyRemoteCore, SonyRemoteNetworking; no new third-party dependencies
+**Primary Dependencies**: SwiftUI, Observation, TVRemoteCore, TVRemoteNetworking; no new third-party dependencies
 **Storage**: Existing local device repository, UserDefaults metadata, and Keychain-backed PSK storage; no storage schema changes expected
-**Testing**: Swift Testing (`import Testing`) in `SonyRemoteControllerTests`; package tests remain available for shared core/networking behavior
+**Testing**: Swift Testing (`import Testing`) in `TVRemoteControllerTests`; package tests remain available for shared core/networking behavior
 **Target Platform**: iPhone portrait app, iOS 18+ per README/project direction
 **Project Type**: Mobile app with local Swift Package modules
 **Performance Goals**: Remote command taps should keep the Remote Page visually stable at normal interactive frame rates, with no visible full-page flash during repeated taps
-**Constraints**: UI state mutation stays on the main actor; network command dispatch remains asynchronous; tests must not require a real BRAVIA TV; real-device visual validation is manual smoke coverage
+**Constraints**: UI state mutation stays on the main actor; network command dispatch remains asynchronous; tests must not require a real TV TV; real-device visual validation is manual smoke coverage
 **Scale/Scope**: One app screen/feature area: Remote Page command interactions, error banner behavior, and view-model state transitions
 
 ## Constitution Check
@@ -51,7 +51,7 @@ specs/001-remote-command-actions-cause-visible-full-view-flicker/
 ### Source Code (repository root)
 
 ```text
-SonyRemoteController/
+TVRemoteController/
 ├── Remote/
 │   ├── RemotePageView.swift       # Remote Page UI composition and button views
 │   ├── RemoteStates.swift         # Observable page/header/settings/remote pad state
@@ -61,19 +61,19 @@ SonyRemoteController/
     ├── DeviceMetadataStore.swift
     └── SecretStore.swift
 
-SonyRemoteControllerTests/
-└── SonyRemoteControllerTests.swift # Existing Swift Testing target and test doubles
+TVRemoteControllerTests/
+└── TVRemoteControllerTests.swift # Existing Swift Testing target and test doubles
 
-Packages/SonyRemoteModules/
+Packages/TVRemoteModules/
 ├── Sources/
-│   ├── SonyRemoteCore/
-│   └── SonyRemoteNetworking/
+│   ├── TVRemoteCore/
+│   └── TVRemoteNetworking/
 └── Tests/
-    ├── SonyRemoteCoreTests/
-    └── SonyRemoteNetworkingTests/
+    ├── TVRemoteCoreTests/
+    └── TVRemoteNetworkingTests/
 ```
 
-**Structure Decision**: Keep this feature in the app target under `SonyRemoteController/Remote`. The behavior is Remote Page UI/state orchestration, not a reusable Sony protocol or networking primitive, so no SPM module extraction is planned. Existing `SonyRemoteCore` and `SonyRemoteNetworking` contracts remain unchanged.
+**Structure Decision**: Keep this feature in the app target under `TVRemoteController/Remote`. The behavior is Remote Page UI/state orchestration, not a reusable TV protocol or networking primitive, so no SPM module extraction is planned. Existing `TVRemoteCore` and `TVRemoteNetworking` contracts remain unchanged.
 
 ## Phase 0: Research Summary
 

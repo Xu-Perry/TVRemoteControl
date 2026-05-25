@@ -1,4 +1,4 @@
-# SonyRemoteController App Design
+# TVRemoteController App Design
 
 This document is the UI and interaction source of truth for v1.
 

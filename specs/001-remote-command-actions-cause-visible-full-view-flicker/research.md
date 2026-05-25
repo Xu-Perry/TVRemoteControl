@@ -42,5 +42,5 @@
 
 **Alternatives considered**:
 
-- Move remote pad state/view model into `Packages/SonyRemoteModules`: rejected because this issue is screen-specific and not yet a stable reusable module boundary.
+- Move remote pad state/view model into `Packages/TVRemoteModules`: rejected because this issue is screen-specific and not yet a stable reusable module boundary.
 - Add a third-party state-management dependency: rejected because the existing SwiftUI + Observation + MVVM architecture is sufficient and dependency intake would be unjustified.

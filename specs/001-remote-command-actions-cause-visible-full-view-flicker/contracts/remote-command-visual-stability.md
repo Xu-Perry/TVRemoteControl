@@ -8,7 +8,7 @@ This contract describes expected Remote Page behavior for command sends. It is a
 **When** the user taps a remote command button and the command send succeeds
 **Then**:
 
-- The command is dispatched exactly once through the BRAVIA command service.
+- The command is dispatched exactly once through the TV command service.
 - `RemotePadState.isSendingCommand` returns to `false`.
 - `RemotePadState.lastCommand` becomes the sent command.
 - `RemotePageState.status` remains `.connected`.

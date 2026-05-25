@@ -1,7 +1,7 @@
 # Open Source SDK Candidates
 
 This document tracks open source Swift packages that may be useful for
-SonyRemoteController. It is a dependency decision record, not a list of packages
+TVRemoteController. It is a dependency decision record, not a list of packages
 that must be installed immediately.
 
 Default rule: prefer Apple frameworks for v1 unless a package removes meaningful
@@ -91,7 +91,7 @@ Why it may help:
 
 - Lightweight logging facade.
 - No package dependencies.
-- Useful if `SonyRemoteNetworking` becomes platform-independent or needs shared
+- Useful if `TVRemoteNetworking` becomes platform-independent or needs shared
   logging without importing app-specific logging code.
 
 Why not add immediately:

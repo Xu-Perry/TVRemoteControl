@@ -4,7 +4,7 @@
 
 ```sh
 xcodebuild build \
-  -scheme SonyRemoteController \
+  -scheme TVRemoteController \
   -destination 'generic/platform=iOS Simulator' \
   -quiet
 ```
@@ -15,16 +15,16 @@ Run the app unit tests:
 
 ```sh
 xcodebuild test \
-  -scheme SonyRemoteController \
+  -scheme TVRemoteController \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1' \
-  -only-testing:SonyRemoteControllerTests
+  -only-testing:TVRemoteControllerTests
 ```
 
 Run package tests if shared command or networking behavior changes:
 
 ```sh
-cd Packages/SonyRemoteModules
-env CLANG_MODULE_CACHE_PATH=/private/tmp/sonyremote-clang-cache swift test
+cd Packages/TVRemoteModules
+env CLANG_MODULE_CACHE_PATH=/private/tmp/tvremote-clang-cache swift test
 ```
 
 ## Focused Verification For This Feature
@@ -40,7 +40,7 @@ Add or update Swift Testing coverage to verify:
 
 Use [docs/ManualSmokeTest.md](../../docs/ManualSmokeTest.md) with these additional checks:
 
-1. Connect to a real BRAVIA TV.
+1. Connect to a real TV TV.
 2. Repeatedly tap directional remote commands.
 3. Repeatedly tap Home, Back, Volume, Mute, and Power commands.
 4. Confirm the entire Remote Page does not flash, reset, jump, or remount.
