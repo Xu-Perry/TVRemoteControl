@@ -282,12 +282,9 @@ final class RemotePageViewModel {
             state.savedDevice = device
             state.autoConnect.rememberedDevice = device
             do {
-                let credential = try repository.readCredential(for: device)
-                updateStatus(.connecting)
+                _ = try repository.readCredential(for: device)
                 state.isAutoConnectPresented = false
-                Task {
-                    await verifyRestoredDevice(device, credential: credential)
-                }
+                updateStatus(.connected)
             } catch {
                 updateStatus(.failed(RemoteControlError.map(error)))
                 state.isAutoConnectPresented = true
@@ -298,19 +295,6 @@ final class RemotePageViewModel {
             updateStatus(.failed(RemoteControlError.map(error)))
             state.isAutoConnectPresented = true
             autoConnect.showFirstLaunch()
-        }
-    }
-
-    private func verifyRestoredDevice(_ device: TVDevice, credential: TVAuthCredential) async {
-        do {
-            try await tvRemoteClient.testConnection(device: device, credential: credential)
-            guard state.savedDevice == device else { return }
-            updateStatus(.connected)
-        } catch {
-            guard state.savedDevice == device else { return }
-            updateStatus(.failed(RemoteControlError.map(error)))
-            state.presentedRemoteSurface = nil
-            state.isKeyboardInputActive = false
         }
     }
 

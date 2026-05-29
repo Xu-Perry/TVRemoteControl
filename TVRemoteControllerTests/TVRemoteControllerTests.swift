@@ -254,42 +254,38 @@ struct TVRemoteControllerTests {
             discoveryService: EmptyDiscoveryService()
         )
 
-        #expect(state.status == .connecting)
-        #expect(!state.remotePad.isEnabled)
-        try await waitUntil { state.status == .connected }
-
         #expect(state.savedDevice?.displayName == "Living Room")
         #expect(state.status == .connected)
         #expect(state.remotePad.isEnabled)
         #expect(state.connection.title == "Living Room")
+        #expect(!state.isAutoConnectPresented)
     }
 
-    @Test func restoredPersistedDeviceRequiresReachabilityBeforeEnablingRemote() async throws {
+    @Test func restoredPersistedDeviceEnablesRemoteWhenTVIsUnreachable() async throws {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
         repository.stubDevice(psk: "1234")
+        let client = MockTVRemoteClient(connectionError: .unreachable)
 
-        _ = RemotePageViewModel(
+        let viewModel = RemotePageViewModel(
             state: state,
             repository: repository,
-            tvRemoteClient: MockTVRemoteClient(connectionError: .unreachable, connectionDelayNanoseconds: 50_000_000),
+            tvRemoteClient: client,
             pairingClient: MockTVRemoteClient(),
             discoveryService: EmptyDiscoveryService()
         )
 
         #expect(state.savedDevice?.displayName == "Living Room")
-        #expect(state.status == .connecting)
-        #expect(!state.remotePad.isEnabled)
-        #expect(!state.isAutoConnectPresented)
-
-        try await waitUntil { state.status == .failed(.unreachable) }
-
-        #expect(state.savedDevice?.displayName == "Living Room")
-        #expect(state.status == .failed(.unreachable))
-        #expect(!state.remotePad.isEnabled)
+        #expect(state.status == .connected)
+        #expect(state.remotePad.isEnabled)
+        #expect(state.error == nil)
         #expect(!state.isAutoConnectPresented)
         #expect(state.connection.title == "Living Room")
-        #expect(state.connection.subtitle == ConnectionStatus.failed(.unreachable).displayText)
+        #expect(state.connection.subtitle == ConnectionStatus.connected.displayText)
+
+        await viewModel.remotePad.send(.power)
+
+        #expect(client.sentCommands == [.power])
     }
 
     @Test func homeAppearRefreshesSavedDeviceNameFromTV() async throws {
