@@ -6,7 +6,7 @@ Use this file as the source material for App Store Connect and App Review.
 
 - App name: TV Remote Control
 - Bundle ID: `com.perry.tvremotecontrol`
-- Version: `1.0.3 (9)`
+- Version: `1.0.4 (10)`
 - Build: `1`
 - Primary category: Utilities
 - Platforms: iPhone
