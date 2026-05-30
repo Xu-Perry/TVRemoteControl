@@ -81,9 +81,7 @@ struct RemotePageView: View {
                     status: state.keyboardDraft.status,
                     characterCountText: state.keyboardDraft.characterCountText,
                     errorMessage: state.keyboardDraft.errorMessage,
-                    onSend: {
-                        Task { await viewModel.sendKeyboardDraft() }
-                    },
+                    onSend: viewModel.submitKeyboardDraft,
                     onDismiss: viewModel.closeKeyboardInput
                 )
                 .presentationDetents([.height(120)])
@@ -592,13 +590,16 @@ private struct KeyboardInputSheet: View {
                     .minimumScaleFactor(0.75)
             }
 
-            TextField("请输入文字", text: $text, axis: .vertical)
+            TextField("请输入文字", text: $text)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(RemoteDesign.text)
-                .lineLimit(1...3)
+                .lineLimit(1)
                 .focused($isTextFocused)
                 .submitLabel(.send)
-                .onSubmit(onSend)
+                .onSubmit {
+                    guard status != .sending else { return }
+                    onSend()
+                }
                 .textFieldStyle(.plain)
                 .textInputAutocapitalization(.sentences)
                 .autocorrectionDisabled(false)

@@ -36,11 +36,17 @@ public protocol TVPairing: Sendable {
 
 public struct TVRemoteClient: TVRemoteControlling, TVPairing {
     private let transport: HTTPTransport
+    private let publicKeyCache: TextFormPublicKeyCache
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
+    private let textSendMaxAttempts = 3
 
-    public init(transport: HTTPTransport = URLSessionHTTPTransport()) {
+    public init(
+        transport: HTTPTransport = URLSessionHTTPTransport(),
+        publicKeyCache: TextFormPublicKeyCache = TextFormPublicKeyCache()
+    ) {
         self.transport = transport
+        self.publicKeyCache = publicKeyCache
         self.encoder = JSONEncoder()
         self.decoder = JSONDecoder()
     }
@@ -136,18 +142,133 @@ public struct TVRemoteClient: TVRemoteControlling, TVPairing {
     public func sendText(_ text: String, device: TVDevice, credential: TVAuthCredential)
         async throws
     {
+        var lastError: RemoteControlError?
+
+        for attempt in 0..<textSendMaxAttempts {
+            do {
+                try await sendTextAttempt(text, device: device, credential: credential)
+                return
+            } catch let error as RemoteControlError {
+                lastError = error
+                guard isRetryableTextSendError(error), attempt < textSendMaxAttempts - 1 else {
+                    throw error
+                }
+                try await Task.sleep(nanoseconds: retryDelayNanoseconds(for: attempt))
+            } catch {
+                let mapped = RemoteControlError.map(error)
+                lastError = mapped
+                guard isRetryableTextSendError(mapped), attempt < textSendMaxAttempts - 1 else {
+                    throw mapped
+                }
+                try await Task.sleep(nanoseconds: retryDelayNanoseconds(for: attempt))
+            }
+        }
+
+        throw lastError ?? RemoteControlError.unreachable
+    }
+
+    private func sendTextAttempt(
+        _ text: String, device: TVDevice, credential: TVAuthCredential
+    ) async throws {
+        do {
+            try await sendEncryptedTextForm(text, device: device, credential: credential)
+        } catch let error as RemoteControlError where shouldFallbackToPlainTextForm(error) {
+            try await sendPlainTextForm(text, device: device, credential: credential)
+        }
+    }
+
+    private func sendPlainTextForm(
+        _ text: String, device: TVDevice, credential: TVAuthCredential
+    ) async throws {
         let request = try makeTextFormRequest(device: device, credential: credential, text: text)
+        try await performTextFormRequest(request)
+    }
+
+    private func sendEncryptedTextForm(
+        _ text: String, device: TVDevice, credential: TVAuthCredential
+    ) async throws {
+        let publicKeyBase64 = try await fetchTextFormPublicKey(device: device, credential: credential)
+        let encryptedPayload = try TextFormEncryption.encryptedPayload(
+            text: text,
+            publicKeyBase64: publicKeyBase64
+        )
+        let request = try makeEncryptedTextFormRequest(
+            device: device,
+            credential: credential,
+            encKey: encryptedPayload.encKey,
+            encryptedText: encryptedPayload.encryptedText
+        )
+        try await performTextFormRequest(request)
+    }
+
+    private func fetchTextFormPublicKey(
+        device: TVDevice, credential: TVAuthCredential
+    ) async throws -> String {
+        if let cachedKey = await publicKeyCache.publicKey(for: TextFormCacheKey.make(for: device)) {
+            return cachedKey
+        }
+
+        let request = try makeJSONRPCRequest(
+            device: device,
+            service: "encryption",
+            credential: credential,
+            body: JSONRPCRequest(method: "getPublicKey", params: [String](), id: 602)
+        )
+        let response = try await transport.data(for: request)
+        try validate(response)
+
+        let rpcResponse = try decoder.decode(
+            JSONRPCResponse<[PublicKeyResult]>.self, from: response.data)
+        if let error = rpcResponse.error {
+            throw mapRPCError(error)
+        }
+        guard let publicKey = rpcResponse.result?.first?.publicKey, !publicKey.isEmpty else {
+            throw RemoteControlError.invalidResponse
+        }
+        await publicKeyCache.store(publicKey, for: TextFormCacheKey.make(for: device))
+        return publicKey
+    }
+
+    private func performTextFormRequest(_ request: URLRequest) async throws {
         let response = try await transport.data(for: request)
         try validate(response)
 
         let rpcResponse = try decoder.decode(
             JSONRPCResponse<[EmptyRPCResult]>.self, from: response.data)
-        if rpcResponse.error != nil {
-            throw mapRPCError(rpcResponse.error)
+        if let error = rpcResponse.error {
+            throw mapRPCError(error)
         }
         guard rpcResponse.result != nil else {
             throw RemoteControlError.invalidResponse
         }
+    }
+
+    private func shouldFallbackToPlainTextForm(_ error: RemoteControlError) -> Bool {
+        switch error {
+        case .remoteControlUnavailable, .invalidResponse, .textEncryptionFailed:
+            true
+        case .textInputInactive, .unauthorized, .unreachable, .timeout, .requestInProgress,
+             .invalidIPAddress,
+             .missingPSK, .missingDevice, .keychainFailure, .pairingFailed, .pairingPinInvalid,
+             .pairingTimedOut, .pairingCancelled, .pairingNotSupported, .unknown:
+            false
+        }
+    }
+
+    private func isRetryableTextSendError(_ error: RemoteControlError) -> Bool {
+        switch error {
+        case .timeout, .unreachable, .requestInProgress:
+            true
+        case .invalidIPAddress, .missingPSK, .missingDevice, .unauthorized,
+             .remoteControlUnavailable, .textInputInactive, .textEncryptionFailed, .invalidResponse,
+             .keychainFailure, .pairingFailed, .pairingPinInvalid, .pairingTimedOut,
+             .pairingCancelled, .pairingNotSupported, .unknown:
+            false
+        }
+    }
+
+    private func retryDelayNanoseconds(for attempt: Int) -> UInt64 {
+        UInt64(300_000_000 * (attempt + 1))
     }
 
     // MARK: - TVPairing
@@ -298,6 +419,25 @@ extension TVRemoteClient {
             body: JSONRPCRequest(method: "setTextForm", params: [text], id: 601)
         )
     }
+
+    public func makeEncryptedTextFormRequest(
+        device: TVDevice,
+        credential: TVAuthCredential,
+        encKey: String,
+        encryptedText: String
+    ) throws -> URLRequest {
+        try makeJSONRPCRequest(
+            device: device,
+            service: "appControl",
+            credential: credential,
+            body: JSONRPCRequest(
+                method: "setTextForm",
+                params: [EncryptedTextFormParams(encKey: encKey, text: encryptedText)],
+                id: 601,
+                version: "1.1"
+            )
+        )
+    }
 }
 
 extension TVRemoteClient {
@@ -336,7 +476,11 @@ extension TVRemoteClient {
         case 401:
             return .unauthorized
         case 7:
-            return .remoteControlUnavailable
+            return .textInputInactive
+        case 40002:
+            return .textEncryptionFailed
+        case 40003:
+            return .requestInProgress
         default:
             return .invalidResponse
         }
@@ -488,6 +632,14 @@ private struct PairingInitResult: Decodable {
 
 private struct TVPairingResultEntry: Decodable {}
 private struct EmptyRPCResult: Decodable {}
+private struct PublicKeyResult: Decodable {
+    let publicKey: String
+}
+
+private struct EncryptedTextFormParams: Encodable {
+    let encKey: String
+    let text: String
+}
 
 private func makePairingRequest(device: TVDevice, body: Data) throws -> URLRequest {
     guard let url = URL(string: "http://\(device.host):\(device.port)/\(TVProtocolEndpoint.accessControlPath)") else {

@@ -133,8 +133,23 @@ struct RemotePageRestorationTests {
         await harness.viewModel.sendKeyboardDraft()
 
         #expect(harness.client.sentTexts == ["Living Room"])
-        #expect(harness.state.keyboardDraft.status == .sent)
+        #expect(!harness.state.isKeyboardInputActive)
+        #expect(harness.state.keyboardDraft.text.isEmpty)
+        #expect(harness.state.keyboardDraft.status == .empty)
         #expect(harness.state.keyboardDraft.errorMessage == nil)
+    }
+
+    @Test func keyboardDraftIgnoresConcurrentSendAttempts() async {
+        let harness = RestorationHarness()
+        await harness.connectSavedDevice()
+        harness.viewModel.updateKeyboardDraftText("TEXT")
+        harness.client.sendTextDelayNanoseconds = 200_000_000
+
+        async let firstSend: Void = harness.viewModel.sendKeyboardDraft()
+        harness.viewModel.submitKeyboardDraft()
+        await firstSend
+
+        #expect(harness.client.sentTexts == ["TEXT"])
     }
 
     @Test func keyboardDraftFailureKeepsTextAndShowsFailedState() async {

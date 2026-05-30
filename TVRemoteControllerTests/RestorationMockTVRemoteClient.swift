@@ -6,6 +6,7 @@ final class RestorationMockTVRemoteClient: TVRemoteControlling, TVPairing, @unch
     private(set) var sentTexts: [String] = []
     var sendError: RemoteControlError?
     var sendTextError: RemoteControlError?
+    var sendTextDelayNanoseconds: UInt64 = 0
 
     func testConnection(device: TVDevice, credential: TVAuthCredential) async throws {
     }
@@ -18,6 +19,9 @@ final class RestorationMockTVRemoteClient: TVRemoteControlling, TVPairing, @unch
     }
 
     func sendText(_ text: String, device: TVDevice, credential: TVAuthCredential) async throws {
+        if sendTextDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: sendTextDelayNanoseconds)
+        }
         sentTexts.append(text)
         if let sendTextError {
             throw sendTextError

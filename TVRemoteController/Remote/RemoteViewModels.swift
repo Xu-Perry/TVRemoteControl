@@ -194,7 +194,17 @@ final class RemotePageViewModel {
         state.keyboardDraft.status = state.keyboardDraft.trimmedText.isEmpty ? .empty : .editing
     }
 
+    func submitKeyboardDraft() {
+        guard state.keyboardDraft.status != .sending else { return }
+        Task { await performSendKeyboardDraft() }
+    }
+
     func sendKeyboardDraft() async {
+        guard state.keyboardDraft.status != .sending else { return }
+        await performSendKeyboardDraft()
+    }
+
+    private func performSendKeyboardDraft() async {
         let text = state.keyboardDraft.trimmedText
         guard !text.isEmpty else {
             state.keyboardDraft.status = .empty
@@ -213,8 +223,8 @@ final class RemotePageViewModel {
             state.keyboardDraft.errorMessage = nil
             let credential = try repository.readCredential(for: device)
             try await tvRemoteClient.sendText(text, device: device, credential: credential)
-            state.keyboardDraft.status = .sent
-            state.keyboardDraft.errorMessage = nil
+            closeKeyboardInput()
+            clearKeyboardDraft()
         } catch {
             state.keyboardDraft.status = .failed
             state.keyboardDraft.errorMessage = RemoteControlError.map(error).recoverySuggestion

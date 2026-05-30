@@ -8,6 +8,9 @@ public enum RemoteControlError: Error, Equatable, Sendable {
     case unreachable
     case unauthorized
     case remoteControlUnavailable
+    case textInputInactive
+    case textEncryptionFailed
+    case requestInProgress
     case invalidResponse
     case keychainFailure(String)
     case pairingFailed
@@ -31,6 +34,12 @@ public enum RemoteControlError: Error, Equatable, Sendable {
             "认证失败"
         case .remoteControlUnavailable:
             "遥控服务不可用"
+        case .textInputInactive:
+            "电视输入框未激活"
+        case .textEncryptionFailed:
+            "文字加密失败"
+        case .requestInProgress:
+            "电视正忙"
         case .invalidResponse:
             "电视响应异常"
         case .keychainFailure:
@@ -64,6 +73,12 @@ public enum RemoteControlError: Error, Equatable, Sendable {
             "请检查电视上配置的预共享密钥。"
         case .remoteControlUnavailable:
             "请在电视设置中开启 IP 控制和远程设备控制。"
+        case .textInputInactive:
+            "请先在电视上打开需要输入文字的界面，并确保电视屏幕上的输入框已获得焦点。"
+        case .textEncryptionFailed:
+            "无法加密要发送的文字，请重试。"
+        case .requestInProgress:
+            "电视仍在处理上一条文字请求，请稍后重试。"
         case .invalidResponse:
             "电视返回内容不符合预期，请重试或检查电视设置。"
         case let .keychainFailure(message):
