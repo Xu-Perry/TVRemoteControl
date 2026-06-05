@@ -1,0 +1,2649 @@
+{
+  "version": "2.13",
+  "children": [
+    {
+      "type": "frame",
+      "id": "k5T1v",
+      "x": 0,
+      "y": -200,
+      "name": "Component / Liquid Glass Remote Button",
+      "reusable": true,
+      "width": 66,
+      "height": 66,
+      "fill": "$glass-surface",
+      "cornerRadius": 24,
+      "stroke": "#FFFFFFC8",
+      "strokeWidth": 1,
+      "strokeAlignment": "inner",
+      "effect": [
+        {
+          "type": "background_blur",
+          "radius": 24
+        },
+        {
+          "type": "shadow",
+          "shadowType": "outer",
+          "color": "#24304D14",
+          "offset": {
+            "x": 0,
+            "y": 8
+          },
+          "blur": 18
+        }
+      ],
+      "layout": "vertical",
+      "gap": 3,
+      "padding": [
+        9,
+        8,
+        8,
+        8
+      ],
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "aJwQt",
+          "name": "SF Symbol Icon",
+          "width": 24,
+          "height": 24,
+          "icon": "circle",
+          "library": "lucide",
+          "fill": "#172033"
+        },
+        {
+          "type": "text",
+          "id": "QYuix",
+          "name": "Button Label",
+          "fill": "#4B5563",
+          "content": "Label",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "foGQe",
+      "x": 94,
+      "y": -200,
+      "name": "Component / Liquid Glass Pill Button",
+      "reusable": true,
+      "width": 126,
+      "height": 48,
+      "fill": "$glass-surface",
+      "cornerRadius": 999,
+      "stroke": "#FFFFFFC8",
+      "strokeWidth": 1,
+      "strokeAlignment": "inner",
+      "effect": [
+        {
+          "type": "background_blur",
+          "radius": 24
+        },
+        {
+          "type": "shadow",
+          "shadowType": "outer",
+          "color": "#24304D12",
+          "offset": {
+            "x": 0,
+            "y": 8
+          },
+          "blur": 18
+        }
+      ],
+      "gap": 8,
+      "padding": [
+        11,
+        14
+      ],
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "n6uFWV",
+          "name": "SF Symbol Icon",
+          "width": 20,
+          "height": 20,
+          "icon": "keyboard",
+          "library": "lucide",
+          "fill": "#172033"
+        },
+        {
+          "type": "text",
+          "id": "NdjtK",
+          "name": "Pill Label",
+          "fill": "#172033",
+          "content": "键盘",
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "650"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "eJJOc",
+      "x": 1100,
+      "y": 689,
+      "name": "iOS TV Remote / iPhone 15 Pro Max",
+      "clip": true,
+      "width": 430,
+      "height": 932,
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 180,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "$ios-bg-top",
+            "position": 0
+          },
+          {
+            "color": "#F4F0FF",
+            "position": 0.48
+          },
+          {
+            "color": "$ios-bg-bottom",
+            "position": 1
+          }
+        ]
+      },
+      "cornerRadius": 55,
+      "stroke": "#FFFFFF",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#1F2A441A",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 52
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "cqbaA",
+          "name": "iOS Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "uwfdS",
+              "x": 28,
+              "y": 22,
+              "name": "Status Time",
+              "fill": "#111827",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "jk4RI",
+              "x": 332,
+              "y": 22.5,
+              "name": "Status Indicators",
+              "gap": 7,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "NnZhO",
+                  "name": "SF Symbol cellularbars",
+                  "width": 17,
+                  "height": 17,
+                  "icon": "signal",
+                  "library": "lucide",
+                  "fill": "#111827"
+                },
+                {
+                  "type": "icon",
+                  "id": "y49g1",
+                  "name": "SF Symbol wifi",
+                  "width": 17,
+                  "height": 17,
+                  "icon": "wifi",
+                  "library": "lucide",
+                  "fill": "#111827"
+                },
+                {
+                  "type": "icon",
+                  "id": "N9qnH6",
+                  "name": "SF Symbol battery.100",
+                  "width": 22,
+                  "height": 14,
+                  "icon": "battery-full",
+                  "library": "lucide",
+                  "fill": "#111827"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Z7zlmW",
+              "x": 153,
+              "y": 11,
+              "name": "Dynamic Island",
+              "width": 124,
+              "height": 36,
+              "fill": "#050507",
+              "cornerRadius": 999,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#FFFFFF1A",
+                "offset": {
+                  "x": 0,
+                  "y": 1
+                },
+                "blur": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "hyH3V",
+          "name": "Native Navigation Bar",
+          "width": "fill_container",
+          "height": 58,
+          "padding": [
+            0,
+            20,
+            8,
+            20
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "n7Y8Q",
+              "name": "Navigation Leading Spacer",
+              "width": 46,
+              "height": 46
+            },
+            {
+              "type": "text",
+              "id": "IWczU",
+              "name": "Navigation Title",
+              "fill": "#111827",
+              "content": "遥控器",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "sIHrN",
+              "name": "Settings Button",
+              "width": 46,
+              "height": 46,
+              "fill": "#FFFFFF66",
+              "cornerRadius": 999,
+              "stroke": "#FFFFFFB8",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "background_blur",
+                "radius": 18
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "Uos4R",
+                  "name": "SF Symbol gearshape",
+                  "width": 20,
+                  "height": 20,
+                  "icon": "settings",
+                  "library": "lucide",
+                  "fill": "#172033"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XGkP4",
+          "name": "Remote Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 52,
+          "padding": [
+            14,
+            22,
+            26,
+            22
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "PUNGx",
+              "name": "Connected TV Banner",
+              "width": "fill_container",
+              "height": 122,
+              "fill": "$glass-surface",
+              "cornerRadius": 34,
+              "stroke": "#FFFFFFD8",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "effect": [
+                {
+                  "type": "background_blur",
+                  "radius": 28
+                },
+                {
+                  "type": "shadow",
+                  "shadowType": "outer",
+                  "color": "#24304D18",
+                  "offset": {
+                    "x": 0,
+                    "y": 16
+                  },
+                  "blur": 34
+                }
+              ],
+              "gap": 16,
+              "padding": 18,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XOy3d",
+                  "name": "TV Glyph Glass Plate",
+                  "width": 82,
+                  "height": 82,
+                  "fill": "#FFFFFF9C",
+                  "cornerRadius": 24,
+                  "stroke": "#FFFFFFE0",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#FFFFFF80",
+                    "offset": {
+                      "x": 0,
+                      "y": 1
+                    },
+                    "blur": 8
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "brvMH",
+                      "name": "SF Symbol tv",
+                      "width": 42,
+                      "height": 42,
+                      "icon": "tv",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "YiNQq",
+                  "name": "TV Connection Copy",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "iPxFE",
+                      "name": "TV Name",
+                      "fill": "#111827",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "客厅 Bravia XR",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "750"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VcNVs",
+                      "name": "Connection Status",
+                      "gap": 7,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "DmOpD",
+                          "name": "Connected Dot",
+                          "fill": "$connected-green",
+                          "width": 8,
+                          "height": 8
+                        },
+                        {
+                          "type": "text",
+                          "id": "RAMG2",
+                          "name": "Connection Label",
+                          "fill": "#376147",
+                          "content": "已连接 · Wi‑Fi Direct",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "650"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "T80WF",
+              "name": "Primary Device Keys",
+              "width": "fill_container",
+              "height": 70,
+              "gap": 12,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "ErEzT",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Power Button",
+                  "width": 82,
+                  "height": 70,
+                  "fill": "#FF3B3026",
+                  "stroke": "#FF3B3066",
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#FF3B3022",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "power",
+                      "fill": "#C81E1E"
+                    },
+                    "QYuix": {
+                      "content": "电源",
+                      "fill": "#C81E1E",
+                      "fontWeight": "750"
+                    }
+                  }
+                },
+                {
+                  "id": "EeQPe",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Home Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "house",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "主界面"
+                    }
+                  }
+                },
+                {
+                  "id": "sMPLl",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Back Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "undo-2",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "返回"
+                    }
+                  }
+                },
+                {
+                  "id": "umFbD",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Mute Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "volume-x",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "静音"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rA53j",
+              "name": "Remote Main Controls",
+              "width": "fill_container",
+              "height": 242,
+              "gap": 16,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "IMk8R",
+                  "name": "Volume Rocker",
+                  "width": 64,
+                  "height": 228,
+                  "fill": "$glass-surface",
+                  "cornerRadius": 32,
+                  "stroke": "#FFFFFFCC",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D12",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    22,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "PG5pR",
+                      "name": "SF Symbol plus",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "plus",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "s58Mg4",
+                      "name": "Volume Label Capsule",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "mNakP",
+                          "name": "SF Symbol speaker.wave.2",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "volume-2",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uiY49",
+                          "name": "Volume Label",
+                          "fill": "#6B7280",
+                          "content": "音量",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "icon",
+                      "id": "eTiM7",
+                      "name": "SF Symbol minus",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "minus",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yr8vd",
+                  "name": "Directional Pad",
+                  "width": 226,
+                  "height": 226,
+                  "fill": "#FFFFFF8C",
+                  "cornerRadius": 113,
+                  "stroke": "#FFFFFFD8",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 30
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D18",
+                      "offset": {
+                        "x": 0,
+                        "y": 18
+                      },
+                      "blur": 32
+                    }
+                  ],
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "r9ZOn",
+                      "x": 84,
+                      "y": 18,
+                      "name": "D Pad Up",
+                      "width": 58,
+                      "height": 52,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "aF8m5",
+                          "x": 18,
+                          "y": 15,
+                          "name": "SF Symbol chevron.up",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-up",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rRUxi",
+                      "x": 18,
+                      "y": 84,
+                      "name": "D Pad Left",
+                      "width": 52,
+                      "height": 58,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "VYgYc",
+                          "x": 15,
+                          "y": 18,
+                          "name": "SF Symbol chevron.left",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-left",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vVIxp",
+                      "x": 78,
+                      "y": 78,
+                      "name": "Confirm OK Button",
+                      "width": 70,
+                      "height": 70,
+                      "fill": "#172033",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFF33",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#17203330",
+                          "offset": {
+                            "x": 0,
+                            "y": 12
+                          },
+                          "blur": 20
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#FFFFFF33",
+                          "offset": {
+                            "x": 0,
+                            "y": 1
+                          },
+                          "blur": 8
+                        }
+                      ],
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cxXFV",
+                          "name": "OK Label",
+                          "fill": "#FFFFFF",
+                          "content": "OK",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "800"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b1pFM",
+                      "x": 156,
+                      "y": 84,
+                      "name": "D Pad Right",
+                      "width": 52,
+                      "height": 58,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "ZPE8z",
+                          "x": 15,
+                          "y": 18,
+                          "name": "SF Symbol chevron.right",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-right",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "d29Jg",
+                      "x": 84,
+                      "y": 156,
+                      "name": "D Pad Down",
+                      "width": 58,
+                      "height": 52,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "j4o2s",
+                          "x": 18,
+                          "y": 15,
+                          "name": "SF Symbol chevron.down",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-down",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sfvqK",
+                  "name": "Channel Rocker",
+                  "width": 64,
+                  "height": 228,
+                  "fill": "$glass-surface",
+                  "cornerRadius": 32,
+                  "stroke": "#FFFFFFCC",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D12",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    22,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Uaw4L",
+                      "name": "SF Symbol chevron.up",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "chevron-up",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UXnW2",
+                      "name": "Channel Label Capsule",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "GVwue",
+                          "name": "SF Symbol number",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "hash",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ftXUi",
+                          "name": "Channel Label",
+                          "fill": "#6B7280",
+                          "content": "频道",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "icon",
+                      "id": "LVptO",
+                      "name": "SF Symbol chevron.down",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "chevron-down",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fYgA1",
+              "name": "Input Source Keyboard More Row",
+              "width": "fill_container",
+              "height": 52,
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "EOtEF",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "Input Source Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "panel-top"
+                    },
+                    "NdjtK": {
+                      "content": "输入源"
+                    }
+                  }
+                },
+                {
+                  "id": "KeokY",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "Keyboard Input Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "keyboard"
+                    },
+                    "NdjtK": {
+                      "content": "键盘"
+                    }
+                  }
+                },
+                {
+                  "id": "OVRZE",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "More Keys Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "more-horizontal"
+                    },
+                    "NdjtK": {
+                      "content": "更多"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "CnbfJ",
+          "name": "iOS Home Indicator Area",
+          "width": "fill_container",
+          "height": 34,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "cornerRadius": 999,
+              "id": "uoPOm",
+              "name": "Home Indicator",
+              "fill": "#111827",
+              "width": 134,
+              "height": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "L4nGDB",
+      "x": 1650,
+      "y": 689,
+      "name": "iOS TV Remote / Error Banner",
+      "clip": true,
+      "width": 430,
+      "height": 932,
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 180,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "$ios-bg-top",
+            "position": 0
+          },
+          {
+            "color": "#F4F0FF",
+            "position": 0.48
+          },
+          {
+            "color": "$ios-bg-bottom",
+            "position": 1
+          }
+        ]
+      },
+      "cornerRadius": 55,
+      "stroke": "#FFFFFF",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#1F2A441A",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 52
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "WqKxi",
+          "name": "iOS Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "oOK9b",
+              "x": 28,
+              "y": 22,
+              "name": "Status Time",
+              "fill": "#111827",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "fXXcx",
+              "x": 332,
+              "y": 22.5,
+              "name": "Status Indicators",
+              "gap": 7,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "s1Hv2w",
+                  "name": "SF Symbol cellularbars",
+                  "width": 17,
+                  "height": 17,
+                  "icon": "signal",
+                  "library": "lucide",
+                  "fill": "#111827"
+                },
+                {
+                  "type": "icon",
+                  "id": "oOlMN",
+                  "name": "SF Symbol wifi",
+                  "width": 17,
+                  "height": 17,
+                  "icon": "wifi",
+                  "library": "lucide",
+                  "fill": "#111827"
+                },
+                {
+                  "type": "icon",
+                  "id": "RsKEy",
+                  "name": "SF Symbol battery.100",
+                  "width": 22,
+                  "height": 14,
+                  "icon": "battery-full",
+                  "library": "lucide",
+                  "fill": "#111827"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "B66RP",
+              "x": 153,
+              "y": 11,
+              "name": "Dynamic Island",
+              "width": 124,
+              "height": 36,
+              "fill": "#050507",
+              "cornerRadius": 999,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#FFFFFF1A",
+                "offset": {
+                  "x": 0,
+                  "y": 1
+                },
+                "blur": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "F2NXK",
+          "name": "Native Navigation Bar",
+          "width": "fill_container",
+          "height": 58,
+          "padding": [
+            0,
+            20,
+            8,
+            20
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "ZwOgM",
+              "name": "Navigation Leading Spacer",
+              "width": 46,
+              "height": 46
+            },
+            {
+              "type": "text",
+              "id": "vLEjM",
+              "name": "Navigation Title",
+              "fill": "#111827",
+              "content": "遥控器",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "Yk0s4",
+              "name": "Settings Button",
+              "width": 46,
+              "height": 46,
+              "fill": "#FFFFFF66",
+              "cornerRadius": 999,
+              "stroke": "#FFFFFFB8",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "background_blur",
+                "radius": 18
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "VC8of",
+                  "name": "SF Symbol gearshape",
+                  "width": 20,
+                  "height": 20,
+                  "icon": "settings",
+                  "library": "lucide",
+                  "fill": "#172033"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tCe5d",
+          "name": "Remote Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 52,
+          "padding": [
+            14,
+            22,
+            26,
+            22
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "u8zjOZ",
+              "name": "Error TV Banner",
+              "width": "fill_container",
+              "height": 122,
+              "fill": "#FFF1F0CC",
+              "cornerRadius": 34,
+              "stroke": "#FF3B3073",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "effect": [
+                {
+                  "type": "background_blur",
+                  "radius": 28
+                },
+                {
+                  "type": "shadow",
+                  "shadowType": "outer",
+                  "color": "#FF3B301F",
+                  "offset": {
+                    "x": 0,
+                    "y": 16
+                  },
+                  "blur": 34
+                }
+              ],
+              "gap": 16,
+              "padding": 18,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hwvct",
+                  "name": "Error Glyph Glass Plate",
+                  "width": 82,
+                  "height": 82,
+                  "fill": "#FF3B3024",
+                  "cornerRadius": 24,
+                  "stroke": "#FF3B3060",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#FFFFFF80",
+                    "offset": {
+                      "x": 0,
+                      "y": 1
+                    },
+                    "blur": 8
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "m0oVp",
+                      "name": "SF Symbol exclamationmark.triangle",
+                      "width": 42,
+                      "height": 42,
+                      "icon": "triangle-alert",
+                      "library": "lucide",
+                      "fill": "#C81E1E"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "q107Hn",
+                  "name": "TV Connection Copy",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AbjhC",
+                      "name": "TV Name",
+                      "fill": "#111827",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "客厅 Bravia XR",
+                      "lineHeight": 1.05,
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "750"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fsI2Z",
+                      "name": "Connection Status",
+                      "gap": 7,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "rc4z9",
+                          "name": "Connected Dot",
+                          "fill": "#FF3B30",
+                          "width": 8,
+                          "height": 8
+                        },
+                        {
+                          "type": "text",
+                          "id": "xBg4H",
+                          "name": "Connection Label",
+                          "fill": "#B42318",
+                          "content": "连接失败 · 电视无响应",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "650"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "P6MRg",
+                      "name": "Current Input",
+                      "fill": "#8A2D25",
+                      "content": "检查电源与 Wi‑Fi",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j609G",
+                  "name": "Retry Connection Button",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "#FFFFFFA8",
+                  "cornerRadius": 999,
+                  "stroke": "#FF3B3066",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 22
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#FF3B3018",
+                      "offset": {
+                        "x": 0,
+                        "y": 8
+                      },
+                      "blur": 18
+                    }
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "e4xXId",
+                      "name": "SF Symbol arrow.clockwise",
+                      "width": 19,
+                      "height": 19,
+                      "icon": "refresh-cw",
+                      "library": "lucide",
+                      "fill": "#C81E1E"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "f3gUv",
+              "name": "Primary Device Keys",
+              "width": "fill_container",
+              "height": 70,
+              "gap": 12,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "WyVLe",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Power Button",
+                  "width": 82,
+                  "height": 70,
+                  "fill": "#FF3B3026",
+                  "stroke": "#FF3B3066",
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#FF3B3022",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "power",
+                      "fill": "#C81E1E"
+                    },
+                    "QYuix": {
+                      "content": "电源",
+                      "fill": "#C81E1E",
+                      "fontWeight": "750"
+                    }
+                  }
+                },
+                {
+                  "id": "AfZws",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Home Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "house",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "主界面"
+                    }
+                  }
+                },
+                {
+                  "id": "X7T4SC",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Back Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "undo-2",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "返回"
+                    }
+                  }
+                },
+                {
+                  "id": "dNY5N",
+                  "type": "ref",
+                  "ref": "k5T1v",
+                  "name": "Mute Button",
+                  "width": 82,
+                  "height": 70,
+                  "descendants": {
+                    "aJwQt": {
+                      "icon": "volume-x",
+                      "fill": "#172033"
+                    },
+                    "QYuix": {
+                      "content": "静音"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "I6Odw",
+              "name": "Remote Main Controls",
+              "width": "fill_container",
+              "height": 242,
+              "gap": 16,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CjKa5",
+                  "name": "Volume Rocker",
+                  "width": 64,
+                  "height": 228,
+                  "fill": "$glass-surface",
+                  "cornerRadius": 32,
+                  "stroke": "#FFFFFFCC",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D12",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    22,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Ibu9t",
+                      "name": "SF Symbol plus",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "plus",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VcMG3",
+                      "name": "Volume Label Capsule",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "JuL36",
+                          "name": "SF Symbol speaker.wave.2",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "volume-2",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lPLvG",
+                          "name": "Volume Label",
+                          "fill": "#6B7280",
+                          "content": "音量",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "icon",
+                      "id": "A91Ayp",
+                      "name": "SF Symbol minus",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "minus",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ubF6h",
+                  "name": "Directional Pad",
+                  "width": 226,
+                  "height": 226,
+                  "fill": "#FFFFFF8C",
+                  "cornerRadius": 113,
+                  "stroke": "#FFFFFFD8",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 30
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D18",
+                      "offset": {
+                        "x": 0,
+                        "y": 18
+                      },
+                      "blur": 32
+                    }
+                  ],
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qrEBG",
+                      "x": 84,
+                      "y": 18,
+                      "name": "D Pad Up",
+                      "width": 58,
+                      "height": 52,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "P04NLo",
+                          "x": 18,
+                          "y": 15,
+                          "name": "SF Symbol chevron.up",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-up",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w8O0V",
+                      "x": 18,
+                      "y": 84,
+                      "name": "D Pad Left",
+                      "width": 52,
+                      "height": 58,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "CTEYB",
+                          "x": 15,
+                          "y": 18,
+                          "name": "SF Symbol chevron.left",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-left",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SeeDO",
+                      "x": 78,
+                      "y": 78,
+                      "name": "Confirm OK Button",
+                      "width": 70,
+                      "height": 70,
+                      "fill": "#172033",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFF33",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#17203330",
+                          "offset": {
+                            "x": 0,
+                            "y": 12
+                          },
+                          "blur": 20
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#FFFFFF33",
+                          "offset": {
+                            "x": 0,
+                            "y": 1
+                          },
+                          "blur": 8
+                        }
+                      ],
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Yhsrq",
+                          "name": "OK Label",
+                          "fill": "#FFFFFF",
+                          "content": "OK",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "800"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dx8zQ",
+                      "x": 156,
+                      "y": 84,
+                      "name": "D Pad Right",
+                      "width": 52,
+                      "height": 58,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "S6PS4a",
+                          "x": 15,
+                          "y": 18,
+                          "name": "SF Symbol chevron.right",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-right",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Nr4Mw",
+                      "x": 84,
+                      "y": 156,
+                      "name": "D Pad Down",
+                      "width": 58,
+                      "height": 52,
+                      "fill": "$glass-surface",
+                      "cornerRadius": 999,
+                      "stroke": "#FFFFFFCC",
+                      "strokeWidth": 1,
+                      "effect": [
+                        {
+                          "type": "background_blur",
+                          "radius": 22
+                        },
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#24304D10",
+                          "offset": {
+                            "x": 0,
+                            "y": 8
+                          },
+                          "blur": 16
+                        }
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "S8rAwi",
+                          "x": 18,
+                          "y": 15,
+                          "name": "SF Symbol chevron.down",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "chevron-down",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vtWcK",
+                  "name": "Channel Rocker",
+                  "width": 64,
+                  "height": 228,
+                  "fill": "$glass-surface",
+                  "cornerRadius": 32,
+                  "stroke": "#FFFFFFCC",
+                  "strokeWidth": 1,
+                  "effect": [
+                    {
+                      "type": "background_blur",
+                      "radius": 24
+                    },
+                    {
+                      "type": "shadow",
+                      "shadowType": "outer",
+                      "color": "#24304D12",
+                      "offset": {
+                        "x": 0,
+                        "y": 10
+                      },
+                      "blur": 22
+                    }
+                  ],
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": [
+                    22,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "GfHfo",
+                      "name": "SF Symbol chevron.up",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "chevron-up",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "V4Zhq0",
+                      "name": "Channel Label Capsule",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wD6uA",
+                          "name": "SF Symbol number",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "hash",
+                          "library": "lucide",
+                          "fill": "#172033"
+                        },
+                        {
+                          "type": "text",
+                          "id": "iPzQO",
+                          "name": "Channel Label",
+                          "fill": "#6B7280",
+                          "content": "频道",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "icon",
+                      "id": "OvGxe",
+                      "name": "SF Symbol chevron.down",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "chevron-down",
+                      "library": "lucide",
+                      "fill": "#172033"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kOFzu",
+              "name": "Input Source Keyboard More Row",
+              "width": "fill_container",
+              "height": 52,
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "nAhqo",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "Input Source Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "panel-top"
+                    },
+                    "NdjtK": {
+                      "content": "输入源"
+                    }
+                  }
+                },
+                {
+                  "id": "YMyGu",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "Keyboard Input Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "keyboard"
+                    },
+                    "NdjtK": {
+                      "content": "键盘"
+                    }
+                  }
+                },
+                {
+                  "id": "X9HJ8",
+                  "type": "ref",
+                  "ref": "foGQe",
+                  "name": "More Keys Button",
+                  "width": 122,
+                  "height": 52,
+                  "descendants": {
+                    "n6uFWV": {
+                      "icon": "more-horizontal"
+                    },
+                    "NdjtK": {
+                      "content": "更多"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "E0WKg",
+          "name": "iOS Home Indicator Area",
+          "width": "fill_container",
+          "height": 34,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "cornerRadius": 999,
+              "id": "tZ9Jr",
+              "name": "Home Indicator",
+              "fill": "#111827",
+              "width": 134,
+              "height": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "themes": {
+    "Mode": [
+      "Light",
+      "Dark"
+    ]
+  },
+  "variables": {
+    "--sidebar": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E7E8E5"
+        },
+        {
+          "value": "#18181b",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#18181b"
+        },
+        {
+          "value": "#18181b",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-primary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#fafafa"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-border": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#ffffff1a",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-accent": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2a2a30",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-accent-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#18181b"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-ring": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#71717a"
+        },
+        {
+          "value": "#71717a",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--background": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--card": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF"
+        },
+        {
+          "value": "#1A1A1A",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--card-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--popover": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF"
+        },
+        {
+          "value": "#1A1A1A",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--popover-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FF8400"
+        },
+        {
+          "value": "#FF8400",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--primary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--secondary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E7E8E5"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--secondary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--muted": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--muted-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#B8B9B6",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--accent": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--accent-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#F2F3F0",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--destructive": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#D93C15"
+        },
+        {
+          "value": "#FF5C33",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--border": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--input": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--ring": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#666666",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--white": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "--black": {
+      "type": "color",
+      "value": "#000000"
+    },
+    "--font-primary": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "--font-secondary": {
+      "type": "string",
+      "value": "Geist"
+    },
+    "--radius-none": {
+      "type": "number",
+      "value": 0
+    },
+    "--radius-pill": {
+      "type": "number",
+      "value": 999
+    },
+    "--color-success": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DFE6E1"
+        },
+        {
+          "value": "#222924",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-success-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#004D1A"
+        },
+        {
+          "value": "#B6FFCE",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-warning": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E9E3D8"
+        },
+        {
+          "value": "#291C0F",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-warning-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#804200"
+        },
+        {
+          "value": "#FF8400",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-error": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E5DCDA"
+        },
+        {
+          "value": "#24100B",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-error-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#8C1C00"
+        },
+        {
+          "value": "#FF5C33",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-info": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DFDFE6"
+        },
+        {
+          "value": "#222229",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-info-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#000066"
+        },
+        {
+          "value": "#B2B2FF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--radius-m": {
+      "type": "number",
+      "value": 16
+    },
+    "connected-green": {
+      "type": "color",
+      "value": "#34C759"
+    },
+    "glass-highlight": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFFF2",
+          "theme": {
+            "Mode": "Light"
+          }
+        },
+        {
+          "value": "#FFFFFF55",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "glass-surface": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFFB8",
+          "theme": {
+            "Mode": "Light"
+          }
+        },
+        {
+          "value": "#FFFFFF24",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "ios-bg-bottom": {
+      "type": "color",
+      "value": "#E9EEF8"
+    },
+    "ios-bg-top": {
+      "type": "color",
+      "value": "#F7FBFF"
+    },
+    "remote-accent": {
+      "type": "color",
+      "value": "#5E7CE2"
+    }
+  }
+}
