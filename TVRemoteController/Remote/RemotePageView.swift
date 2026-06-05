@@ -554,8 +554,10 @@ private struct VerticalControl: View {
             Button(action: topAction) {
                 Image(systemName: topSystemImage)
                     .font(.system(size: 17, weight: .semibold))
-                    .frame(maxWidth: .infinity, minHeight: height * 0.28)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
             }
+            .frame(maxWidth: .infinity, height: height * 0.36)
             .disabled(!isEnabled)
             .accessibilityLabel(topAccessibilityLabel)
 
@@ -576,8 +578,10 @@ private struct VerticalControl: View {
             Button(action: bottomAction) {
                 Image(systemName: bottomSystemImage)
                     .font(.system(size: 17, weight: .semibold))
-                    .frame(maxWidth: .infinity, minHeight: height * 0.28)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
             }
+            .frame(maxWidth: .infinity, height: height * 0.36)
             .disabled(!isEnabled)
             .accessibilityLabel(bottomAccessibilityLabel)
         }
