@@ -294,7 +294,8 @@ final class RemotePageViewModel {
             do {
                 _ = try repository.readCredential(for: device)
                 state.isAutoConnectPresented = false
-                updateStatus(.connected)
+                updateStatus(.connecting)
+                Task { await reconnect() }
             } catch {
                 updateStatus(.failed(RemoteControlError.map(error)))
                 state.isAutoConnectPresented = true
@@ -486,7 +487,40 @@ final class RemotePadViewModel {
             state.lastCommand = command
             pageState.error = nil
         } catch {
-            pageState.error = RemoteControlError.map(error)
+            let remoteError = RemoteControlError.map(error)
+            pageState.error = remoteError
+            if remoteError.invalidatesRemoteConnection {
+                pageState.status = .failed(remoteError)
+                pageState.remotePad.isEnabled = false
+                pageState.connection.subtitle = pageState.status.displayText
+            }
+        }
+    }
+}
+
+private extension RemoteControlError {
+    var invalidatesRemoteConnection: Bool {
+        switch self {
+        case .missingDevice,
+             .missingPSK,
+             .timeout,
+             .unreachable,
+             .unauthorized,
+             .remoteControlUnavailable,
+             .invalidResponse:
+            true
+        case .invalidIPAddress,
+             .textInputInactive,
+             .textEncryptionFailed,
+             .requestInProgress,
+             .keychainFailure,
+             .pairingFailed,
+             .pairingPinInvalid,
+             .pairingTimedOut,
+             .pairingCancelled,
+             .pairingNotSupported,
+             .unknown:
+            false
         }
     }
 }

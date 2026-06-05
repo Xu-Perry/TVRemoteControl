@@ -93,6 +93,8 @@ struct TVRemoteControllerTests {
         await harness.viewModel.remotePad.send(.home)
 
         #expect(harness.state.error == .timeout)
+        #expect(harness.state.status == .failed(.timeout))
+        #expect(!harness.state.remotePad.isEnabled)
         #expect(harness.state.remotePad.lastCommand == nil)
     }
 
@@ -123,17 +125,17 @@ struct TVRemoteControllerTests {
         assertRemotePageStable(stableState, state: harness.state)
     }
 
-    @Test func failedCommandSendKeepsConnectedRemotePageStable() async {
+    @Test func failedCommandSendMarksRemoteUnavailableWhenConnectionFails() async {
         let harness = Harness(client: MockTVRemoteClient(sendError: .timeout))
         await harness.connectSavedDevice()
-        let stableState = RemotePageSnapshot(state: harness.state)
 
         await harness.viewModel.remotePad.send(.home)
 
         #expect(harness.client.sentCommands == [.home])
         #expect(harness.state.error == .timeout)
+        #expect(harness.state.status == .failed(.timeout))
+        #expect(!harness.state.remotePad.isEnabled)
         #expect(!harness.state.remotePad.isSendingCommand)
-        assertRemotePageStable(stableState, state: harness.state)
     }
 
     @Test func failedCommandSendDoesNotReplaceLastSuccessfulCommand() async {
@@ -145,6 +147,7 @@ struct TVRemoteControllerTests {
 
         #expect(harness.state.remotePad.lastCommand == .up)
         #expect(harness.state.error == .timeout)
+        #expect(harness.state.status == .failed(.timeout))
     }
 
     @Test func disabledRemoteDoesNotDispatchCommand() async {
@@ -241,7 +244,7 @@ struct TVRemoteControllerTests {
         #expect(harness.state.savedDevice?.displayName == "Bedroom TV")
     }
 
-    @Test func restoresPersistedDeviceIntoUsableRemoteState() async throws {
+    @Test func restoresPersistedDeviceAfterConnectionVerification() async throws {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
         repository.stubDevice(psk: "1234")
@@ -255,19 +258,22 @@ struct TVRemoteControllerTests {
         )
 
         #expect(state.savedDevice?.displayName == "Living Room")
-        #expect(state.status == .connected)
-        #expect(state.remotePad.isEnabled)
+        #expect(state.status == .connecting)
+        #expect(!state.remotePad.isEnabled)
         #expect(state.connection.title == "Living Room")
         #expect(!state.isAutoConnectPresented)
+        try await waitUntil { state.status == .connected }
+        #expect(state.status == .connected)
+        #expect(state.remotePad.isEnabled)
     }
 
-    @Test func restoredPersistedDeviceEnablesRemoteWhenTVIsUnreachable() async throws {
+    @Test func restoredPersistedDeviceFailsVerificationWhenTVIsUnreachable() async throws {
         let state = RemotePageState()
         let repository = MockDeviceRepository()
         repository.stubDevice(psk: "1234")
         let client = MockTVRemoteClient(connectionError: .unreachable)
 
-        let viewModel = RemotePageViewModel(
+        _ = RemotePageViewModel(
             state: state,
             repository: repository,
             tvRemoteClient: client,
@@ -276,16 +282,27 @@ struct TVRemoteControllerTests {
         )
 
         #expect(state.savedDevice?.displayName == "Living Room")
-        #expect(state.status == .connected)
-        #expect(state.remotePad.isEnabled)
-        #expect(state.error == nil)
+        #expect(state.status == .connecting)
+        #expect(!state.remotePad.isEnabled)
         #expect(!state.isAutoConnectPresented)
         #expect(state.connection.title == "Living Room")
-        #expect(state.connection.subtitle == ConnectionStatus.connected.displayText)
+        try await waitUntil { state.status == .failed(.unreachable) }
 
-        await viewModel.remotePad.send(.power)
+        #expect(state.error == .unreachable)
+        #expect(!state.remotePad.isEnabled)
+        #expect(state.connection.subtitle == ConnectionStatus.failed(.unreachable).displayText)
+    }
 
-        #expect(client.sentCommands == [.power])
+    @Test func remoteCommandConnectionFailureMarksRemoteAsFailed() async throws {
+        let harness = Harness(client: MockTVRemoteClient(sendError: .unreachable))
+        await harness.connectSavedDevice()
+
+        await harness.viewModel.remotePad.send(.power)
+
+        #expect(harness.client.sentCommands == [.power])
+        #expect(harness.state.status == .failed(.unreachable))
+        #expect(harness.state.error == .unreachable)
+        #expect(!harness.state.remotePad.isEnabled)
     }
 
     @Test func homeAppearRefreshesSavedDeviceNameFromTV() async throws {
