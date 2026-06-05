@@ -21,10 +21,12 @@ struct RemotePageView: View {
                     mainRemote
                 }
             }
-            .navigationDestination(isPresented: Binding(
-                get: { state.isSettingsPresented },
-                set: { if !$0 { viewModel.closeSettings() } }
-            )) {
+            .navigationDestination(
+                isPresented: Binding(
+                    get: { state.isSettingsPresented },
+                    set: { if !$0 { viewModel.closeSettings() } }
+                )
+            ) {
                 DeviceSettingsView(
                     pageState: state,
                     settingsState: state.settings,
@@ -50,9 +52,9 @@ struct RemotePageView: View {
                         trailingInset: metrics.navigationHorizontalPadding,
                         onSettingsTap: viewModel.openSettings
                     )
-                        .frame(maxWidth: metrics.screenMaxWidth)
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, metrics.screenHorizontalPadding)
+                    .frame(maxWidth: metrics.screenMaxWidth)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, metrics.screenHorizontalPadding)
 
                     ScrollView(showsIndicators: false) {
                         mainRemoteContent(metrics: metrics)
@@ -105,7 +107,7 @@ struct RemotePageView: View {
                 viewModel.refreshDeviceNameOnHomeAppear()
             }
         }
-        .navigationTitle("遥控器")
+        .navigationTitle("设置")
         .toolbar(.hidden, for: .navigationBar)
     }
 
@@ -331,7 +333,7 @@ enum RemoteDesign {
         colors: [
             Color(red: 0.973, green: 0.988, blue: 1),
             Color(red: 0.941, green: 0.965, blue: 0.996),
-            Color(red: 0.878, green: 0.914, blue: 0.973)
+            Color(red: 0.878, green: 0.914, blue: 0.973),
         ],
         startPoint: .top,
         endPoint: .bottom
@@ -391,9 +393,9 @@ struct RemoteLayoutMetrics {
     }
 }
 
-private extension View {
+extension View {
     @ViewBuilder
-    func remoteGlassBackground<S: Shape>(
+    fileprivate func remoteGlassBackground<S: Shape>(
         _ shape: S,
         tint: Color? = nil,
         isInteractive: Bool = false
@@ -415,7 +417,7 @@ private struct RemoteNavigationBar: View {
 
     var body: some View {
         ZStack {
-            Text("遥控器")
+            Text("你的专属遥控器")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(RemoteDesign.text)
                 .lineLimit(1)
@@ -463,7 +465,10 @@ struct DeviceSummaryCard: View {
 
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(isConnected ? RemoteDesign.connectedGreen : RemoteDesign.secondaryText)
+                            .fill(
+                                isConnected
+                                    ? RemoteDesign.connectedGreen : RemoteDesign.secondaryText
+                            )
                             .frame(width: 10, height: 10)
                         Text(status)
                             .font(.system(size: 12, weight: .medium))
@@ -516,7 +521,10 @@ struct TVThumbnail: View {
         ZStack {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white.opacity(0.82))
-                .overlay { RoundedRectangle(cornerRadius: 16).stroke(RemoteDesign.glassHighlight, lineWidth: 0.8) }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16).stroke(
+                        RemoteDesign.glassHighlight, lineWidth: 0.8)
+                }
 
             Image(systemName: "tv")
                 .font(.system(size: size * 0.46, weight: .semibold))
@@ -573,7 +581,9 @@ private struct VerticalControl: View {
             .disabled(!isEnabled)
             .accessibilityLabel(bottomAccessibilityLabel)
         }
-        .foregroundStyle(isEnabled ? RemoteDesign.controlIcon : RemoteDesign.secondaryText.opacity(0.55))
+        .foregroundStyle(
+            isEnabled ? RemoteDesign.controlIcon : RemoteDesign.secondaryText.opacity(0.55)
+        )
         .frame(width: width, height: height)
         .remoteGlassBackground(Capsule(), tint: RemoteDesign.glassSurface)
         .buttonStyle(.plain)
@@ -625,8 +635,14 @@ private struct DirectionPad: View {
         } label: {
             Image(systemName: systemImage)
                 .font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(state.isEnabled ? RemoteDesign.controlIcon : RemoteDesign.secondaryText.opacity(0.55))
-                .frame(width: directionButtonWidth(for: command), height: directionButtonHeight(for: command))
+                .foregroundStyle(
+                    state.isEnabled
+                        ? RemoteDesign.controlIcon : RemoteDesign.secondaryText.opacity(0.55)
+                )
+                .frame(
+                    width: directionButtonWidth(for: command),
+                    height: directionButtonHeight(for: command)
+                )
                 .remoteGlassBackground(
                     RoundedRectangle(cornerRadius: 24, style: .continuous),
                     tint: RemoteDesign.glassSurface,
@@ -682,12 +698,16 @@ private struct RoundLabeledCommand: View {
             VStack(spacing: 3) {
                 Image(systemName: systemImage)
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(state.isEnabled ? tint : RemoteDesign.secondaryText.opacity(0.55))
+                    .foregroundStyle(
+                        state.isEnabled ? tint : RemoteDesign.secondaryText.opacity(0.55)
+                    )
                     .frame(width: 24, height: 24)
 
                 Text(title)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(state.isEnabled ? tint : RemoteDesign.secondaryText.opacity(0.55))
+                    .foregroundStyle(
+                        state.isEnabled ? tint : RemoteDesign.secondaryText.opacity(0.55)
+                    )
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
@@ -764,7 +784,9 @@ private struct ErrorBannerView: View {
                     .labelStyle(.titleAndIcon)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .remoteGlassBackground(Capsule(), tint: RemoteDesign.primaryBlue.opacity(0.12), isInteractive: true)
+                    .remoteGlassBackground(
+                        Capsule(), tint: RemoteDesign.primaryBlue.opacity(0.12), isInteractive: true
+                    )
             }
             .buttonStyle(.plain)
             .foregroundStyle(RemoteDesign.primaryBlue)
@@ -774,7 +796,10 @@ private struct ErrorBannerView: View {
         .padding(.vertical, 10)
         .frame(minHeight: 56)
         .background(Color.white.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
-        .overlay { RoundedRectangle(cornerRadius: 14).stroke(RemoteDesign.danger.opacity(0.25), lineWidth: 1) }
+        .overlay {
+            RoundedRectangle(cornerRadius: 14).stroke(
+                RemoteDesign.danger.opacity(0.25), lineWidth: 1)
+        }
     }
 }
 
@@ -800,7 +825,10 @@ private struct InputSourceSheet: View {
                     HStack(spacing: 14) {
                         Image(systemName: option.symbolName)
                             .font(.system(size: 19, weight: .semibold))
-                            .foregroundStyle(option.command == nil ? RemoteDesign.secondaryText : RemoteDesign.primaryBlue)
+                            .foregroundStyle(
+                                option.command == nil
+                                    ? RemoteDesign.secondaryText : RemoteDesign.primaryBlue
+                            )
                             .frame(width: 28)
                         Text(option.title)
                             .font(.system(size: 17, weight: .medium))
@@ -994,14 +1022,21 @@ private struct MoreKeysSheet: View {
                                 .font(.system(size: 20, weight: .semibold))
                         }
                         Text(action.title)
-                            .font(.system(size: action.symbolName == nil ? 18 : 13, weight: .medium))
+                            .font(
+                                .system(size: action.symbolName == nil ? 18 : 13, weight: .medium)
+                            )
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                    .foregroundStyle(action.isSupported ? RemoteDesign.text : RemoteDesign.secondaryText.opacity(0.6))
+                    .foregroundStyle(
+                        action.isSupported
+                            ? RemoteDesign.text : RemoteDesign.secondaryText.opacity(0.6)
+                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(RemoteDesign.surface, in: RoundedRectangle(cornerRadius: 12))
-                    .overlay { RoundedRectangle(cornerRadius: 12).stroke(RemoteDesign.border, lineWidth: 1) }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12).stroke(RemoteDesign.border, lineWidth: 1)
+                    }
                     .opacity(action.isSupported && state.remotePad.isEnabled ? 1 : 0.56)
                 }
                 .buttonStyle(.plain)
