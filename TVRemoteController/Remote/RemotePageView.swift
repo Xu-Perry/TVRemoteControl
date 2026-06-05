@@ -557,7 +557,8 @@ private struct VerticalControl: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, height: height * 0.36)
+            .frame(maxWidth: .infinity)
+            .frame(height: height * 0.36)
             .disabled(!isEnabled)
             .accessibilityLabel(topAccessibilityLabel)
 
@@ -581,7 +582,8 @@ private struct VerticalControl: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, height: height * 0.36)
+            .frame(maxWidth: .infinity)
+            .frame(height: height * 0.36)
             .disabled(!isEnabled)
             .accessibilityLabel(bottomAccessibilityLabel)
         }
